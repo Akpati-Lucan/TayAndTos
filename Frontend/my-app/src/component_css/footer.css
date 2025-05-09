@@ -1,6 +1,6 @@
 .footer {
-    background-color: #2c3e50;
-    color: white;
+    background-color: #1C1C1C;
+    color: #FFFFFF;
     padding: 2rem 0 0 0;
     margin-top: 2rem;
   }
@@ -21,7 +21,7 @@
   }
   
   .footer-section h3 {
-    color: #3498db;
+    color: #F15A29;
     margin-bottom: 1rem;
   }
   
@@ -32,23 +32,25 @@
   }
   
   .social-links a {
-    color: white;
+    color: #FFFFFF;
     text-decoration: none;
     transition: color 0.3s ease;
   }
   
   .social-links a:hover {
-    color: #3498db;
+    color: #F15A29;
   }
   
   .footer-bottom {
     text-align: center;
     padding: 1.5rem 0;
     margin-top: 2rem;
-    background-color: #1a252f;
+    background-color: #1C1C1C;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .footer-bottom p {
     margin: 0;
     font-size: 0.9rem;
+    color: #FFFFFF;
   } 
