@@ -2,6 +2,7 @@ import React from 'react';
 import Header from './components/Header';
 import Footer from './components/footer';
 import Master_Bedroom from './components/Master_Bedroom';
+import Childrens_Bedroom from './components/Childrens_Bedroom';
 import './App.css';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
         <h1>Welcome to TayAndTos</h1>
         <p>Your trusted partner in excellence</p>
         <Master_Bedroom />
+        <Childrens_Bedroom />
       </main>
       <Footer />
     </div>

@@ -50,8 +50,6 @@
     display: flex;
     gap: 15px;
     margin-top: 20px;
-    justify-content: center;
-    width: 100%;
 }
 
 .book_button, .learn_more_button {
@@ -62,7 +60,6 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 120px;
 }
 
 .book_button {
