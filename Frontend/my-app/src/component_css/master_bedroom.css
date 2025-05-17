@@ -1,0 +1,26 @@
+.master_bedroom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px;
+  }
+  
+  .master_bedroom_image {
+    width: 50%;
+  }
+  
+  .master_bedroom_image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .master_bedroom_description {
+    width: 50%;
+    padding: 20px;
+  }
+  

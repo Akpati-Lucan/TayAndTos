@@ -1,11 +1,12 @@
 import React from 'react';
-import '../component_css/header.css';
+import '../component_css/Header.css';
+import logo from '../TayAndTos_logo.png';
 
 function Header() {
   return (
     <header className="header">
       <div className="logo">
-        <h1>TayAndTos</h1>
+        <img src={logo} alt="TayAndTos Logo" className="logo-image" />
       </div>
       <nav className="nav">
         <ul>
