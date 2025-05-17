@@ -8,9 +8,14 @@ function Master_Bedroom() {
       <div className="master_bedroom_image">
         <img src={masterBedroomImage} alt="Master Bedroom" />
       </div>
+      <div className="separator"></div>
       <div className="master_bedroom_description">
         <h1>Master Bedroom</h1>
         <p>This is the master bedroom. It is a large room with a king-size bed, a dresser, and a closet.</p>
+        <div className="button-container">
+          <button className="book_button">Book Now</button>
+          <button className="learn_more_button">Learn More</button>
+        </div>
       </div>
     </div>
   );
