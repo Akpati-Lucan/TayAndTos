@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import '../component_css/outside_kitchen.css';
 import outsideKitchenImage from '../images/outside_kitchen.jpeg'; 
 
@@ -14,7 +15,9 @@ function Outside_Kitchen() {
         <p>This is the outside kitchen. It is a spacious area with modern appliances and a beautiful view.</p>
         <div className="button-container">
           <button className="book_button">Book Now</button>
-          <button className="learn_more_button">Learn More</button>
+          <Link to="/learn-more" className="learn_more_link">
+            <button className="learn_more_button">Learn More</button>
+          </Link>
         </div>
       </div>
     </div>

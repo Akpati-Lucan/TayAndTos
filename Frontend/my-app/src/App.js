@@ -1,25 +1,19 @@
 import React from 'react';
-import Header from './components/Header';
-import Footer from './components/footer';
-import Master_Bedroom from './components/Master_Bedroom';
-import Childrens_Bedroom from './components/Childrens_Bedroom';
-import Mini_Bedroom from './components/Mini_Bedroom';
-import Outside_Kitchen from './components/Outside_Kitchen';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import Home_Page from './pages/Home_Page';
+import LearnMore from './pages/Learn_More';
 import './App.css';
 
 function App() {
   return (
     <div className="app">
-      <Header />
-      <main className="main-content">
-        <h1>Welcome to TayAndTos</h1>
-        <p>Your trusted partner in excellence</p>
-        <Master_Bedroom />
-        <Childrens_Bedroom />
-        <Mini_Bedroom />
-        <Outside_Kitchen />
-      </main>
-      <Footer />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home_Page />} />
+          <Route path="/learn-more" element={<LearnMore />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

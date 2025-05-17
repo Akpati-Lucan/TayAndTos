@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import '../component_css/Childrens_Bedroom.css';
 import childrensBedroomImage from '../images/childrens_bedroom.jpeg'; 
 
@@ -14,7 +15,9 @@ function Childrens_Bedroom() {
         <p>This is the childrens bedroom. It is a large room with a king-size bed, a dresser, and a closet.</p>
         <div className="button-container">
           <button className="book_button">Book Now</button>
-          <button className="learn_more_button">Learn More</button>
+          <Link to="/learn-more" className="learn_more_link">
+            <button className="learn_more_button">Learn More</button>
+          </Link>
         </div>
       </div>
     </div>

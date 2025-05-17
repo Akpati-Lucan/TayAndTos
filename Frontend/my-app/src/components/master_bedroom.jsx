@@ -1,4 +1,6 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../component_css/Master_Bedroom.css';
 import masterBedroomImage from '../images/master_bedroom.jpeg'; 
 
@@ -14,7 +16,9 @@ function Master_Bedroom() {
         <p>This is the master bedroom. It is a large room with a king-size bed, a dresser, and a closet.</p>
         <div className="button-container">
           <button className="book_button">Book Now</button>
-          <button className="learn_more_button">Learn More</button>
+          <Link to="/learn-more" className="learn_more_link">
+            <button className="learn_more_button">Learn More</button>
+          </Link>
         </div>
       </div>
     </div>
