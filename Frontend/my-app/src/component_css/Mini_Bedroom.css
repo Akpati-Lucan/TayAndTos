@@ -1,4 +1,4 @@
-.outside_kitchen {
+.mini_bedroom {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -13,20 +13,20 @@
     min-height: 300px;
 }
 
-.outside_kitchen:hover {
+.mini_bedroom:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     border-color: #666;
 }
 
-.outside_kitchen_image {
+.mini_bedroom_image {
     width: 40%;
     padding-right: 20px;
     display: flex;
     align-items: center;
 }
 
-.outside_kitchen_image img {
+.mini_bedroom_image img {
     width: 100%;
     height: auto;
     object-fit: cover;
@@ -41,7 +41,7 @@
     align-self: stretch;
 }
 
-.outside_kitchen_description {
+.mini_bedroom_description {
     width: 50%;
     padding: 20px;
 }
@@ -50,6 +50,8 @@
     display: flex;
     gap: 15px;
     margin-top: 20px;
+    justify-content: center;
+    width: 100%;
 }
 
 .book_button, .learn_more_button {
@@ -60,6 +62,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-width: 120px;
 }
 
 .book_button {
@@ -84,13 +87,13 @@
   
 
 @media (max-width: 768px) {
-    .outside_kitchen {
+    .mini_bedroom {
       flex-direction: column;
       align-items: center;
     }
   
-    .outside_kitchen_image,
-    .outside_kitchen_description {
+    .mini_bedroom_image,
+    .mini_bedroom_description {
       width: 100%;
       padding: 10px 0;
     }

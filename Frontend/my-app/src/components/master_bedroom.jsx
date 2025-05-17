@@ -1,6 +1,6 @@
 import React from 'react';
 import '../component_css/Master_Bedroom.css';
-import masterBedroomImage from '../images/master_bedroom.jpg'; 
+import masterBedroomImage from '../images/master_bedroom.jpeg'; 
 
 function Master_Bedroom() {
   return (
