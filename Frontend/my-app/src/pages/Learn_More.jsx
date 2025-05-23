@@ -31,9 +31,7 @@ function LearnMore() {
             </section>
           ))}
         </div>
-        <div className="book_button">
-            <button>Book Your Stay Now</button>
-        </div>
+          <button className="book_button">Book Now</button>
       </div>
       <Footer />
     </div>

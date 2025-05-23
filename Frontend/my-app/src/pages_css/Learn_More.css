@@ -85,23 +85,25 @@
 }
 
 .book_button {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.book_button button {
   background-color: #F15A29;
   color: white;
   border: none;
-  padding: 1rem 2rem;
+  padding: 12px 24px;
   font-size: 1.1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  width: 200px;
+  height: 45px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 32px auto;
 }
 
-.book_button button:hover {
+.book_button:hover {
   background-color: #d44a1f;
+  transform: translateY(-2px);
 }
 
 .learn_more_images {
@@ -153,16 +155,21 @@
     grid-template-columns: 1fr;
   }
 
-  .book_button button {
-    width: 100%;
-    padding: 0.8rem 1.5rem;
-  }
-
   .learn_more_images {
     grid-template-columns: 1fr;
   }
 
   .learn_more_images img {
     height: 250px;
+  }
+
+  .book_button {
+    width: 100%;
+    max-width: 200px;
+    height: 45px;
+    font-size: 1rem;
+    padding: 10px 20px;
+    margin: 32px auto;
+    display: flex;
   }
 }

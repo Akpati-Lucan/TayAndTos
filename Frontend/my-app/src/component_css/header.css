@@ -63,7 +63,7 @@
   @media (max-width: 768px) {
     .header {
       padding: 1rem;
-      flex-direction: column;
+      flex-direction: row;
       gap: 1rem;
     }
   
