@@ -11,8 +11,8 @@ function LearnMore() {
       <div className="learn_more">
         <h1>Learn More About Our Services</h1>
         <div className="learn_more_content">
-          {learnMoreSections.map((section, index) => (
-            <section className="learn_more_section" key={index}>
+          {learnMoreSections.map((section) => (
+            <section className="learn_more_section" key={section.key}>
               <h2>{section.title}</h2>
               <p>{section.description}</p>
               <div className="learn_more_features">
@@ -23,12 +23,16 @@ function LearnMore() {
                   </div>
                 ))}
               </div>
+              <div className="learn_more_images">
+                {section.image.map((image, i) => (
+                  <img src={image.src} alt={image.alt} key={i} />
+                ))}
+              </div>
             </section>
           ))}
-
-          <div className="learn_more_cta">
+        </div>
+        <div className="learn_more_cta">
             <button>Book Your Stay Now</button>
-          </div>
         </div>
       </div>
       <Footer />

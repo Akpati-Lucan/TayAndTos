@@ -104,6 +104,25 @@
   background-color: #d44a1f;
 }
 
+.learn_more_images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.learn_more_images img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.learn_more_images img:hover {
+  transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
   .learn_more {
     padding: 1rem;
@@ -137,5 +156,13 @@
   .learn_more_cta button {
     width: 100%;
     padding: 0.8rem 1.5rem;
+  }
+
+  .learn_more_images {
+    grid-template-columns: 1fr;
+  }
+
+  .learn_more_images img {
+    height: 250px;
   }
 }
