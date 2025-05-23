@@ -1,11 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/footer';
-import Master_Bedroom from '../components/Master_Bedroom';
-import Childrens_Bedroom from '../components/Childrens_Bedroom';
-import Mini_Bedroom from '../components/Mini_Bedroom';
-import Outside_Kitchen from '../components/Outside_Kitchen';
-import '../App.css';
+import home_page_sections from '../components/home_page_data';
+import '../component_css/Home_page.css';
 
 function Home_Page() {
   return (
@@ -14,10 +12,24 @@ function Home_Page() {
       <main className="main-content">
         <h1>Welcome to TayAndTos</h1>
         <p>Your trusted partner in excellence</p>
-        <Master_Bedroom />
-        <Childrens_Bedroom />
-        <Mini_Bedroom />
-        <Outside_Kitchen />
+        <div className="home_page_components">
+        {home_page_sections.map((section) => (
+          <div className="component_container" key={section.key}>
+            <div className="component_image">
+              <img src={section.image[0].src} alt={section.image[0].alt} />
+            </div>
+            <div className="separator"></div>
+            <div className="component_description">
+              <h1>{section.title}</h1>
+              <p>{section.description}</p>
+              <div className="button-container">
+                <Link className="book_button">Book Now</Link>
+                <Link to="/learn-more" className="learn_more_button">Learn More</Link>
+              </div>
+            </div>
+          </div>
+        ))}
+        </div>
       </main>
       <Footer />
     </div>

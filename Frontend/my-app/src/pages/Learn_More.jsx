@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/footer';
 import '../pages_css/Learn_More.css';
-import learnMoreSections from '../components/learn_more_data'; // adjust path as needed
+import learnMoreSections from '../components/learn_more_data'; 
 
 function LearnMore() {
   return (
