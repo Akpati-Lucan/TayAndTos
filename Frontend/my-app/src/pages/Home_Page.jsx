@@ -23,7 +23,7 @@ function Home_Page() {
               <h1>{section.title}</h1>
               <p>{section.description}</p>
               <div className="button-container">
-                <Link className="book_button">Book Now</Link>
+                <Link to="/book-page" className="book_button">Book Now</Link>
                 <Link to="/learn-more" className="learn_more_button">Learn More</Link>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/footer';
 import '../pages_css/Learn_More.css';
@@ -31,7 +32,7 @@ function LearnMore() {
             </section>
           ))}
         </div>
-          <button className="book_button">Book Now</button>
+          <Link to="/book-page" className="book_button">Book Now</Link>
       </div>
       <Footer />
     </div>
