@@ -2,11 +2,13 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  min-height: calc(100vh - 200px);
 }
 
 .booking-header {
   text-align: center;
   margin-bottom: 3rem;
+  padding: 2rem 0;
 }
 
 .booking-header h1 {
@@ -14,13 +16,16 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  letter-spacing: -0.5px;
 }
 
 .booking-header p {
-  color: #1C1C1C;
+  color: #4A4A4A;
   font-size: 1.2rem;
-  opacity: 0.8;
+  opacity: 0.9;
   line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .booking-content {
@@ -32,10 +37,10 @@
 
 .booking-form-container {
   background: white;
-  border: 2px solid #333;
+  border: 2px solid #e0e0e0;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .booking-form {
@@ -45,7 +50,7 @@
 }
 
 .form-section {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #f0f0f0;
   padding-bottom: 2rem;
 }
 
@@ -76,7 +81,7 @@
 
 .form-group label {
   color: #1C1C1C;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }
@@ -89,7 +94,7 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: white;
+  background-color: #fafbfc;
 }
 
 .form-group input:focus,
@@ -97,6 +102,7 @@
 .form-group textarea:focus {
   outline: none;
   border-color: #F15A29;
+  background-color: white;
   box-shadow: 0 0 0 3px rgba(241, 90, 41, 0.1);
 }
 
@@ -161,7 +167,7 @@
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
@@ -179,6 +185,7 @@
 .cancel-button:hover {
   background-color: #5a6268;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
 .submit-button {
@@ -189,6 +196,7 @@
 .submit-button:hover:not(:disabled) {
   background-color: #d44a1f;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(241, 90, 41, 0.3);
 }
 
 .submit-button:disabled {
@@ -200,20 +208,20 @@
 .booking-info {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .info-card {
   background: white;
-  border: 2px solid #333;
-  border-radius: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .info-card h3 {
   color: #1C1C1C;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
@@ -227,11 +235,11 @@
 }
 
 .info-card li {
-  color: #1C1C1C;
+  color: #4A4A4A;
   padding: 0.5rem 0;
   border-bottom: 1px solid #f0f0f0;
-  position: relative;
-  padding-left: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .info-card li:last-child {
@@ -240,32 +248,41 @@
 
 .info-card li::before {
   content: "✓";
-  position: absolute;
-  left: 0;
   color: #F15A29;
   font-weight: bold;
+  margin-right: 0.5rem;
 }
 
 .success-message {
-  text-align: center;
   background: white;
-  border: 2px solid #28a745;
-  border-radius: 16px;
-  padding: 3rem 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: 0 auto;
+  border: 2px solid #38a169;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .success-message h2 {
-  color: #28a745;
-  font-size: 2rem;
+  color: #38a169;
+  font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 1rem;
 }
 
 .success-message p {
-  color: #1C1C1C;
+  color: #4A4A4A;
   font-size: 1.1rem;
   margin-bottom: 2rem;
   line-height: 1.6;
@@ -275,16 +292,19 @@
   background-color: #F15A29;
   color: white;
   padding: 12px 24px;
+  border: none;
   border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
   display: inline-block;
+  transition: all 0.3s ease;
 }
 
 .back-home-button:hover {
   background-color: #d44a1f;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(241, 90, 41, 0.3);
 }
 
 /* Responsive Design */
@@ -323,17 +343,15 @@
   
   .form-actions {
     flex-direction: column;
-    align-items: center;
   }
   
   .cancel-button,
   .submit-button {
     width: 100%;
-    max-width: 200px;
   }
   
   .success-message {
-    padding: 2rem 1rem;
+    padding: 1.5rem;
   }
   
   .success-message h2 {
@@ -359,6 +377,6 @@
   }
   
   .info-card h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 }
