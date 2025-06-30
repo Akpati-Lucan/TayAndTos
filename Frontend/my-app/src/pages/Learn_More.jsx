@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-import Footer from '../components/footer';
+import Footer from '../components/Footer';
 import '../pages_css/Learn_More.css';
 import learnMoreSections from '../components/learn_more_data'; 
 
