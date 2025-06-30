@@ -16,8 +16,8 @@ function Login_Page() {
                         
                         <form className="login-form">
                             <div className="form-group">
-                                <label htmlFor="username">Username</label>
-                                <input type="text" id="username" placeholder="Enter your username" required />
+                                <label htmlFor="email">email</label>
+                                <input type="text" id="email" placeholder="Enter your email" required />
                             </div>
                             
                             <div className="form-group">

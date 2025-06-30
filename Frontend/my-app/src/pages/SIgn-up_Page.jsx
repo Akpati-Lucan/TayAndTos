@@ -36,11 +36,6 @@ function Signup_Page() {
                             </div>
                             
                             <div className="form-group">
-                                <label htmlFor="username">Username</label>
-                                <input type="text" id="username" placeholder="Enter your username" required />
-                            </div>
-                            
-                            <div className="form-group">
                                 <label htmlFor="password">Password</label>
                                 <input type="password" id="password" placeholder="Enter your password" required />
                             </div>
