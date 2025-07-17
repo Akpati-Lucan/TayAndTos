@@ -21,7 +21,7 @@ CREATE TABLE users (
 
 -- Create bookings table
 CREATE TABLE bookings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     room VARCHAR(255) NOT NULL,
     check_in_date DATE NOT NULL,
@@ -29,5 +29,6 @@ CREATE TABLE bookings (
     number_of_guests INT NOT NULL,
     status VARCHAR(255) NOT NULL,
     special_requests TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
