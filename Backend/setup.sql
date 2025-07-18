@@ -1,12 +1,12 @@
 -- Create database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS tayandtos;
+CREATE DATABASE IF NOT EXISTS `tay-tos-db`;
 
 -- Use the database
-USE tayandtos;
+USE `tay-tos-db`;
 
--- Drop existing tables if they exist
-DROP TABLE IF EXISTS users;
+-- Drop existing tables if they exist (drop dependent tables first)
 DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS users;
 
 -- Create users table
 CREATE TABLE users (

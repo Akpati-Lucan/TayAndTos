@@ -5,7 +5,6 @@ const path = require('path');
 const { initializeDatabase, getPool } = require('./db');
 const usersRoutes = require('./routes/users');
 const bookingsRoutes = require('./routes/bookings');
-const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 8080;

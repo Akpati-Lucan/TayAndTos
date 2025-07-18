@@ -31,7 +31,7 @@ async function initializeDatabase() {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      database: 'tay-tos-db',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
@@ -43,7 +43,7 @@ async function initializeDatabase() {
     pooledConn.release();
 
   } catch (err) {
-    console.error('🚨 Database initialization failed:', err);
+    console.error(' Database initialization failed:', err);
     throw err;
   }
 }
@@ -69,7 +69,7 @@ async function createAdminUser(connection) {
     if (users.length === 0) {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       await connection.query(
-        `INSERT INTO users (email, first_name, last_name, phone_number, password, admin)
+        `INSERT INTO users (email, first_name, last_name, phone_number, password_hash, admin)
          VALUES (?, ?, ?, ?, ?, ?)`,
         [adminEmail, adminFirstName, adminLastName, adminPhone, hashedPassword, isAdmin]
       );

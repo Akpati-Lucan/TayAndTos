@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 
 // Get all bookings with user info
@@ -139,3 +140,5 @@ router.delete('/:bookingId', async (req, res) => {
       res.status(500).json({ message: 'Error updating booking', error: error.message });
     }
   });
+
+  module.exports = router;
