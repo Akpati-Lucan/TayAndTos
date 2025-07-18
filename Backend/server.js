@@ -3,9 +3,76 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const { initializeDatabase, getPool } = require('./db');
+const usersRoutes = require('./routes/users');
+const bookingsRoutes = require('./routes/bookings');
+const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+
+// Initialize database and start server
+async function startServer() {
+    try {
+        console.log('Initializing database...');
+        await initializeDatabase();
+        console.log('Database initialized successfully');
+
+        // Set up database pool in app.locals
+        app.locals.pool = getPool();
+        console.log('Database pool initialized');
+
+        // Mount routes
+        app.use('/users', usersRoutes);
+        app.use('/bookings', bookingsRoutes);
+
+        // Health check endpoint
+        app.get('/health', (req, res) => {
+            res.status(200).json({ status: 'OK' });
+        });
+
+        // Database connection test endpoint
+        app.get('/db-status', async (req, res) => {
+            try {
+                const pool = app.locals.pool;
+                const [rows] = await pool.query('SELECT 1');
+                res.status(200).json({ database: 'connected' });
+            } catch (err) {
+                res.status(500).json({ database: 'disconnected', error: err.message });
+            }
+        });
+
+        // Error handling middleware
+        app.use((err, req, res, next) => {
+            console.error('Error:', err.stack);
+            res.status(500).json({ error: 'Something went wrong!', details: err.message });
+        });
+
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
+
+// Handle graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    const pool = app.locals.pool;
+    await pool.end();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    console.log('SIGINT received. Shutting down gracefully...');
+    const pool = app.locals.pool;
+    await pool.end();
+    process.exit(0);
+});
