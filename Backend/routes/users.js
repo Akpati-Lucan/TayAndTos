@@ -135,3 +135,54 @@ router.get('/', authenticateToken, async (req, res) => {
       });
     }
   });
+
+
+// Fetch current user's profile
+router.get('/profile', authenticateToken, async (req, res) => {
+  try {
+    const [users] = await db.query(
+      `SELECT id, email, first_name, last_name, phone_number, admin 
+       FROM users WHERE id = ?`,
+      [req.user.userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(users[0]);
+  } catch (error) {
+    console.error('Profile fetch error:', error);
+    res.status(500).json({ message: 'Error fetching user profile' });
+  }
+});
+
+// Update current user's profile
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const { first_name, last_name, phone_number } = req.body;
+
+    if (!first_name || !last_name || !phone_number) {
+      return res.status(400).json({ message: 'First name, last name, and phone number are required' });
+    }
+
+    const [result] = await db.query(
+      'UPDATE users SET first_name = ?, last_name = ?, phone_number = ? WHERE id = ?',
+      [first_name, last_name, phone_number, req.user.userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const [users] = await db.query(
+      'SELECT id, email, first_name, last_name, phone_number, admin FROM users WHERE id = ?',
+      [req.user.userId]
+    );
+
+    res.json(users[0]);
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ message: 'Error updating user profile' });
+  }
+});
