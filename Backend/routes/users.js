@@ -186,3 +186,48 @@ router.put('/profile', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error updating user profile' });
   }
 });
+
+
+
+router.put('/profile/password', authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new passwords are required' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'New password must be at least 8 characters long' });
+    }
+
+    // Get current password hash
+    const [users] = await db.query(
+      'SELECT password_hash FROM users WHERE id = ?',
+      [req.user.userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Compare current password
+    const validPassword = await bcrypt.compare(currentPassword, users[0].password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    // Hash and update new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.query(
+      'UPDATE users SET password_hash = ? WHERE id = ?',
+      [hashedPassword, req.user.userId]
+    );
+
+    res.json({ message: 'Password updated successfully' });
+
+  } catch (error) {
+    console.error('Password change error:', error);
+    res.status(500).json({ message: 'Error changing password' });
+  }
+});
