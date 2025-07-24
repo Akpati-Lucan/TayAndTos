@@ -126,6 +126,12 @@ function Book_Page() {
         bookingData.last_name = formData.lastName;
         bookingData.email = formData.email;
         bookingData.phone_number = formData.phone;
+      } else {
+        // Use cached user data for logged-in users
+        bookingData.first_name = user.first_name;
+        bookingData.last_name = user.last_name;
+        bookingData.email = user.email;
+        bookingData.phone_number = user.phone_number;
       }
 
       console.log('Submitting booking:', bookingData);

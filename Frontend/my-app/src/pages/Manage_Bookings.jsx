@@ -60,9 +60,29 @@ function Manage_Bookings() {
     try {
       setUpdatingId(bookingId);
       const booking = bookings.find(b => b.booking_id === bookingId);
+      // Prepare correct payload
+      let updatePayload = {
+        room: booking.room,
+        check_in_date: booking.check_in_date,
+        check_out_date: booking.check_out_date,
+        number_of_guests: booking.number_of_guests,
+        status: newStatus,
+        special_requests: booking.special_requests
+      };
+      if (booking.user_id) {
+        updatePayload.first_name = booking.first_name;
+        updatePayload.last_name = booking.last_name;
+        updatePayload.email = booking.email;
+        updatePayload.phone_number = booking.phone_number;
+      } else {
+        updatePayload.guest_first_name = booking.guest_first_name;
+        updatePayload.guest_last_name = booking.guest_last_name;
+        updatePayload.guest_email = booking.guest_email;
+        updatePayload.guest_phone_number = booking.guest_phone_number;
+      }
       await backendService.makeAuthenticatedRequest(`/bookings/${bookingId}`, {
         method: 'PUT',
-        data: { ...booking, status: newStatus }
+        data: updatePayload
       });
       setBookings(bookings.map(b => b.booking_id === bookingId ? { ...b, status: newStatus } : b));
       setSuccess('Booking status updated');
