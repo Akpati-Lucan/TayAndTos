@@ -24,7 +24,11 @@ CREATE TABLE users (
 -- Create bookings table
 CREATE TABLE bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NULL,
+    guest_first_name VARCHAR(255),
+    guest_last_name VARCHAR(255),
+    guest_email VARCHAR(255),
+    guest_phone_number VARCHAR(255),
     room VARCHAR(255) NOT NULL,
     check_in_date DATE NOT NULL,
     check_out_date DATE NOT NULL,

@@ -25,53 +25,58 @@ router.get('/', async (req, res) => {
 
 // Create a new booking
 router.post('/', async (req, res) => {
-    try {
-      const { room, check_in_date, check_out_date, number_of_guests, status, special_requests } = req.body;
-      const userId = req.user?.userId; // From auth middleware
-  
-      console.log('Creating booking with data:', {
-        room, check_in_date, check_out_date, number_of_guests, status, special_requests, userId
-      });
-  
-      if (!room) {
-        return res.status(400).json({ message: 'Room is required' });
+  try {
+    const { room, check_in_date, check_out_date, number_of_guests, status, special_requests, first_name, last_name, email, phone_number } = req.body;
+    let userId = null;
+    let guestFirstName = null;
+    let guestLastName = null;
+    let guestEmail = null;
+    let guestPhoneNumber = null;
+
+    // If authenticated, set userId
+    if (req.user && req.user.userId) {
+      userId = req.user.userId;
+    } else {
+      // Guest booking: require guest info
+      if (!first_name || !last_name || !email || !phone_number) {
+        return res.status(400).json({ message: 'Guest first name, last name, email, and phone number are required' });
       }
-  
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-  
-      // Insert booking
-      const [result] = await db.query(
-        `INSERT INTO bookings 
-         (room, check_in_date, check_out_date, number_of_guests, status, special_requests, user_id) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [room, check_in_date, check_out_date, number_of_guests, status, special_requests, userId]
-      );
-  
-      console.log('Booking created with ID:', result.insertId);
-  
-      // Fetch and return created booking
-      const [newBooking] = await db.query(
-        `SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) AS creator_name 
-         FROM bookings b 
-         JOIN users u ON b.user_id = u.id 
-         WHERE b.booking_id = ?`,
-        [result.insertId]
-      );
-  
-      console.log('Retrieved new booking:', newBooking[0]);
-  
-      res.status(201).json(newBooking[0]);
-  
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      res.status(500).json({
-        message: 'Error creating booking',
-        error: error.message
-      });
+      guestFirstName = first_name;
+      guestLastName = last_name;
+      guestEmail = email;
+      guestPhoneNumber = phone_number;
     }
-  });
+
+    if (!room) {
+      return res.status(400).json({ message: 'Room is required' });
+    }
+
+    // Insert booking
+    const [result] = await db.query(
+      `INSERT INTO bookings 
+       (user_id, guest_first_name, guest_last_name, guest_email, guest_phone_number, room, check_in_date, check_out_date, number_of_guests, status, special_requests) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, guestFirstName, guestLastName, guestEmail, guestPhoneNumber, room, check_in_date, check_out_date, number_of_guests, status, special_requests]
+    );
+
+    console.log('Booking created with ID:', result.insertId);
+
+    // Fetch and return created booking
+    const [newBooking] = await db.query(
+      `SELECT * FROM bookings WHERE booking_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(newBooking[0]);
+
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.status(500).json({
+      message: 'Error creating booking',
+      error: error.message
+    });
+  }
+});
 
   
 // Delete a booking (admin only)
@@ -95,7 +100,7 @@ router.delete('/:bookingId', async (req, res) => {
     }
   });
 
-  router.put('/:bookingId', async (req, res) => {
+  router.put('/:bookingId', authenticateToken, async (req, res) => {
     try {
       const { room, check_in_date, check_out_date, number_of_guests, status, special_requests } = req.body;
       const userId = req.user?.userId;

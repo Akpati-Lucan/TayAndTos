@@ -11,6 +11,8 @@ import Signup_Page from './pages/Sign-up_Page';
 import Forgot_Password from './pages/Forgot_Password';
 import Reset_Password from './pages/Reset_Password';
 import Manage_Users from './pages/Manage_Users';
+import Booking_Success_Page from './pages/Booking_Success_Page';
+import Manage_Bookings from './pages/Manage_Bookings';
 import './App.css';
 
 function App() {
@@ -37,6 +39,8 @@ function App() {
           <Route path="/book-page" element={<Book_Page />} />
           <Route path="/profile-page" element={<Profile_Page />} />
           <Route path="/manage-users" element={<Manage_Users />} />
+          <Route path="/booking-success" element={<Booking_Success_Page />} />
+          <Route path="/manage-bookings" element={<Manage_Bookings />} />
         </Routes>
       </BrowserRouter>
     </div>

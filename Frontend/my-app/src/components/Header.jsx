@@ -55,7 +55,10 @@ function Header() {
               <span className="user-name">{user?.first_name}</span>
             </Link>
             {user?.admin && (
-              <Link to="/manage-users" className="nav-link">Manage Users</Link>
+              <>
+                <Link to="/manage-users" className="nav-link">Manage Users</Link>
+                <Link to="/manage-bookings" className="nav-link">Manage Bookings</Link>
+              </>
             )}
             <button onClick={handleLogout} className="nav-link logout-link">
               Logout

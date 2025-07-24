@@ -396,6 +396,30 @@ async testBackendConnection() {
   }
 }
 
+  async makeGuestBookingRequest(endpoint, data = {}) {
+    try {
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+      const url = `${BACKEND_URL}${endpoint}`;
+      const response = await axios.post(url, data, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Guest booking request failed for ${endpoint}:`, error);
+      throw new Error(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to complete guest booking request'
+      );
+    }
+  }
 }
 
 const backendService = new BackendService();
