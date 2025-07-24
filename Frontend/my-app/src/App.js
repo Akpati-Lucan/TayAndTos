@@ -8,6 +8,8 @@ import Book_Page from './pages/Book_Page';
 import Profile_Page from './pages/Profile_Page';
 import Login_Page from './pages/Login_Page';
 import Signup_Page from './pages/Sign-up_Page';
+import Forgot_Password from './pages/Forgot_Password';
+import Reset_Password from './pages/Reset_Password';
 import Manage_Users from './pages/Manage_Users';
 import './App.css';
 
@@ -28,6 +30,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login_Page />} />
           <Route path="/signup" element={<Signup_Page />} />
+          <Route path="/forgot-password" element={<Forgot_Password />} />
+          <Route path="/reset-password" element={<Reset_Password />} />
           <Route path="/" element={<Home_Page />} />
           <Route path="/learn-more" element={<LearnMore />} />
           <Route path="/book-page" element={<Book_Page />} />

@@ -249,6 +249,94 @@ router.put('/profile/password', authenticateToken, async (req, res) => {
   }
 });
 
+// Forgot password route
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Check if user exists
+    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    
+    if (users.length === 0) {
+      // Don't reveal if email exists or not for security
+      return res.json({ message: 'If an account with that email exists, password reset instructions have been sent.' });
+    }
+
+    const user = users[0];
+    
+    // Generate a simple reset token (in production, use a more secure method)
+    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+    // Store reset token in database
+    await db.query(
+      'UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?',
+      [resetToken, resetTokenExpiry, user.id]
+    );
+
+    // In a real application, you would send an email here
+    // For now, we'll just log the reset link
+    console.log(`Password reset link for ${email}: http://localhost:3000/reset-password?token=${resetToken}`);
+
+    res.json({ message: 'If an account with that email exists, password reset instructions have been sent.' });
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ message: 'Error processing password reset request' });
+  }
+});
+
+// Reset password route
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Token and new password are required' });
+    }
+
+    // Validate password strength
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+    }
+
+    if (!validator.isStrongPassword(newPassword)) {
+      return res.status(400).json({ message: 'Password must be strong (e.g., include uppercase, numbers, and symbols)' });
+    }
+
+    // Find user with valid reset token
+    const [users] = await db.query(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
+      [token]
+    );
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    const user = users[0];
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password and clear reset token
+    await db.query(
+      'UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
+      [hashedPassword, user.id]
+    );
+
+    res.json({ message: 'Password has been reset successfully' });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Error resetting password' });
+  }
+});
+
 // Get current user's bookings
 router.get('/bookings', authenticateToken, async (req, res) => {
   try {

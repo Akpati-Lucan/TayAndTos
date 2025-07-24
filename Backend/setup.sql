@@ -16,7 +16,9 @@ CREATE TABLE users (
     last_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    admin BOOLEAN DEFAULT FALSE
+    admin BOOLEAN DEFAULT FALSE,
+    reset_token VARCHAR(255) NULL,
+    reset_token_expiry TIMESTAMP NULL
 );
 
 -- Create bookings table
