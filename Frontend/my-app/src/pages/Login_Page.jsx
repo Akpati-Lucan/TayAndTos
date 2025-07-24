@@ -1,10 +1,67 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../pages_css/Login_Page.css';
 
 function Login_Page() {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        rememberMe: false
+    });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const handleInputChange = (e) => {
+        const { id, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [id]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const response = await axios.post('http://localhost:8080/users/login', {
+                email: formData.email,
+                password: formData.password
+            });
+
+            const { token, user } = response.data;
+
+            // Store token in localStorage
+            localStorage.setItem('token', token);
+            
+            // Store user data if remember me is checked
+            if (formData.rememberMe) {
+                localStorage.setItem('user', JSON.stringify(user));
+            } else {
+                sessionStorage.setItem('user', JSON.stringify(user));
+            }
+
+            setSuccess('Login successful! Redirecting...');
+            
+            // Redirect to home page after a short delay
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
+
+        } catch (err) {
+            setError(err.response?.data?.message || 'Login failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="app">
             <Header />
@@ -14,27 +71,62 @@ function Login_Page() {
                         <h2>Login</h2>
                         <p className="login_subtitle">Login to continue</p>
                         
-                        <form className="login-form">
+                        {error && (
+                            <div className="error-message">
+                                {error}
+                            </div>
+                        )}
+                        
+                        {success && (
+                            <div className="success-message">
+                                {success}
+                            </div>
+                        )}
+                        
+                        <form className="login-form" onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <label htmlFor="email">email</label>
-                                <input type="text" id="email" placeholder="Enter your email" required />
+                                <label htmlFor="email">Email</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    placeholder="Enter your email" 
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    required 
+                                />
                             </div>
                             
                             <div className="form-group">
                                 <label htmlFor="password">Password</label>
-                                <input type="password" id="password" placeholder="Enter your password" required />
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    placeholder="Enter your password" 
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    required 
+                                />
                             </div>
                             
                             <div className="form-group checkbox-group">
                                 <label className="checkbox-label">
-                                    <input type="checkbox" id="rememberMe" />
+                                    <input 
+                                        type="checkbox" 
+                                        id="rememberMe" 
+                                        checked={formData.rememberMe}
+                                        onChange={handleInputChange}
+                                    />
                                     <span className="checkmark"></span>
                                     Remember me
                                 </label>
                             </div>
                             
-                            <button type="submit" className="auth-button">
-                                Login
+                            <button 
+                                type="submit" 
+                                className={`auth-button ${loading ? 'loading' : ''}`}
+                                disabled={loading}
+                            >
+                                {loading ? 'Logging in...' : 'Login'}
                             </button>
                         </form>
                         

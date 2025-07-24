@@ -12,6 +12,7 @@ function Profile_Page() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
   
   // Form states
   const [editForm, setEditForm] = useState({
@@ -34,8 +35,24 @@ function Profile_Page() {
   
         // Get token from localStorage (assuming it's stored there after login)
         const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
+        
+        console.log('Debug - Token exists:', !!token);
+        console.log('Debug - User data exists:', !!userData);
+        
         if (!token) {
           throw new Error('No authentication token found');
+        }
+
+        // If we have user data in storage, use it immediately while fetching fresh data
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+          setEditForm({
+            first_name: parsedUser.first_name,
+            last_name: parsedUser.last_name,
+            phone_number: parsedUser.phone_number
+          });
         }
 
         const config = {
@@ -44,17 +61,44 @@ function Profile_Page() {
           }
         };
 
-        const profile_response = await axios.get('http://localhost:8080/users/profile', config);
-        const booking_response = await axios.get('http://localhost:8080/users/bookings', config);
-  
-        setUser(profile_response.data);
-        setEditForm({
-          first_name: profile_response.data.first_name,
-          last_name: profile_response.data.last_name,
-          phone_number: profile_response.data.phone_number
-        });
-        setBookings(booking_response.data);
+        // Try to fetch fresh data from API
+        try {
+          // First check if backend is running
+          try {
+            await axios.get('http://localhost:8080/health', { timeout: 3000 });
+          } catch (healthError) {
+            console.warn('Backend server might not be running:', healthError.message);
+            // If backend is down but we have stored data, continue with cached data
+            if (userData) {
+              console.warn('Using cached user data - backend server unavailable');
+              return; // Exit early, we already set the user data above
+            }
+            throw new Error('Backend server is not available. Please try again later.');
+          }
+
+          const profile_response = await axios.get('http://localhost:8080/users/profile', config);
+          const booking_response = await axios.get('http://localhost:8080/users/bookings', config);
+    
+          setUser(profile_response.data);
+          setEditForm({
+            first_name: profile_response.data.first_name,
+            last_name: profile_response.data.last_name,
+            phone_number: profile_response.data.phone_number
+          });
+          setBookings(booking_response.data);
+          setSuccess('Profile loaded successfully');
+        } catch (apiError) {
+          console.error('API Error:', apiError);
+          // If API fails but we have stored user data, don't show error
+          if (!userData) {
+            throw apiError;
+          }
+          // If we have stored data, just show a warning but don't block the page
+          console.warn('Using cached user data due to API error');
+          setSuccess('Profile loaded (using cached data)');
+        }
       } catch (err) {
+        console.error('Profile fetch error:', err);
         setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
@@ -203,6 +247,11 @@ function Profile_Page() {
             <div className="profile_header">
               <h1>My Profile</h1>
               <p>Manage your account and view your bookings</p>
+              {success && (
+                <div className="success-message">
+                  {success}
+                </div>
+              )}
             </div>
 
             <div className="profile_content">
