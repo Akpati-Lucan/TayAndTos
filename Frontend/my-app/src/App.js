@@ -8,6 +8,7 @@ import Book_Page from './pages/Book_Page';
 import Profile_Page from './pages/Profile_Page';
 import Login_Page from './pages/Login_Page';
 import Signup_Page from './pages/Sign-up_Page';
+import Manage_Users from './pages/Manage_Users';
 import './App.css';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/learn-more" element={<LearnMore />} />
           <Route path="/book-page" element={<Book_Page />} />
           <Route path="/profile-page" element={<Profile_Page />} />
+          <Route path="/manage-users" element={<Manage_Users />} />
         </Routes>
       </BrowserRouter>
     </div>

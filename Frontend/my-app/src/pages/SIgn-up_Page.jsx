@@ -4,6 +4,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../pages_css/Sign-up_Page.css';
+import showPasswordIcon from '../images/show-password.webp';
 
 function Signup_Page() {
     const navigate = useNavigate();
@@ -18,6 +19,8 @@ function Signup_Page() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -74,11 +77,11 @@ function Signup_Page() {
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
-            setSuccess('Account created successfully! Redirecting to login...');
+            setSuccess('Account created successfully! Redirecting to home...');
             
-            // Redirect to login page after a short delay
+            // Redirect to home page after a short delay
             setTimeout(() => {
-                navigate('/login');
+                navigate('/');
             }, 2000);
 
         } catch (err) {
@@ -160,26 +163,52 @@ function Signup_Page() {
                             
                             <div className="form-group">
                                 <label htmlFor="password">Password</label>
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    placeholder="Enter your password" 
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    required 
-                                />
+                                <div className="password-input-container">
+                                    <input 
+                                        type={showPassword ? "text" : "password"}
+                                        id="password" 
+                                        placeholder="Enter your password" 
+                                        value={formData.password}
+                                        onChange={handleInputChange}
+                                        required 
+                                    />
+                                    <button 
+                                        type="button"
+                                        className="password-toggle"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        <img 
+                                            src={showPasswordIcon} 
+                                            alt={showPassword ? "Hide password" : "Show password"}
+                                            className={`password-icon ${showPassword ? 'hide' : 'show'}`}
+                                        />
+                                    </button>
+                                </div>
                             </div>
                             
                             <div className="form-group">
                                 <label htmlFor="confirmPassword">Confirm Password</label>
-                                <input 
-                                    type="password" 
-                                    id="confirmPassword" 
-                                    placeholder="Confirm your password" 
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    required 
-                                />
+                                <div className="password-input-container">
+                                    <input 
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        id="confirmPassword" 
+                                        placeholder="Confirm your password" 
+                                        value={formData.confirmPassword}
+                                        onChange={handleInputChange}
+                                        required 
+                                    />
+                                    <button 
+                                        type="button"
+                                        className="password-toggle"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        <img 
+                                            src={showPasswordIcon} 
+                                            alt={showConfirmPassword ? "Hide password" : "Show password"}
+                                            className={`password-icon ${showConfirmPassword ? 'hide' : 'show'}`}
+                                        />
+                                    </button>
+                                </div>
                             </div>
                             
                             <button 

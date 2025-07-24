@@ -4,6 +4,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../pages_css/Login_Page.css';
+import showPasswordIcon from '../images/show-password.webp';
 
 function Login_Page() {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ function Login_Page() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleInputChange = (e) => {
         const { id, value, type, checked } = e.target;
@@ -98,14 +100,27 @@ function Login_Page() {
                             
                             <div className="form-group">
                                 <label htmlFor="password">Password</label>
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    placeholder="Enter your password" 
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    required 
-                                />
+                                <div className="password-input-container">
+                                    <input 
+                                        type={showPassword ? "text" : "password"}
+                                        id="password" 
+                                        placeholder="Enter your password" 
+                                        value={formData.password}
+                                        onChange={handleInputChange}
+                                        required 
+                                    />
+                                    <button 
+                                        type="button"
+                                        className="password-toggle"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        <img 
+                                            src={showPasswordIcon} 
+                                            alt={showPassword ? "Hide password" : "Show password"}
+                                            className={`password-icon ${showPassword ? 'hide' : 'show'}`}
+                                        />
+                                    </button>
+                                </div>
                             </div>
                             
                             <div className="form-group checkbox-group">

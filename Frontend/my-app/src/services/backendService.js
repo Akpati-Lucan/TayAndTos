@@ -187,6 +187,29 @@ class BackendService {
     return await this.makeAuthenticatedPut('/users/profile/password', passwordData);
   }
 
+  async deleteUser(userId) {
+    if (!userId) throw new Error('User ID is required');
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No authentication token found');
+
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    };
+
+    try {
+      if (!this.isBackendAvailable) await this.checkBackendHealth();
+      if (!this.isBackendAvailable) throw new Error('Backend server is not available');
+      const response = await axios.delete(`${BACKEND_URL}/users/${userId}`, config);
+      return response.data;
+    } catch (error) {
+      console.error(`API DELETE request failed for /users/${userId}:`, error);
+      throw error;
+    }
+  }
+
   clearCachedUserData() {
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');

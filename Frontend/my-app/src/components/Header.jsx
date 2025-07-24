@@ -54,6 +54,9 @@ function Header() {
               <img src={profileIcon} alt="Profile" className="profile-icon" />
               <span className="user-name">{user?.first_name}</span>
             </Link>
+            {user?.admin && (
+              <Link to="/manage-users" className="nav-link">Manage Users</Link>
+            )}
             <button onClick={handleLogout} className="nav-link logout-link">
               Logout
             </button>
