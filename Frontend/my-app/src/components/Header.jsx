@@ -8,7 +8,6 @@ function Header() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -30,33 +29,12 @@ function Header() {
     // Update state
     setIsLoggedIn(false);
     setUser(null);
-    setShowDropdown(false);
     
     // Redirect to home page
     navigate('/');
   };
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
 
-  const closeDropdown = () => {
-    setShowDropdown(false);
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showDropdown && !event.target.closest('.profile-dropdown')) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showDropdown]);
 
   return (
     <header className="header">
@@ -71,28 +49,14 @@ function Header() {
         <Link to="/learn-more" className="nav-link">Learn More</Link>
         
         {isLoggedIn ? (
-          <div className="profile-dropdown">
-            <button 
-              className="profile-button"
-              onClick={toggleDropdown}
-            >
+          <div className="user-nav">
+            <Link to="/profile-page" className="nav-link profile-link">
               <img src={profileIcon} alt="Profile" className="profile-icon" />
               <span className="user-name">{user?.first_name}</span>
+            </Link>
+            <button onClick={handleLogout} className="nav-link logout-link">
+              Logout
             </button>
-            
-            {showDropdown && (
-              <div className="dropdown-menu">
-                <Link to="/profile-page" className="dropdown-item" onClick={closeDropdown}>
-                  My Profile
-                </Link>
-                <Link to="/book-page" className="dropdown-item" onClick={closeDropdown}>
-                  My Bookings
-                </Link>
-                <button onClick={handleLogout} className="dropdown-item logout-button">
-                  Logout
-                </button>
-              </div>
-            )}
           </div>
         ) : (
           <div className="auth-buttons">

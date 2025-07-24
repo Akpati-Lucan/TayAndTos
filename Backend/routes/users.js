@@ -245,7 +245,7 @@ router.get('/bookings', authenticateToken, async (req, res) => {
   try {
     const [bookings] = await db.query(`
       SELECT 
-        id, room, check_in_date, check_out_date, number_of_guests, status, special_requests
+        booking_id as id, room, check_in_date, check_out_date, number_of_guests, status, special_requests
       FROM bookings 
       WHERE user_id = ? 
       ORDER BY check_in_date DESC

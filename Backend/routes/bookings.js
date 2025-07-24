@@ -8,11 +8,11 @@ router.get('/', async (req, res) => {
   try {
     const [bookings] = await db.query(`
       SELECT 
-        b.id AS booking_id, b.room, b.check_in_date, b.check_out_date, b.number_of_guests, b.status, b.special_requests,
+        b.booking_id AS id, b.room, b.check_in_date, b.check_out_date, b.number_of_guests, b.status, b.special_requests,
         u.id AS user_id, u.first_name, u.last_name, u.email, u.phone_number
       FROM bookings b
       JOIN users u ON b.user_id = u.id
-      ORDER BY b.id DESC
+      ORDER BY b.booking_id DESC
     `);
     res.json(bookings);
   } catch (error) {
@@ -56,7 +56,7 @@ router.post('/', async (req, res) => {
         `SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) AS creator_name 
          FROM bookings b 
          JOIN users u ON b.user_id = u.id 
-         WHERE b.id = ?`,
+         WHERE b.booking_id = ?`,
         [result.insertId]
       );
   
@@ -81,7 +81,7 @@ router.delete('/:bookingId', async (req, res) => {
         return res.status(403).json({ message: 'Only administrators can delete bookings' });
       }
   
-      const [result] = await db.query('DELETE FROM bookings WHERE id = ?', [req.params.bookingId]);
+      const [result] = await db.query('DELETE FROM bookings WHERE booking_id = ?', [req.params.bookingId]);
   
       if (result.affectedRows === 0) {
         return res.status(404).json({ message: 'Booking not found' });
@@ -103,7 +103,7 @@ router.delete('/:bookingId', async (req, res) => {
   
       // Get the booking owner
       const [booking] = await db.query(
-        'SELECT user_id FROM bookings WHERE id = ?',
+        'SELECT user_id FROM bookings WHERE booking_id = ?',
         [req.params.bookingId]
       );
   
@@ -120,7 +120,7 @@ router.delete('/:bookingId', async (req, res) => {
       await db.query(
         `UPDATE bookings 
          SET room = ?, check_in_date = ?, check_out_date = ?, number_of_guests = ?, status = ?, special_requests = ? 
-         WHERE id = ?`,
+         WHERE booking_id = ?`,
         [room, check_in_date, check_out_date, number_of_guests, status, special_requests, req.params.bookingId]
       );
   
@@ -129,7 +129,7 @@ router.delete('/:bookingId', async (req, res) => {
         `SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) AS creator_name 
          FROM bookings b 
          JOIN users u ON b.user_id = u.id 
-         WHERE b.id = ?`,
+         WHERE b.booking_id = ?`,
         [req.params.bookingId]
       );
   

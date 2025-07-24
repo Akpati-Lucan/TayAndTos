@@ -69,19 +69,19 @@
     margin-right: 0.3rem;
   }
 
-  /* Profile Dropdown Styles */
-  .profile-dropdown {
-    position: relative;
+  /* User Navigation Styles */
+  .user-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .profile-button {
-    background: none;
-    border: none;
-    color: #FFFFFF;
+  .profile-link {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    cursor: pointer;
+    color: #FFFFFF;
+    text-decoration: none;
     padding: 0.5rem 0.8rem;
     border-radius: 6px;
     transition: all 0.3s ease;
@@ -89,7 +89,7 @@
     font-weight: 500;
   }
 
-  .profile-button:hover {
+  .profile-link:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: #F15A29;
   }
@@ -99,47 +99,23 @@
     font-weight: 500;
   }
 
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    min-width: 180px;
-    z-index: 1001;
-    margin-top: 0.5rem;
-    overflow: hidden;
-  }
-
-  .dropdown-item {
-    display: block;
-    padding: 0.75rem 1rem;
-    color: #1C1C1C;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: none;
+  .logout-link {
     background: none;
-    width: 100%;
-    text-align: left;
+    border: none;
+    color: #FFFFFF;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
-  .dropdown-item:hover {
-    background-color: #f8fafc;
-    color: #F15A29;
-  }
-
-  .logout-button {
-    border-top: 1px solid #e1e5e9;
-    color: #dc2626;
-  }
-
-  .logout-button:hover {
-    background-color: #fef2f2;
-    color: #dc2626;
+  .logout-link:hover {
+    background-color: #dc2626;
+    color: white;
+    border-color: #dc2626;
   }
 
   /* Auth Buttons */
@@ -198,18 +174,22 @@
       font-size: 0.9rem;
     }
 
-    .profile-button {
+    .user-nav {
+      gap: 0.5rem;
+    }
+
+    .profile-link {
       padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .logout-link {
+      padding: 0.4rem 0.8rem;
       font-size: 0.9rem;
     }
 
     .user-name {
       display: none;
-    }
-
-    .dropdown-menu {
-      right: -1rem;
-      min-width: 160px;
     }
   }
 
