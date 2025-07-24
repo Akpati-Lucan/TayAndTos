@@ -6,7 +6,8 @@ import backendService from '../services/backendService';
 import '../pages_css/Profile_Page.css';
 
 function Profile_Page() {
-  const [user, setUser] = useState(null);
+  const cachedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+  const [user, setUser] = useState(cachedUser ? JSON.parse(cachedUser) : null);
   const [bookings, setBookings] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -17,7 +18,8 @@ function Profile_Page() {
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
-    phone_number: ''
+    phone_number: '',
+    email: ''
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -78,8 +80,12 @@ function Profile_Page() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const updatedUser = await backendService.updateUserProfile(editForm);
+      await backendService.updateUserProfile(editForm);
+      // Fetch the latest user profile
+      const updatedUser = await backendService.getUserProfile();
       setUser(updatedUser);
+      // Update cached user data
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       setIsEditing(false);
       setSuccess('Profile updated successfully');
     } catch (err) {
@@ -202,6 +208,10 @@ function Profile_Page() {
                       <div className="form_group">
                         <label htmlFor="phone">Phone Number</label>
                         <input type="tel" id="phone" value={editForm.phone_number} onChange={(e) => setEditForm({...editForm, phone_number: e.target.value})} required />
+                      </div>
+                      <div className="form_group">
+                        <label htmlFor="email">Email</label>
+                        <input type="email" id="email" value={editForm.email} onChange={(e) => setEditForm({...editForm, email: e.target.value})} required />
                       </div>
                     </div>
                     <div className="form_actions">
