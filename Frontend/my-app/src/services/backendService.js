@@ -277,7 +277,7 @@ class BackendService {
   async updateUserProfile(profileData) {
     try {
       const res = await this.makeAuthenticatedPut('/users/profile', profileData);
-      return res?.message || 'Profile updated successfully';
+      return res; // Return the full response (updated user object)
     } catch (error) {
       console.error('Failed to update user profile:', error);
       throw error;

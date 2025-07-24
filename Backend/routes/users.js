@@ -162,15 +162,24 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // Update current user's profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
-    const { first_name, last_name, phone_number } = req.body;
+    const { first_name, last_name, phone_number, email } = req.body;
 
-    if (!first_name || !last_name || !phone_number) {
-      return res.status(400).json({ message: 'First name, last name, and phone number are required' });
+    if (!first_name || !last_name || !phone_number || !email) {
+      return res.status(400).json({ message: 'First name, last name, phone number, and email are required' });
+    }
+
+    // Check for duplicate email (excluding current user)
+    const [existingUsers] = await db.query(
+      'SELECT * FROM users WHERE email = ? AND id != ?',
+      [email, req.user.userId]
+    );
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ message: 'Email already exists' });
     }
 
     const [result] = await db.query(
-      'UPDATE users SET first_name = ?, last_name = ?, phone_number = ? WHERE id = ?',
-      [first_name, last_name, phone_number, req.user.userId]
+      'UPDATE users SET first_name = ?, last_name = ?, phone_number = ?, email = ? WHERE id = ?',
+      [first_name, last_name, phone_number, email, req.user.userId]
     );
 
     if (result.affectedRows === 0) {
@@ -268,16 +277,22 @@ router.put('/:userId', authenticateToken, async (req, res) => {
 
     const userId = req.params.userId;
     const {
-      email = '', first_name = '', last_name = '', phone_number = '', password
+      email = '', first_name = '', last_name = '', phone_number = '', password, admin
     } = req.body;
 
     if (!email || !first_name || !last_name || !phone_number) {
       return res.status(400).json({ message: 'Email, first name, last name, and phone number are required' });
     }
 
-    // Optional: Enforce password strength if password is being updated
-    if (password && password.length < 8) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+    // Enforce password strength if password is being updated
+    if (password) {
+      if (password.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+      }
+      
+      if (!validator.isStrongPassword(password)) {
+        return res.status(400).json({ message: 'Password must be strong (e.g., include uppercase, numbers, and symbols)' });
+      }
     }
 
     // Check for duplicate email (excluding current user)
@@ -290,8 +305,8 @@ router.put('/:userId', authenticateToken, async (req, res) => {
     }
 
     // Build query
-    let updateQuery = 'UPDATE users SET email = ?, first_name = ?, last_name = ?, phone_number = ?';
-    const queryParams = [email.trim(), first_name.trim(), last_name.trim(), phone_number.trim()];
+    let updateQuery = 'UPDATE users SET email = ?, first_name = ?, last_name = ?, phone_number = ?, admin = ?';
+    const queryParams = [email.trim(), first_name.trim(), last_name.trim(), phone_number.trim(), !!admin];
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);

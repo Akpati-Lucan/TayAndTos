@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import backendService from '../services/backendService';
+import showPasswordIcon from '../images/show-password.webp';
 import '../pages_css/Profile_Page.css';
 
 function Profile_Page() {
@@ -27,6 +28,10 @@ function Profile_Page() {
     newPassword: '',
     confirmPassword: ''
   });
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
     const fetchData = async () => {
@@ -61,7 +66,8 @@ function Profile_Page() {
         setEditForm({
           first_name: userData.first_name,
           last_name: userData.last_name,
-          phone_number: userData.phone_number
+          phone_number: userData.phone_number,
+          email: userData.email
         });
         setBookings(bookingsData);
         setSuccess('Profile loaded successfully');
@@ -79,16 +85,25 @@ function Profile_Page() {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    console.log('Save button clicked, editForm data:', editForm);
     try {
-      await backendService.updateUserProfile(editForm);
-      // Fetch the latest user profile
-      const updatedUser = await backendService.getUserProfile();
+      console.log('Calling backendService.updateUserProfile...');
+      const updatedUser = await backendService.updateUserProfile(editForm);
+      console.log('Profile update successful, updated user data:', updatedUser);
       setUser(updatedUser);
       // Update cached user data
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      // Update editForm with new data
+      setEditForm({
+        first_name: updatedUser.first_name,
+        last_name: updatedUser.last_name,
+        phone_number: updatedUser.phone_number,
+        email: updatedUser.email
+      });
       setIsEditing(false);
       setSuccess('Profile updated successfully');
     } catch (err) {
+      console.error('Error in handleEditSubmit:', err);
       setError(err.message);
     }
   };
@@ -233,16 +248,73 @@ function Profile_Page() {
                     {error && <div className="error_message">{error}</div>}
                     <div className="form_group">
                       <label htmlFor="currentPassword">Current Password</label>
-                      <input type="password" id="currentPassword" value={passwordForm.currentPassword} onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})} required />
+                      <div className="password-input-container">
+                        <input 
+                          type={showCurrentPassword ? "text" : "password"}
+                          id="currentPassword" 
+                          value={passwordForm.currentPassword} 
+                          onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})} 
+                          required 
+                        />
+                        <button 
+                          type="button"
+                          className="password-toggle"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        >
+                          <img 
+                            src={showPasswordIcon} 
+                            alt={showCurrentPassword ? "Hide password" : "Show password"}
+                            className={`password-icon ${showCurrentPassword ? 'hide' : 'show'}`}
+                          />
+                        </button>
+                      </div>
                     </div>
                     <div className="form_row">
                       <div className="form_group">
                         <label htmlFor="newPassword">New Password</label>
-                        <input type="password" id="newPassword" value={passwordForm.newPassword} onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})} required />
+                        <div className="password-input-container">
+                          <input 
+                            type={showNewPassword ? "text" : "password"}
+                            id="newPassword" 
+                            value={passwordForm.newPassword} 
+                            onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})} 
+                            required 
+                          />
+                          <button 
+                            type="button"
+                            className="password-toggle"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                          >
+                            <img 
+                              src={showPasswordIcon} 
+                              alt={showNewPassword ? "Hide password" : "Show password"}
+                              className={`password-icon ${showNewPassword ? 'hide' : 'show'}`}
+                            />
+                          </button>
+                        </div>
                       </div>
                       <div className="form_group">
                         <label htmlFor="confirmPassword">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" value={passwordForm.confirmPassword} onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} required />
+                        <div className="password-input-container">
+                          <input 
+                            type={showConfirmPassword ? "text" : "password"}
+                            id="confirmPassword" 
+                            value={passwordForm.confirmPassword} 
+                            onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} 
+                            required 
+                          />
+                          <button 
+                            type="button"
+                            className="password-toggle"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            <img 
+                              src={showPasswordIcon} 
+                              alt={showConfirmPassword ? "Hide password" : "Show password"}
+                              className={`password-icon ${showConfirmPassword ? 'hide' : 'show'}`}
+                            />
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <div className="form_actions">
