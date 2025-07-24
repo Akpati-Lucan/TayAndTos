@@ -240,6 +240,24 @@ router.put('/profile/password', authenticateToken, async (req, res) => {
   }
 });
 
+// Get current user's bookings
+router.get('/bookings', authenticateToken, async (req, res) => {
+  try {
+    const [bookings] = await db.query(`
+      SELECT 
+        id, room, check_in_date, check_out_date, number_of_guests, status, special_requests
+      FROM bookings 
+      WHERE user_id = ? 
+      ORDER BY check_in_date DESC
+    `, [req.user.userId]);
+
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error fetching user bookings:', error);
+    res.status(500).json({ message: 'Error fetching bookings' });
+  }
+});
+
 
 
 router.put('/:userId', authenticateToken, async (req, res) => {
