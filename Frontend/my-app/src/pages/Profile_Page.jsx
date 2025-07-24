@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import axios from 'axios';
+import backendService from '../services/backendService';
 import '../pages_css/Profile_Page.css';
 
 function Profile_Page() {
@@ -33,73 +33,21 @@ function Profile_Page() {
         setLoading(true);
         setError(null);
   
-        // Get token from localStorage (assuming it's stored there after login)
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
+        // Get user data from backend service (with fallback to cache)
+        const userData = await backendService.getUserProfile();
+        const bookingsData = await backendService.getUserBookings();
         
-        console.log('Debug - Token exists:', !!token);
-        console.log('Debug - User data exists:', !!userData);
-        
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
-
-        // If we have user data in storage, use it immediately while fetching fresh data
-        if (userData) {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-          setEditForm({
-            first_name: parsedUser.first_name,
-            last_name: parsedUser.last_name,
-            phone_number: parsedUser.phone_number
-          });
-        }
-
-        const config = {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        };
-
-        // Try to fetch fresh data from API
-        try {
-          // First check if backend is running
-          try {
-            await axios.get('http://localhost:8080/health', { timeout: 3000 });
-          } catch (healthError) {
-            console.warn('Backend server might not be running:', healthError.message);
-            // If backend is down but we have stored data, continue with cached data
-            if (userData) {
-              console.warn('Using cached user data - backend server unavailable');
-              return; // Exit early, we already set the user data above
-            }
-            throw new Error('Backend server is not available. Please try again later.');
-          }
-
-          const profile_response = await axios.get('http://localhost:8080/users/profile', config);
-          const booking_response = await axios.get('http://localhost:8080/users/bookings', config);
-    
-          setUser(profile_response.data);
-          setEditForm({
-            first_name: profile_response.data.first_name,
-            last_name: profile_response.data.last_name,
-            phone_number: profile_response.data.phone_number
-          });
-          setBookings(booking_response.data);
-          setSuccess('Profile loaded successfully');
-        } catch (apiError) {
-          console.error('API Error:', apiError);
-          // If API fails but we have stored user data, don't show error
-          if (!userData) {
-            throw apiError;
-          }
-          // If we have stored data, just show a warning but don't block the page
-          console.warn('Using cached user data due to API error');
-          setSuccess('Profile loaded (using cached data)');
-        }
+        setUser(userData);
+        setEditForm({
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          phone_number: userData.phone_number
+        });
+        setBookings(bookingsData);
+        setSuccess('Profile loaded successfully');
       } catch (err) {
         console.error('Profile fetch error:', err);
-        setError(err.response?.data?.message || err.message);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -112,22 +60,12 @@ function Profile_Page() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      };
-
-      const response = await axios.put('http://localhost:8080/users/profile', editForm, config);
-      setUser(response.data);
+      const updatedUser = await backendService.updateUserProfile(editForm);
+      setUser(updatedUser);
       setIsEditing(false);
+      setSuccess('Profile updated successfully');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+      setError(err.message);
     }
   };
 
@@ -138,21 +76,10 @@ function Profile_Page() {
       return;
     }
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      };
-
-      await axios.put('http://localhost:8080/users/profile/password', {
+      await backendService.updateUserPassword({
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword
-      }, config);
+      });
       setPasswordForm({
         currentPassword: '',
         newPassword: '',
@@ -160,8 +87,9 @@ function Profile_Page() {
       });
       setIsChangingPassword(false);
       setError(null);
+      setSuccess('Password updated successfully');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update password');
+      setError(err.message);
     }
   };
 

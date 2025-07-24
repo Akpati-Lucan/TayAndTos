@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import backendService from './services/backendService';
 
 import Home_Page from './pages/Home_Page';
 import LearnMore from './pages/Learn_More';
@@ -10,6 +11,16 @@ import Signup_Page from './pages/Sign-up_Page';
 import './App.css';
 
 function App() {
+  useEffect(() => {
+    // Initialize backend service when app starts
+    backendService.startHealthChecks();
+    
+    // Cleanup on app unmount
+    return () => {
+      backendService.stopHealthChecks();
+    };
+  }, []);
+
   return (
     <div className="app">
       <BrowserRouter>
