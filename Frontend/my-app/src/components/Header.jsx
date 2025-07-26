@@ -46,6 +46,7 @@ function Header() {
       <nav className="nav">
         <Link to="/" className="nav-link">Home</Link>
         <Link to="/book-page" className="nav-link">Book Now</Link>
+        <Link to="/find-booking" className="nav-link">Find Booking</Link>
         <Link to="/learn-more" className="nav-link">Learn More</Link>
         
         {isLoggedIn ? (

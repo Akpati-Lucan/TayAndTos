@@ -12,6 +12,20 @@ function Home_Page() {
       <main className="main-content">
         <h1>Welcome to TayAndTos</h1>
         <p>Your trusted partner in excellence</p>
+        
+        <div className="quick_actions">
+          <div className="action_card">
+            <h2>Book Your Stay</h2>
+            <p>Reserve your perfect room for an unforgettable experience</p>
+            <Link to="/book-page" className="action_button primary">Book Now</Link>
+          </div>
+          <div className="action_card">
+            <h2>Find Your Booking</h2>
+            <p>Manage your existing reservations with confirmation code</p>
+            <Link to="/find-booking" className="action_button secondary">Find Booking</Link>
+          </div>
+        </div>
+        
         <div className="home_page_components">
         {home_page_sections.map((section) => (
           <div className="component_container" key={section.key}>

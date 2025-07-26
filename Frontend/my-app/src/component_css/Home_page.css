@@ -31,6 +31,78 @@
     line-height: 1.6;
   }
   
+  .quick_actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 0 1rem;
+  }
+  
+  .action_card {
+    background: white;
+    border: 2px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .action_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+  }
+  
+  .action_card h2 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .action_card p {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  
+  .action_button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+  
+  .action_button.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  
+  .action_button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+  
+  .action_button.secondary {
+    background: white;
+    color: #667eea;
+    border-color: #667eea;
+  }
+  
+  .action_button.secondary:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+  
 .home_page_components {
     display: flex;
     flex-direction: column;
@@ -145,6 +217,25 @@
       
     .main-content p {
         font-size: 1.1rem;
+    }
+    
+    .quick_actions {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+        padding: 0 0.5rem;
+    }
+    
+    .action_card {
+        padding: 1.5rem;
+    }
+    
+    .action_card h2 {
+        font-size: 1.3rem;
+    }
+    
+    .action_card p {
+        font-size: 0.95rem;
     }
     
     .component_container {

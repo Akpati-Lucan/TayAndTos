@@ -437,6 +437,65 @@ async testBackendConnection() {
       );
     }
   }
+
+  // Find booking by confirmation code and email
+  async findBookingByConfirmation(confirmationCode, email) {
+    try {
+      console.log('BackendService: Finding booking by confirmation code...');
+      const response = await axios.post(`${BACKEND_URL}/bookings/find`, {
+        confirmation_code: confirmationCode,
+        email: email
+      });
+      console.log('BackendService: Booking found:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error finding booking:', error);
+      throw new Error(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to find booking'
+      );
+    }
+  }
+
+  // Update booking by confirmation code
+  async updateBookingByConfirmation(confirmationCode, bookingData) {
+    try {
+      console.log('BackendService: Updating booking by confirmation code...');
+      const response = await axios.put(`${BACKEND_URL}/bookings/update-by-confirmation`, {
+        confirmation_code: confirmationCode,
+        ...bookingData
+      });
+      console.log('BackendService: Booking updated:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error updating booking:', error);
+      throw new Error(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to update booking'
+      );
+    }
+  }
+
+  // Cancel booking by confirmation code
+  async cancelBookingByConfirmation(confirmationCode) {
+    try {
+      console.log('BackendService: Cancelling booking by confirmation code...');
+      const response = await axios.delete(`${BACKEND_URL}/bookings/cancel-by-confirmation`, {
+        data: { confirmation_code: confirmationCode }
+      });
+      console.log('BackendService: Booking cancelled:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error cancelling booking:', error);
+      throw new Error(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to cancel booking'
+      );
+    }
+  }
 }
 
 const backendService = new BackendService();
