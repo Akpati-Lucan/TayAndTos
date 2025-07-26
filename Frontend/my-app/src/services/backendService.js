@@ -239,7 +239,24 @@ class BackendService {
   }
   
   async getUserBookings() {
-    return await this.makeAuthenticatedRequest('/users/bookings');
+    try {
+      console.log('BackendService: Fetching user bookings...');
+      // Try the new endpoint first
+      try {
+        const bookings = await this.makeAuthenticatedRequest('/bookings/my-bookings');
+        console.log('BackendService: User bookings received from new endpoint:', bookings);
+        return bookings;
+      } catch (newEndpointError) {
+        console.log('BackendService: New endpoint failed, trying old endpoint...');
+        // Fallback to the old endpoint
+        const bookings = await this.makeAuthenticatedRequest('/users/bookings');
+        console.log('BackendService: User bookings received from old endpoint:', bookings);
+        return bookings;
+      }
+    } catch (error) {
+      console.error('BackendService: Error fetching user bookings:', error);
+      throw error;
+    }
   }
 
   getCachedUserData() {

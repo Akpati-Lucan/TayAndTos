@@ -57,10 +57,23 @@ function Profile_Page() {
         console.log('Profile page: Fetching user profile...');
         const userData = await backendService.getUserProfile();
         console.log('Profile page: User data received:', userData);
+        console.log('Profile page: User ID:', userData.id);
         
         console.log('Profile page: Fetching bookings...');
-        const bookingsData = await backendService.getUserBookings();
-        console.log('Profile page: Bookings data received:', bookingsData);
+        try {
+          const bookingsData = await backendService.getUserBookings();
+          console.log('Profile page: Bookings data received:', bookingsData);
+          
+          // Ensure bookingsData is an array
+          const bookingsArray = Array.isArray(bookingsData) ? bookingsData : [];
+          console.log('Profile page: Processed bookings array:', bookingsArray);
+          
+          setBookings(bookingsArray);
+        } catch (bookingError) {
+          console.error('Profile page: Error fetching bookings:', bookingError);
+          setError(`Failed to load bookings: ${bookingError.message}`);
+          setBookings([]);
+        }
         
         setUser(userData);
         setEditForm({
@@ -69,7 +82,6 @@ function Profile_Page() {
           phone_number: userData.phone_number,
           email: userData.email
         });
-        setBookings(bookingsData);
         setSuccess('Profile loaded successfully');
         console.log('Profile page: Data loaded successfully');
       } catch (err) {
