@@ -52,7 +52,7 @@
   .action_card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: #667eea;
+    border-color: #F15A29;
   }
   
   .action_card h2 {
@@ -81,26 +81,26 @@
   }
   
   .action_button.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #F15A29 0%, #d44a1f 100%);
     color: white;
   }
   
   .action_button.primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(241, 90, 41, 0.3);
   }
   
   .action_button.secondary {
     background: white;
-    color: #667eea;
-    border-color: #667eea;
+    color: #F15A29;
+    border-color: #F15A29;
   }
   
   .action_button.secondary:hover {
-    background: #667eea;
+    background: #F15A29;
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(241, 90, 41, 0.3);
   }
   
 .home_page_components {
