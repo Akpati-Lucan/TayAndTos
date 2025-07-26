@@ -47,6 +47,29 @@ async function startServer() {
             }
         });
 
+        // Debug endpoint to list all routes
+        app.get('/debug/routes', (req, res) => {
+            const routes = [];
+            app._router.stack.forEach(middleware => {
+                if (middleware.route) {
+                    routes.push({
+                        path: middleware.route.path,
+                        methods: Object.keys(middleware.route.methods)
+                    });
+                } else if (middleware.name === 'router') {
+                    middleware.handle.stack.forEach(handler => {
+                        if (handler.route) {
+                            routes.push({
+                                path: '/bookings' + handler.route.path,
+                                methods: Object.keys(handler.route.methods)
+                            });
+                        }
+                    });
+                }
+            });
+            res.json({ routes });
+        });
+
         // Error handling middleware
         app.use((err, req, res, next) => {
             console.error('Error:', err.stack);

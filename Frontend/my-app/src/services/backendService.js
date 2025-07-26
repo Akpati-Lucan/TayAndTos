@@ -259,6 +259,18 @@ class BackendService {
     }
   }
 
+  cacheUserData(userData) {
+    try {
+      console.log('Caching user data:', userData);
+      const userDataString = JSON.stringify(userData);
+      localStorage.setItem('user', userDataString);
+      sessionStorage.setItem('user', userDataString);
+      console.log('User data cached successfully');
+    } catch (error) {
+      console.error('Error caching user data:', error);
+    }
+  }
+
   getCachedUserData() {
     let userData = localStorage.getItem('user');
     let source = 'localStorage';
@@ -378,8 +390,12 @@ class BackendService {
   }
   
   clearCachedUserData() {
+    console.log('Clearing cached user data and tokens');
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    console.log('Cached data cleared successfully');
   }
 
   // Test backend connectivity

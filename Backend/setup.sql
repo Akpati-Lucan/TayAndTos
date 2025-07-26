@@ -7,6 +7,7 @@ USE `tay-tos-db`;
 -- Drop existing tables if they exist (drop dependent tables first)
 DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS guest_bookings;
 
 -- Create users table
 CREATE TABLE users (

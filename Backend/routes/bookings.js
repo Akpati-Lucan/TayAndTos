@@ -34,6 +34,51 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Debug endpoint to check users in database
+router.get('/debug/users', async (req, res) => {
+  try {
+    const [users] = await db.query('SELECT id, email, first_name, last_name FROM users ORDER BY id');
+    res.json({
+      totalUsers: users.length,
+      users: users
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Debug endpoint to check room availability
+router.get('/debug/room-availability/:room', async (req, res) => {
+  try {
+    const { room } = req.params;
+    const { check_in, check_out } = req.query;
+    
+    console.log(`Checking availability for room: ${room}, check_in: ${check_in}, check_out: ${check_out}`);
+    
+    // Get all bookings for this room
+    const [userBookings] = await db.query(
+      `SELECT * FROM bookings WHERE room = ? ORDER BY check_in_date`,
+      [room]
+    );
+    
+    const [guestBookings] = await db.query(
+      `SELECT * FROM guest_bookings WHERE room = ? ORDER BY check_in_date`,
+      [room]
+    );
+    
+    res.json({
+      room,
+      userBookings,
+      guestBookings,
+      totalBookings: userBookings.length + guestBookings.length
+    });
+  } catch (error) {
+    console.error('Error checking room availability:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get current user's bookings (authenticated users only)
 router.get('/my-bookings', authenticateToken, async (req, res) => {
   try {
@@ -72,11 +117,25 @@ router.get('/my-bookings', authenticateToken, async (req, res) => {
 
 
 // Create a new user booking
-router.post('/bookings', async (req, res) => {
+router.post('/', async (req, res) => {
+  console.log('User booking request received:', req.body);
   try {
     const {
       user_id, room, check_in_date, check_out_date, number_of_guests, status = 'pending', special_requests = ''
     } = req.body;
+
+    // Validate that the user exists
+    if (user_id) {
+      const [users] = await db.query('SELECT id, email FROM users WHERE id = ?', [user_id]);
+      if (users.length === 0) {
+        console.log('User not found in database:', user_id);
+        return res.status(400).json({ 
+          message: 'Invalid user ID. User not found in database.',
+          user_id: user_id
+        });
+      }
+      console.log('User found:', users[0]);
+    }
 
     if (!user_id || !room || !check_in_date || !check_out_date || !number_of_guests) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -86,12 +145,30 @@ router.post('/bookings', async (req, res) => {
       return res.status(400).json({ message: 'Check-out date must be after check-in date' });
     }
 
-    const [conflicts] = await db.query(
+    // Check for conflicts in both bookings and guest_bookings tables
+    const [userConflicts] = await db.query(
       `SELECT * FROM bookings 
        WHERE room = ? AND status != 'cancelled'
-       AND (check_in_date < ? AND check_out_date > ?)`,
-      [room, check_out_date, check_in_date]
+       AND (
+         (check_in_date <= ? AND check_out_date > ?) OR
+         (check_in_date < ? AND check_out_date >= ?) OR
+         (check_in_date >= ? AND check_out_date <= ?)
+       )`,
+      [room, check_out_date, check_in_date, check_out_date, check_in_date, check_in_date, check_out_date]
     );
+
+    const [guestConflicts] = await db.query(
+      `SELECT * FROM guest_bookings 
+       WHERE room = ? AND status != 'cancelled'
+       AND (
+         (check_in_date <= ? AND check_out_date > ?) OR
+         (check_in_date < ? AND check_out_date >= ?) OR
+         (check_in_date >= ? AND check_out_date <= ?)
+       )`,
+      [room, check_out_date, check_in_date, check_out_date, check_in_date, check_in_date, check_out_date]
+    );
+
+    const conflicts = [...userConflicts, ...guestConflicts];
 
     if (conflicts.length > 0) {
       return res.status(409).json({ message: 'Room is already booked for the selected dates' });
@@ -127,6 +204,7 @@ router.post('/bookings', async (req, res) => {
 
 // Create a new guest booking
 router.post('/guest_bookings', async (req, res) => {
+  console.log('Guest booking request received:', req.body);
   try {
     const {
       guest_first_name, guest_last_name, guest_email, guest_phone_number, room, 
@@ -142,13 +220,30 @@ router.post('/guest_bookings', async (req, res) => {
       return res.status(400).json({ message: 'Check-out date must be after check-in date' });
     }
 
-    // Prevent double bookings
-    const [conflicts] = await db.query(
-      `SELECT * FROM guest_bookings 
-       WHERE room = ? 
-       AND (check_in_date < ? AND check_out_date > ?)`,
-      [room, check_out_date, check_in_date]
+    // Check for conflicts in both bookings and guest_bookings tables
+    const [userConflicts] = await db.query(
+      `SELECT * FROM bookings 
+       WHERE room = ? AND status != 'cancelled'
+       AND (
+         (check_in_date <= ? AND check_out_date > ?) OR
+         (check_in_date < ? AND check_out_date >= ?) OR
+         (check_in_date >= ? AND check_out_date <= ?)
+       )`,
+      [room, check_out_date, check_in_date, check_out_date, check_in_date, check_in_date, check_out_date]
     );
+
+    const [guestConflicts] = await db.query(
+      `SELECT * FROM guest_bookings 
+       WHERE room = ? AND status != 'cancelled'
+       AND (
+         (check_in_date <= ? AND check_out_date > ?) OR
+         (check_in_date < ? AND check_out_date >= ?) OR
+         (check_in_date >= ? AND check_out_date <= ?)
+       )`,
+      [room, check_out_date, check_in_date, check_out_date, check_in_date, check_in_date, check_out_date]
+    );
+
+    const conflicts = [...userConflicts, ...guestConflicts];
 
     if (conflicts.length > 0) {
       return res.status(409).json({ message: 'Room is already booked for the selected dates' });

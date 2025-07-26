@@ -120,51 +120,144 @@ function Book_Page() {
         status: 'pending',
         special_requests: formData.specialRequests || null
       };
-      // If not logged in, add guest info
-      if (!user) {
-        bookingData.first_name = formData.firstName;
-        bookingData.last_name = formData.lastName;
-        bookingData.email = formData.email;
-        bookingData.phone_number = formData.phone;
+      
+      if (user) {
+        // Add user_id for authenticated users
+        bookingData.user_id = user.id;
       } else {
-        // Use cached user data for logged-in users
-        bookingData.first_name = user.first_name;
-        bookingData.last_name = user.last_name;
-        bookingData.email = user.email;
-        bookingData.phone_number = user.phone_number;
+        // Add guest info for non-authenticated users
+        bookingData.guest_first_name = formData.firstName;
+        bookingData.guest_last_name = formData.lastName;
+        bookingData.guest_email = formData.email;
+        bookingData.guest_phone_number = formData.phone;
       }
 
-      console.log('Submitting booking:', bookingData);
-
+            console.log('Submitting booking:', bookingData);
+      console.log('User authenticated:', !!user);
+      console.log('User data:', user);
+      console.log('User ID being sent:', user?.id);
+      console.log('Room type:', formData.roomType);
+      console.log('Check-in date:', formData.checkIn);
+      console.log('Check-out date:', formData.checkOut);
+      
+      let bookingResponse;
       if (user) {
-        await backendService.makeAuthenticatedRequest('/bookings', {
+        bookingResponse = await backendService.makeAuthenticatedRequest('/bookings', {
           method: 'POST',
           data: bookingData
         });
       } else {
-        // For guests, use a regular POST request
-        await backendService.makeGuestBookingRequest('/bookings', bookingData);
+        // For guests, use the guest booking endpoint
+        bookingResponse = await backendService.makeGuestBookingRequest('/bookings/guest_bookings', bookingData);
       }
 
-      // Redirect to booking success page
+      // Redirect to booking success page with confirmation code
       navigate('/booking-success', {
         state: {
-          message: 'Your booking has been successfully created. You will receive a confirmation email shortly.'
+          message: 'Your booking has been successfully created. You will receive a confirmation email shortly.',
+          confirmationCode: bookingResponse.confirmation_code
         }
       });
       return;
 
     } catch (err) {
       console.error('Error creating booking:', err);
-      setError(err.message || 'Failed to create booking. Please try again.');
+      
+      // Check if it's a foreign key constraint error (user not found)
+      if (err.message && err.message.includes('foreign key constraint fails')) {
+        console.log('Foreign key constraint error detected - user may not exist in database');
+        // Clear cached user data and suggest re-login
+        backendService.clearCachedUserData();
+        setError('❌ User Authentication Issue\n\nYour user account appears to be invalid or has been removed from the database.\n\nPlease log out and log back in, or try booking as a guest.\n\nIf the problem persists, please contact support.');
+        return;
+      }
+      
+      // Enhanced error handling with detailed messages
+      let errorMessage = 'Failed to create booking. Please try again.';
+      
+      if (err.response) {
+        // Server responded with error status
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        console.log('Error response:', { status, data });
+        
+        if (status === 409) {
+          // Conflict - room already booked
+          errorMessage = `❌ Room Conflict Detected!\n\n`;
+          errorMessage += `The ${formatRoomName(formData.roomType)} is already booked for your selected dates.\n\n`;
+          errorMessage += `📅 Your Requested Dates:\n`;
+          errorMessage += `   Check-in: ${formData.checkIn}\n`;
+          errorMessage += `   Check-out: ${formData.checkOut}\n\n`;
+          
+          if (data.conflicts && data.conflicts.length > 0) {
+            errorMessage += `📋 Existing Bookings:\n`;
+            data.conflicts.forEach((conflict, index) => {
+              const checkIn = new Date(conflict.check_in).toLocaleDateString();
+              const checkOut = new Date(conflict.check_out).toLocaleDateString();
+              errorMessage += `   ${index + 1}. ${checkIn} to ${checkOut} (Status: ${conflict.status})\n`;
+            });
+            errorMessage += `\n`;
+          }
+          
+          errorMessage += `💡 Suggestions:\n`;
+          errorMessage += `   • Try different dates\n`;
+          errorMessage += `   • Select a different room type\n`;
+          errorMessage += `   • Contact us for assistance`;
+          
+        } else if (status === 400) {
+          // Bad request - validation error
+          errorMessage = `❌ Invalid Booking Request\n\n`;
+          if (data.message) {
+            errorMessage += `${data.message}\n\n`;
+          }
+          errorMessage += `Please check your booking details and try again.`;
+          
+        } else if (status === 401) {
+          // Unauthorized
+          errorMessage = `❌ Authentication Required\n\n`;
+          errorMessage += `Please log in to create a booking, or continue as a guest.`;
+          
+        } else if (status === 500) {
+          // Server error
+          errorMessage = `❌ Server Error\n\n`;
+          errorMessage += `We're experiencing technical difficulties. Please try again later.\n\n`;
+          errorMessage += `If the problem persists, please contact support.`;
+          
+        } else {
+          // Other status codes
+          errorMessage = `❌ Booking Error (${status})\n\n`;
+          if (data.message) {
+            errorMessage += `${data.message}`;
+          }
+        }
+        
+      } else if (err.request) {
+        // Network error
+        errorMessage = `❌ Network Error\n\n`;
+        errorMessage += `Unable to connect to the server. Please check your internet connection and try again.\n\n`;
+        errorMessage += `If the problem persists, please contact support.`;
+        
+      } else {
+        // Other errors
+        errorMessage = `❌ Unexpected Error\n\n`;
+        errorMessage += err.message || 'An unexpected error occurred. Please try again.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const formatRoomName = (roomType) => {
+    if (!roomType) return 'Not selected';
+    return roomType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   const nights = calculateNights();
   const totalPrice = calculateTotalPrice();
-  const roomName = formData.roomType ? formData.roomType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Not selected';
+  const roomName = formatRoomName(formData.roomType);
 
   return (
     <div className="app">

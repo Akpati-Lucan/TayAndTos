@@ -1,5 +1,5 @@
 .booking-container {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
   min-height: calc(100vh - 200px);
@@ -29,10 +29,11 @@
 }
 
 .booking-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 3rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .booking-form-container {
@@ -41,6 +42,7 @@
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
 }
 
 .booking-form {
@@ -256,13 +258,17 @@
 .error-message {
   background-color: #fef2f2;
   color: #dc2626;
-  padding: 0.75rem 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   border: 1px solid #fecaca;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  margin-bottom: 1rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  line-height: 1.6;
+  white-space: pre-line;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .success-message {
@@ -300,6 +306,33 @@
   line-height: 1.6;
 }
 
+.confirmation-code-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border: 2px solid #F15A29;
+  border-radius: 8px;
+}
+
+.confirmation-code-section p {
+  margin-bottom: 1rem;
+  color: #1C1C1C;
+  font-size: 1.1rem;
+}
+
+.confirmation-code {
+  background: #F15A29;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(241, 90, 41, 0.3);
+}
+
 .back-home-button {
   background-color: #F15A29;
   color: white;
@@ -320,20 +353,14 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .booking-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  
-  .booking-info {
-    order: -1;
-  }
-}
-
 @media (max-width: 768px) {
   .booking-container {
     padding: 1rem;
+    max-width: 100%;
+  }
+  
+  .booking-content {
+    max-width: 100%;
   }
   
   .booking-header h1 {
