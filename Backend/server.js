@@ -5,6 +5,7 @@ const path = require('path');
 const { initializeDatabase, getPool } = require('./db');
 const usersRoutes = require('./routes/users');
 const bookingsRoutes = require('./routes/bookings');
+const guestBookingsRoutes = require('./routes/guest_bookings');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -30,6 +31,7 @@ async function startServer() {
         // Mount routes
         app.use('/users', usersRoutes);
         app.use('/bookings', bookingsRoutes);
+        app.use('/guest_bookings', guestBookingsRoutes);
 
         // Health check endpoint
         app.get('/health', (req, res) => {

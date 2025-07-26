@@ -148,7 +148,7 @@ function Book_Page() {
         });
       } else {
         // For guests, use the guest booking endpoint
-        bookingResponse = await backendService.makeGuestBookingRequest('/bookings/guest_bookings', bookingData);
+        bookingResponse = await backendService.makeGuestBookingRequest('/guest_bookings', bookingData);
       }
 
       // Redirect to booking success page with confirmation code

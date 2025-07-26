@@ -355,7 +355,8 @@ class BackendService {
   
     } catch (error) {
       const status = error.response?.status;
-      if (status === 401 || status === 403) {
+      if (status === 401) {
+        // Only redirect for authentication errors (401), not authorization errors (403)
         localStorage.removeItem('token');
         window.location.href = '/login';
       }
