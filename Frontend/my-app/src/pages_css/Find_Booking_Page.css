@@ -453,6 +453,11 @@
   margin-bottom: 1.5rem;
 }
 
+/* Mobile card layout - hidden by default on desktop */
+.mobile-booking-card {
+  display: none;
+}
+
 .contact-info {
   display: flex;
   flex-direction: column;
@@ -484,23 +489,231 @@
     padding: 1.5rem;
   }
   
+  /* Hide table on mobile and show card layout */
   .booking-table {
-    font-size: 0.9rem;
+    display: none;
   }
   
-  .booking-table th,
-  .booking-table td {
-    padding: 0.75rem 0.5rem;
+    /* Mobile card layout */
+  .mobile-booking-card {
+    display: block;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+  }
+  
+  .mobile-booking-card:last-child {
+    margin-bottom: 0;
+  }
+  
+  .mobile-card-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .mobile-card-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .mobile-card-section h4 {
+    color: #6b7280;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .mobile-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f9fafb;
+  }
+  
+  .mobile-info-item:last-child {
+    border-bottom: none;
+  }
+  
+  .mobile-info-item label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .mobile-info-item span {
+    font-weight: 600;
+    color: #1C1C1C;
+    font-size: 0.95rem;
+    text-align: right;
+  }
+  
+  .mobile-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f9fafb;
+  }
+  
+  .mobile-detail-item:last-child {
+    border-bottom: none;
+  }
+  
+  .mobile-detail-item label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .mobile-detail-item span {
+    color: #374151;
+    font-size: 0.9rem;
+    text-align: right;
+  }
+  
+  .mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  .mobile-edit-button, .mobile-delete-button {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+  }
+  
+  .mobile-edit-button {
+    background-color: #F15A29;
+    color: white;
+  }
+  
+  .mobile-edit-button:hover:not(:disabled) {
+    background-color: #d44a1f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(241, 90, 41, 0.3);
+  }
+  
+  .mobile-delete-button {
+    background: #ef4444;
+    color: white;
+  }
+  
+  .mobile-delete-button:hover:not(:disabled) {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  }
+  
+  .mobile-edit-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  .mobile-save-button, .mobile-cancel-button {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+  }
+  
+  .mobile-save-button {
+    background-color: #F15A29;
+    color: white;
+  }
+  
+  .mobile-save-button:hover:not(:disabled) {
+    background-color: #d44a1f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(241, 90, 41, 0.3);
+  }
+  
+  .mobile-cancel-button {
+    background: #6b7280;
+    color: white;
+  }
+  
+  .mobile-cancel-button:hover {
+    background: #4b5563;
+    transform: translateY(-2px);
+  }
+  
+  .mobile-edit-form {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-left: 4px solid #F15A29;
+  }
+  
+  .mobile-edit-form .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .mobile-edit-form .form-group:last-child {
+    margin-bottom: 0;
+  }
+  
+  .mobile-edit-form label {
+    display: block;
+    font-weight: 600;
+    color: #1C1C1C;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .mobile-edit-form input,
+  .mobile-edit-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background-color: white;
+  }
+  
+  .mobile-edit-form input:focus,
+  .mobile-edit-form textarea:focus {
+    outline: none;
+    border-color: #F15A29;
+    box-shadow: 0 0 0 3px rgba(241, 90, 41, 0.1);
+  }
+  
+  .mobile-edit-form textarea {
+    resize: vertical;
+    min-height: 80px;
   }
   
   .action-buttons {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  
-  .edit-button, .delete-button {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
+    display: none;
   }
   
   .edit-form-grid {
@@ -519,22 +732,35 @@
     font-size: 1.5rem;
   }
   
-  .booking-table {
+  .mobile-booking-card {
+    padding: 1rem;
+  }
+  
+  .mobile-info-item,
+  .mobile-detail-item {
+    padding: 0.5rem 0;
+  }
+  
+  .mobile-info-item label,
+  .mobile-detail-item label {
     font-size: 0.8rem;
   }
   
-  .booking-table th,
-  .booking-table td {
-    padding: 0.5rem 0.25rem;
+  .mobile-info-item span,
+  .mobile-detail-item span {
+    font-size: 0.85rem;
+  }
+  
+  .mobile-edit-button,
+  .mobile-delete-button,
+  .mobile-save-button,
+  .mobile-cancel-button {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
   }
   
   .form-group input, .form-group textarea {
     padding: 0.5rem;
     font-size: 0.8rem;
-  }
-  
-  .save-button, .cancel-button {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
   }
 } 

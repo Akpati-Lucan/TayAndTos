@@ -211,6 +211,47 @@ class BackendService {
       );
     }
   }
+
+  async makeGuestRequest(method, endpoint, data = {}, customHeaders = {}) {
+    try {
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+  
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+  
+      const url = `${BACKEND_URL}${endpoint}`;
+  
+      const config = {
+        method,
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          ...customHeaders
+        }
+      };
+  
+      if (['post', 'put', 'patch', 'delete'].includes(method.toLowerCase())) {
+        config.data = data;
+      }
+  
+      const response = await axios(config);
+      return response.data;
+  
+    } catch (error) {
+      console.error(`Guest API request failed for ${endpoint}:`, error);
+      throw new Error(
+        error.response?.data?.message ||
+        error.message ||
+        'Guest request failed'
+      );
+    }
+  }
+
+
+  
   
   async getUserProfile() {
     try {
@@ -439,77 +480,48 @@ async testBackendConnection() {
         throw new Error('Backend server is not available');
       }
       const url = `${BACKEND_URL}${endpoint}`;
+      console.log('Making guest booking request to:', url, 'with data:', data);
+      
       const response = await axios.post(url, data, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      
+      console.log('Guest booking response:', response.data);
       return response.data;
     } catch (error) {
       console.error(`Guest booking request failed for ${endpoint}:`, error);
+      console.error('Error response:', error.response?.data);
       throw new Error(
         error.response?.data?.message ||
         error.message ||
-        'Failed to complete guest booking request'
+        'Error finding booking'
       );
     }
   }
 
-  // Find booking by confirmation code and email
-  async findBookingByConfirmation(confirmationCode, email) {
+  // Find guest booking and generate temporary token
+  async findGuestBookingAndGenerateToken(confirmationCode, email) {
     try {
-      console.log('BackendService: Finding booking by confirmation code...');
-      const response = await axios.post(`${BACKEND_URL}/bookings/find`, {
+      console.log('BackendService: Finding guest booking and generating token...', { confirmationCode, email });
+      const response = await this.makeGuestBookingRequest('/guest_bookings/find-and-token', {
         confirmation_code: confirmationCode,
         email: email
       });
-      console.log('BackendService: Booking found:', response.data);
-      return response.data;
+      console.log('BackendService: Guest booking found and token generated:', response);
+      return response;
     } catch (error) {
-      console.error('BackendService: Error finding booking:', error);
-      throw new Error(
-        error.response?.data?.message ||
-        error.message ||
-        'Failed to find booking'
-      );
-    }
-  }
-
-  // Update booking by confirmation code
-  async updateBookingByConfirmation(confirmationCode, bookingData) {
-    try {
-      console.log('BackendService: Updating booking by confirmation code...');
-      const response = await axios.put(`${BACKEND_URL}/bookings/update-by-confirmation`, {
-        confirmation_code: confirmationCode,
-        ...bookingData
+      console.error('BackendService: Error finding guest booking and generating token:', error);
+      console.error('Error details:', {
+        response: error.response?.data,
+        status: error.response?.status,
+        message: error.message
       });
-      console.log('BackendService: Booking updated:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('BackendService: Error updating booking:', error);
       throw new Error(
         error.response?.data?.message ||
         error.message ||
-        'Failed to update booking'
-      );
-    }
-  }
-
-  // Cancel booking by confirmation code
-  async cancelBookingByConfirmation(confirmationCode) {
-    try {
-      console.log('BackendService: Cancelling booking by confirmation code...');
-      const response = await axios.delete(`${BACKEND_URL}/bookings/cancel-by-confirmation`, {
-        data: { confirmation_code: confirmationCode }
-      });
-      console.log('BackendService: Booking cancelled:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('BackendService: Error cancelling booking:', error);
-      throw new Error(
-        error.response?.data?.message ||
-        error.message ||
-        'Failed to cancel booking'
+        'Failed to find guest booking and generate token'
       );
     }
   }

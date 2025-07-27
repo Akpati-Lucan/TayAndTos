@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 const generateConfirmationCode = require('../utils/generate_code');
+const jwt = require('jsonwebtoken');
 
 
 
@@ -84,6 +85,85 @@ router.post('/', async (req, res) => {
   });
 
 
+  // Find guest booking and generate temporary token
+  router.post('/find-and-token', async (req, res) => {
+    try {
+      console.log('Received find-and-token request:', req.body);
+      const { confirmation_code, email } = req.body;
+
+      if (!confirmation_code || !email) {
+        console.log('Missing required fields:', { confirmation_code: !!confirmation_code, email: !!email });
+        return res.status(400).json({ message: 'Confirmation code and email are required' });
+      }
+
+      console.log('Finding guest booking and generating token:', { confirmation_code, email });
+
+      const [bookings] = await db.query(
+        'SELECT * FROM guest_bookings WHERE confirmation_code = ? AND guest_email = ?',
+        [confirmation_code, email]
+      );
+
+      console.log('Database query result:', { found: bookings.length, bookings });
+
+      if (bookings.length === 0) {
+        console.log('No booking found for:', { confirmation_code, email });
+        return res.status(404).json({ message: 'No booking found with the provided confirmation code and email' });
+      }
+
+      const booking = bookings[0];
+      console.log('Found booking:', { booking_id: booking.booking_id, guest_email: booking.guest_email });
+
+      // Check if JWT_SECRET is available, use a fallback if not set
+      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+      if (!process.env.JWT_SECRET) {
+        console.warn('JWT_SECRET environment variable is not set, using fallback secret');
+      }
+
+      // Generate temporary JWT token for guest user
+      const guestToken = jwt.sign(
+        {
+          guest: true,
+          booking_id: booking.booking_id,
+          confirmation_code: booking.confirmation_code,
+          email: booking.guest_email,
+          type: 'guest'
+        },
+        jwtSecret,
+        { expiresIn: '30m' } // 30 minute expiration for security
+      );
+
+      console.log('Generated temporary guest token for booking:', booking.booking_id);
+
+      const response = {
+        booking: booking,
+        guest_token: guestToken,
+        expires_in: 1800 // 30 minutes in seconds
+      };
+
+      console.log('Sending response:', { booking_id: response.booking.booking_id, has_token: !!response.guest_token });
+      res.json(response);
+
+    } catch (error) {
+      console.error('Error finding guest booking and generating token:', error);
+      res.status(500).json({ message: 'Error finding booking', error: error.message });
+    }
+  });
+
+
+  // Debug endpoint to list all guest bookings
+  router.get('/debug/all', async (req, res) => {
+    try {
+      console.log('Debug: Listing all guest bookings');
+      const [bookings] = await db.query('SELECT booking_id, guest_email, confirmation_code, status FROM guest_bookings');
+      console.log('Debug: Found guest bookings:', bookings);
+      res.json({ count: bookings.length, bookings });
+    } catch (error) {
+      console.error('Debug: Error listing guest bookings:', error);
+      res.status(500).json({ message: 'Error listing guest bookings', error: error.message });
+    }
+  });
+
+
   // Soft-delete a guest booking (admin or with confirmation code)
 router.delete('/:bookingId', authenticateToken, async (req, res) => {
     try {
@@ -93,40 +173,60 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
         return res.status(400).json({ message: 'Invalid booking ID' });
       }
   
-      const confirmation_code = req.body?.confirmation_code;
+            const confirmation_code = req.body?.confirmation_code;
       const isAdmin = req.user?.admin;
+      const isGuestUser = req.user?.guest;
       
       console.log('Guest delete request details:', {
         bookingId,
         isAdmin,
+        isGuestUser,
         confirmation_code: confirmation_code ? 'provided' : 'not provided',
         user: req.user
       });
       
       console.log('Full JWT payload (guest):', req.user);
-  
+
       // Get the guest booking
       const [bookings] = await db.query(
         'SELECT confirmation_code, status FROM guest_bookings WHERE booking_id = ?',
         [bookingId]
       );
-  
+
       if (!bookings.length) {
         return res.status(404).json({ message: 'Guest booking not found' });
       }
-  
+
       const booking = bookings[0];
-  
+
       // Already cancelled?
       if (booking.status === 'cancelled') {
         return res.status(400).json({ message: 'Booking is already cancelled' });
       }
-  
+
       const isCodeMatch = confirmation_code && confirmation_code === booking.confirmation_code;
-  
-      // Authorization check - Admin can delete any guest booking, or with confirmation code
-      if (!isAdmin && !isCodeMatch) {
-        return res.status(403).json({ message: 'You are not authorized to cancel this booking' });
+
+      // Authorization check
+      if (!isAdmin) {
+        if (isGuestUser) {
+          // Guest user with token - verify they own this booking
+          console.log('Guest authorization check:', {
+            tokenBookingId: req.user.booking_id,
+            dbBookingId: bookingId,
+            tokenConfirmationCode: req.user.confirmation_code,
+            dbConfirmationCode: booking.confirmation_code
+          });
+          
+          if (req.user.booking_id !== bookingId || req.user.confirmation_code !== booking.confirmation_code) {
+            console.log('Authorization failed: Guest token does not match booking');
+            return res.status(403).json({ message: 'You are not authorized to cancel this booking' });
+          }
+        } else {
+          // Regular user - require confirmation code
+          if (!isCodeMatch) {
+            return res.status(403).json({ message: 'You are not authorized to cancel this booking' });
+          }
+        }
       }
   
       // Soft delete (update status)
@@ -170,27 +270,45 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
         return res.status(404).json({ message: 'Booking not found' });
       }
   
-      const booking = bookings[0];
+            const booking = bookings[0];
       const isAdmin = req.user?.admin || false;
-  
+      const isGuestUser = req.user?.guest || false;
+
       console.log('Guest booking update authorization check:', {
         bookingId,
         isAdmin,
+        isGuestUser,
         confirmation_code: confirmation_code ? 'provided' : 'not provided',
         bookingConfirmationCode: booking.confirmation_code,
         user: req.user
       });
-  
+
       // Authorization check
       if (!isAdmin) {
-        if (!confirmation_code) {
-          console.log('Authorization failed: No confirmation code provided');
-          return res.status(401).json({ message: 'Confirmation code is required to update booking' });
-        }
-  
-        if (confirmation_code !== booking.confirmation_code) {
-          console.log('Authorization failed: Invalid confirmation code');
-          return res.status(403).json({ message: 'Invalid confirmation code' });
+        if (isGuestUser) {
+          // Guest user with token - verify they own this booking
+          console.log('Guest authorization check (update):', {
+            tokenBookingId: req.user.booking_id,
+            dbBookingId: bookingId,
+            tokenConfirmationCode: req.user.confirmation_code,
+            dbConfirmationCode: booking.confirmation_code
+          });
+          
+          if (req.user.booking_id !== bookingId || req.user.confirmation_code !== booking.confirmation_code) {
+            console.log('Authorization failed: Guest token does not match booking');
+            return res.status(403).json({ message: 'You are not authorized to update this booking' });
+          }
+        } else {
+          // Regular user - require confirmation code
+          if (!confirmation_code) {
+            console.log('Authorization failed: No confirmation code provided');
+            return res.status(401).json({ message: 'Confirmation code is required to update booking' });
+          }
+
+          if (confirmation_code !== booking.confirmation_code) {
+            console.log('Authorization failed: Invalid confirmation code');
+            return res.status(403).json({ message: 'Invalid confirmation code' });
+          }
         }
       }
   
@@ -243,70 +361,3 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Error updating guest booking', error: error.message });
     }
   });
-
-// Find guest booking by confirmation code and email
-router.post('/find', async (req, res) => {
-  try {
-    const { confirmation_code, email } = req.body;
-
-    if (!confirmation_code || !email) {
-      return res.status(400).json({ message: 'Confirmation code and email are required' });
-    }
-
-    console.log('Finding guest booking:', { confirmation_code, email });
-
-    const [bookings] = await db.query(
-      'SELECT * FROM guest_bookings WHERE confirmation_code = ? AND guest_email = ?',
-      [confirmation_code, email]
-    );
-
-    if (bookings.length === 0) {
-      return res.status(404).json({ message: 'No booking found with the provided confirmation code and email' });
-    }
-
-    res.json(bookings[0]);
-
-  } catch (error) {
-    console.error('Error finding guest booking:', error);
-    res.status(500).json({ message: 'Error finding booking', error: error.message });
-  }
-});
-
-// Cancel guest booking by confirmation code
-router.delete('/cancel-by-confirmation', async (req, res) => {
-  try {
-    const { confirmation_code } = req.body;
-
-    if (!confirmation_code) {
-      return res.status(400).json({ message: 'Confirmation code is required' });
-    }
-
-    console.log('Cancelling guest booking with confirmation code:', confirmation_code);
-
-    const [bookings] = await db.query(
-      'SELECT booking_id, status FROM guest_bookings WHERE confirmation_code = ?',
-      [confirmation_code]
-    );
-
-    if (bookings.length === 0) {
-      return res.status(404).json({ message: 'No booking found with the provided confirmation code' });
-    }
-
-    const booking = bookings[0];
-    
-    if (booking.status === 'cancelled') {
-      return res.status(400).json({ message: 'Booking is already cancelled' });
-    }
-
-    await db.query(
-      'UPDATE guest_bookings SET status = ? WHERE booking_id = ?',
-      ['cancelled', booking.booking_id]
-    );
-
-    res.json({ message: 'Guest booking cancelled successfully' });
-
-  } catch (error) {
-    console.error('Error cancelling guest booking:', error);
-    res.status(500).json({ message: 'Error cancelling booking', error: error.message });
-  }
-});

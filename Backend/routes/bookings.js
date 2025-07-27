@@ -408,10 +408,17 @@ router.post('/find', async (req, res) => {
   }
 });
 
-// Update booking by confirmation code
+// Update booking by confirmation code (for guests and users)
 router.put('/update-by-confirmation', async (req, res) => {
   try {
-    const { confirmation_code, room, check_in_date, check_out_date, number_of_guests, special_requests } = req.body;
+    const {
+      confirmation_code,
+      room,
+      check_in_date,
+      check_out_date,
+      number_of_guests,
+      special_requests
+    } = req.body;
 
     if (!confirmation_code) {
       return res.status(400).json({ message: 'Confirmation code is required' });
@@ -419,22 +426,19 @@ router.put('/update-by-confirmation', async (req, res) => {
 
     console.log('Updating booking with confirmation code:', confirmation_code);
 
-    // Check if it's a user booking
+    // --- Try updating a user booking first ---
     const [userBookings] = await db.query(
       'SELECT booking_id, user_id FROM bookings WHERE confirmation_code = ?',
       [confirmation_code]
     );
 
     if (userBookings.length > 0) {
-      // Update user booking
       const booking = userBookings[0];
-      
-      // Validate dates
+
       if (check_in_date && check_out_date && new Date(check_out_date) <= new Date(check_in_date)) {
         return res.status(400).json({ message: 'Check-out date must be after check-in date' });
       }
 
-      // Check for conflicts (excluding current booking)
       if (room && check_in_date && check_out_date) {
         const [conflicts] = await db.query(
           `SELECT * FROM bookings 
@@ -448,92 +452,100 @@ router.put('/update-by-confirmation', async (req, res) => {
         }
       }
 
-      // Update the booking
       await db.query(
         `UPDATE bookings 
-         SET room = COALESCE(?, room), 
-             check_in_date = COALESCE(?, check_in_date), 
-             check_out_date = COALESCE(?, check_out_date), 
-             number_of_guests = COALESCE(?, number_of_guests), 
-             special_requests = COALESCE(?, special_requests)
+         SET room = ?, 
+             check_in_date = ?, 
+             check_out_date = ?, 
+             number_of_guests = ?, 
+             special_requests = ?
          WHERE booking_id = ?`,
-        [room, check_in_date, check_out_date, number_of_guests, special_requests, booking.booking_id]
+        [
+          room ?? null,
+          check_in_date ?? null,
+          check_out_date ?? null,
+          number_of_guests ?? null,
+          special_requests ?? '',
+          booking.booking_id
+        ]
       );
 
-      // Return updated booking
-      const [updatedBookings] = await db.query(`
+      const [updated] = await db.query(`
         SELECT 
           b.booking_id, b.room, b.check_in_date, b.check_out_date, b.number_of_guests, 
           b.status, b.special_requests, b.confirmation_code, b.created_at,
           u.email, u.first_name, u.last_name, u.phone_number,
-          'user' as type
+          'user' AS type
         FROM bookings b
         JOIN users u ON b.user_id = u.id
         WHERE b.booking_id = ?
       `, [booking.booking_id]);
 
-      res.json(updatedBookings[0]);
-    } else {
-      // Check if it's a guest booking
-      const [guestBookings] = await db.query(
-        'SELECT booking_id FROM guest_bookings WHERE confirmation_code = ?',
-        [confirmation_code]
-      );
-
-      if (guestBookings.length === 0) {
-        return res.status(404).json({ message: 'No booking found with the provided confirmation code' });
-      }
-
-      const booking = guestBookings[0];
-
-      // Validate dates
-      if (check_in_date && check_out_date && new Date(check_out_date) <= new Date(check_in_date)) {
-        return res.status(400).json({ message: 'Check-out date must be after check-in date' });
-      }
-
-      // Check for conflicts (excluding current booking)
-      if (room && check_in_date && check_out_date) {
-        const [conflicts] = await db.query(
-          `SELECT * FROM guest_bookings 
-           WHERE room = ? AND booking_id != ? AND status != 'cancelled'
-           AND (check_in_date < ? AND check_out_date > ?)`,
-          [room, booking.booking_id, check_out_date, check_in_date]
-        );
-
-        if (conflicts.length > 0) {
-          return res.status(409).json({ message: 'Room is already booked for the selected dates' });
-        }
-      }
-
-      // Update the guest booking
-      await db.query(
-        `UPDATE guest_bookings 
-         SET room = COALESCE(?, room), 
-             check_in_date = COALESCE(?, check_in_date), 
-             check_out_date = COALESCE(?, check_out_date), 
-             number_of_guests = COALESCE(?, number_of_guests), 
-             special_requests = COALESCE(?, special_requests)
-         WHERE booking_id = ?`,
-        [room, check_in_date, check_out_date, number_of_guests, special_requests, booking.booking_id]
-      );
-
-      // Return updated booking
-      const [updatedBookings] = await db.query(`
-        SELECT 
-          booking_id, room, check_in_date, check_out_date, number_of_guests, 
-          status, special_requests, confirmation_code, created_at,
-          guest_email as email, guest_first_name as first_name, guest_last_name as last_name, 
-          guest_phone_number as phone_number,
-          'guest' as type
-        FROM guest_bookings
-        WHERE booking_id = ?
-      `, [booking.booking_id]);
-
-      res.json(updatedBookings[0]);
+      return res.json(updated[0]);
     }
 
+    // --- Try guest booking if no user booking matched ---
+    const [guestBookings] = await db.query(
+      'SELECT booking_id FROM guest_bookings WHERE confirmation_code = ?',
+      [confirmation_code]
+    );
+
+    if (guestBookings.length === 0) {
+      return res.status(404).json({ message: 'No booking found with the provided confirmation code' });
+    }
+
+    const booking = guestBookings[0];
+
+    if (check_in_date && check_out_date && new Date(check_out_date) <= new Date(check_in_date)) {
+      return res.status(400).json({ message: 'Check-out date must be after check-in date' });
+    }
+
+    if (room && check_in_date && check_out_date) {
+      const [conflicts] = await db.query(
+        `SELECT * FROM guest_bookings 
+         WHERE room = ? AND booking_id != ? AND status != 'cancelled'
+         AND (check_in_date < ? AND check_out_date > ?)`,
+        [room, booking.booking_id, check_out_date, check_in_date]
+      );
+
+      if (conflicts.length > 0) {
+        return res.status(409).json({ message: 'Room is already booked for the selected dates' });
+      }
+    }
+
+    await db.query(
+      `UPDATE guest_bookings 
+       SET room = ?, 
+           check_in_date = ?, 
+           check_out_date = ?, 
+           number_of_guests = ?, 
+           special_requests = ?
+       WHERE booking_id = ?`,
+      [
+        room ?? null,
+        check_in_date ?? null,
+        check_out_date ?? null,
+        number_of_guests ?? null,
+        special_requests ?? '',
+        booking.booking_id
+      ]
+    );
+
+    const [updated] = await db.query(`
+      SELECT 
+        booking_id, room, check_in_date, check_out_date, number_of_guests, 
+        status, special_requests, confirmation_code, created_at,
+        guest_email AS email, guest_first_name AS first_name, guest_last_name AS last_name, 
+        guest_phone_number AS phone_number,
+        'guest' AS type
+      FROM guest_bookings
+      WHERE booking_id = ?
+    `, [booking.booking_id]);
+
+    return res.json(updated[0]);
+
   } catch (error) {
-    console.error('Error updating booking:', error);
+    console.error('Error updating booking by confirmation code:', error);
     res.status(500).json({ message: 'Error updating booking', error: error.message });
   }
 });

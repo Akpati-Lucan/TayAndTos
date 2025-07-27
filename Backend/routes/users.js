@@ -44,7 +44,7 @@ router.post('/signup', async (req, res) => {
     // Generate token
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email, admin: newUser.admin },
-      process.env.JWT_SECRET || 'your-secret-key',
+      process.env.JWT_SECRET || 'fallback-secret-key-for-development',
       { expiresIn: '24h' }
     );
 
@@ -87,7 +87,7 @@ router.post('/login', async (req, res) => {
   
       const token = jwt.sign(
         { userId: user.id, email: user.email, admin: user.admin },
-        process.env.JWT_SECRET || 'your-secret-key',
+        process.env.JWT_SECRET || 'fallback-secret-key-for-development',
         { expiresIn: '24h' }
       );
   

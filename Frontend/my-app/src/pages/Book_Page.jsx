@@ -23,13 +23,7 @@ function Book_Page() {
   const [success, setSuccess] = useState('');
   const [user, setUser] = useState(null);
 
-  // Room prices
-  const roomPrices = {
-    'master-bedroom': 150,
-    'mini-bedroom': 100,
-    'childrens-bedroom': 80,
-    'outside-kitchen': 120
-  };
+
 
   useEffect(() => {
     // Check if user is logged in
@@ -65,11 +59,7 @@ function Book_Page() {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  const calculateTotalPrice = () => {
-    const nights = calculateNights();
-    const pricePerNight = roomPrices[formData.roomType] || 0;
-    return nights * pricePerNight;
-  };
+
 
   const validateForm = () => {
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
@@ -256,7 +246,6 @@ function Book_Page() {
   };
 
   const nights = calculateNights();
-  const totalPrice = calculateTotalPrice();
   const roomName = formatRoomName(formData.roomType);
 
   return (

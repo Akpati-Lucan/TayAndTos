@@ -25,43 +25,115 @@ function Find_Booking_Page() {
     setBooking(null);
 
     try {
-      const foundBooking = await backendService.findBookingByConfirmation(searchForm.confirmationCode, searchForm.email);
+      // Use authenticated endpoint to find booking
+      const foundBooking = await backendService.makeAuthenticatedRequest(`/bookings/find`, {
+        method: 'POST',
+        data: {
+          confirmation_code: searchForm.confirmationCode,
+          email: searchForm.email
+        }
+      });
+      
       setBooking(foundBooking);
       setEditForm({
         room: foundBooking.room,
-        check_in_date: foundBooking.check_in_date,
-        check_out_date: foundBooking.check_out_date,
+        check_in_date: formatDate(foundBooking.check_in_date),
+        check_out_date: formatDate(foundBooking.check_out_date),
         number_of_guests: foundBooking.number_of_guests,
         special_requests: foundBooking.special_requests || ''
       });
       setSuccess('Booking found successfully!');
     } catch (err) {
-      setError(err.message);
+      console.error('Authenticated search failed:', err);
+      
+      // If authenticated search fails, try guest booking search with token generation
+      try {
+        console.log('Trying guest booking search with token generation...');
+        const guestResult = await backendService.findGuestBookingAndGenerateToken(searchForm.confirmationCode, searchForm.email);
+        
+        // Store the guest token for future authenticated operations
+        if (guestResult.guest_token) {
+          sessionStorage.setItem('guest_token', guestResult.guest_token);
+          console.log('Guest token stored for future operations:', guestResult.guest_token.substring(0, 20) + '...');
+        }
+
+        // Add type field to identify this as a guest booking
+        const guestBooking = {
+          ...guestResult.booking,
+          type: 'guest'
+        };
+        
+        setBooking(guestBooking);
+        setEditForm({
+          room: guestResult.booking.room,
+          check_in_date: formatDate(guestResult.booking.check_in_date),
+          check_out_date: formatDate(guestResult.booking.check_out_date),
+          number_of_guests: guestResult.booking.number_of_guests,
+          special_requests: guestResult.booking.special_requests || ''
+        });
+        setSuccess('Guest booking found successfully! Token generated for secure operations.');
+      } catch (guestErr) {
+        console.error('Guest booking search also failed:', guestErr);
+        setError(`Search failed: ${err.message}. Guest booking search also failed: ${guestErr.message}`);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditSubmit = async (e) => {
+const handleEditSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+    setSuccess('');
+  
     try {
-      const updatedBooking = await backendService.updateBookingByConfirmation(
-        booking.confirmation_code,
-        editForm
-      );
+      console.log('Booking data:', booking); // Debug log to see what we have
+      console.log('Edit form data:', editForm); // Debug log
+  
+      // Check if we have a guest token for this booking
+      const guestToken = sessionStorage.getItem('guest_token');
+      const isGuestBooking = !!guestToken;
+
+      // Format dates for backend
+      const formattedData = {
+        ...editForm,
+        check_in_date: formatDate(editForm.check_in_date),
+        check_out_date: formatDate(editForm.check_out_date)
+      };
+      
+      let updatedBooking;
+      
+      if (isGuestBooking) {
+        console.log('Using guest booking endpoint with guest token');
+        updatedBooking = await backendService.makeGuestRequest(
+          'PUT',
+          `/guest_bookings/${booking.booking_id}`,
+          formattedData,
+          {
+            Authorization: `Bearer ${guestToken}`
+          }
+        );
+      } else {
+        console.log('Using authenticated endpoint with booking ID:', booking.booking_id);
+        updatedBooking = await backendService.makeAuthenticatedRequest(`/bookings/${booking.booking_id}`, {
+          method: 'PUT',
+          data: formattedData
+        });
+      }
+      
+      
       setBooking(updatedBooking);
       setIsEditing(false);
       setSuccess('Booking updated successfully!');
     } catch (err) {
-      setError(err.message);
+      console.error('Update failed:', err); // Log full error
+      setError(err.response?.data?.message || err.message || 'Failed to update booking.');
     } finally {
       setLoading(false);
     }
   };
-
+  
   const handleCancelBooking = async () => {
     if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
       return;
@@ -71,23 +143,48 @@ function Find_Booking_Page() {
     setError('');
 
     try {
-      await backendService.cancelBookingByConfirmation(booking.confirmation_code);
+      // Check if we have a guest token for this booking
+      const guestToken = sessionStorage.getItem('guest_token');
+      const isGuestBooking = !!guestToken;
+      
+      if (isGuestBooking) {
+        console.log('Using guest booking endpoint for cancellation with guest token');
+        await backendService.makeGuestRequest(
+          'DELETE',
+          `/guest_bookings/${booking.booking_id}`,
+          {
+            confirmation_code: booking.confirmation_code
+          },
+          {
+            'Authorization': `Bearer ${guestToken}`
+          }
+        );
+      } else {
+        // Use regular authenticated endpoint
+        console.log('Using authenticated endpoint for cancellation with booking ID:', booking.booking_id);
+        await backendService.makeAuthenticatedRequest(`/bookings/${booking.booking_id}`, {
+          method: 'DELETE',
+          data: {
+            confirmation_code: booking.confirmation_code
+          }
+        });
+      }
+      
       setBooking({ ...booking, status: 'cancelled' });
       setSuccess('Booking cancelled successfully!');
     } catch (err) {
-      setError(err.message);
+      console.error('Cancellation failed:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to cancel booking.');
     } finally {
       setLoading(false);
     }
   };
-
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    if (!dateString) return '';
+    return new Date(dateString).toISOString().split('T')[0];
   };
+  
+  
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -147,6 +244,7 @@ function Find_Booking_Page() {
             ) : (
               <div className="booking-details-section">
                 <div className="booking-table-container">
+                  {/* Desktop Table View */}
                   <table className="booking-table">
                     <thead>
                       <tr>
@@ -207,7 +305,16 @@ function Find_Booking_Page() {
                               <>
                                 <button 
                                   className="edit-button" 
-                                  onClick={() => setIsEditing(true)}
+                                  onClick={() => {
+                                    setEditForm({
+                                      room: booking.room,
+                                      check_in_date: formatDate(booking.check_in_date),
+                                      check_out_date: formatDate(booking.check_out_date),
+                                      number_of_guests: booking.number_of_guests,
+                                      special_requests: booking.special_requests || ''
+                                    });
+                                    setIsEditing(true);
+                                  }}
                                   disabled={loading}
                                 >
                                   Edit Booking
@@ -306,6 +413,161 @@ function Find_Booking_Page() {
                       )}
                     </tbody>
                   </table>
+
+                  {/* Mobile Card View */}
+                  <div className="mobile-booking-card">
+                    <div className="mobile-card-section">
+                      <h4>Booking Information</h4>
+                      <div className="mobile-info-item">
+                        <label>Confirmation Code</label>
+                        <span>{booking.confirmation_code}</span>
+                      </div>
+                      <div className="mobile-info-item">
+                        <label>Room</label>
+                        <span>{booking.room}</span>
+                      </div>
+                      <div className="mobile-info-item">
+                        <label>Status</label>
+                        <span className={`status-badge ${getStatusColor(booking.status)}`}>
+                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mobile-card-section">
+                      <h4>Booking Details</h4>
+                      <div className="mobile-detail-item">
+                        <label>Check-in Date</label>
+                        <span>{formatDate(booking.check_in_date)}</span>
+                      </div>
+                      <div className="mobile-detail-item">
+                        <label>Check-out Date</label>
+                        <span>{formatDate(booking.check_out_date)}</span>
+                      </div>
+                      <div className="mobile-detail-item">
+                        <label>Number of Guests</label>
+                        <span>{booking.number_of_guests}</span>
+                      </div>
+                      <div className="mobile-detail-item">
+                        <label>Email</label>
+                        <span>{booking.email || booking.guest_email}</span>
+                      </div>
+                      {booking.special_requests && (
+                        <div className="mobile-detail-item">
+                          <label>Special Requests</label>
+                          <span>{booking.special_requests}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {booking.status !== 'cancelled' ? (
+                      !isEditing ? (
+                        <div className="mobile-actions">
+                          <button 
+                            className="mobile-edit-button" 
+                            onClick={() => {
+                              setEditForm({
+                                room: booking.room,
+                                check_in_date: formatDate(booking.check_in_date),
+                                check_out_date: formatDate(booking.check_out_date),
+                                number_of_guests: booking.number_of_guests,
+                                special_requests: booking.special_requests || ''
+                              });
+                              setIsEditing(true);
+                            }}
+                            disabled={loading}
+                          >
+                            Edit Booking
+                          </button>
+                          <button 
+                            className="mobile-delete-button" 
+                            onClick={handleCancelBooking}
+                            disabled={loading}
+                          >
+                            Cancel Booking
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mobile-edit-actions">
+                            <button 
+                              type="button" 
+                              className="mobile-save-button" 
+                              onClick={handleEditSubmit}
+                              disabled={loading}
+                            >
+                              {loading ? 'Saving...' : 'Save Changes'}
+                            </button>
+                            <button 
+                              type="button" 
+                              className="mobile-cancel-button" 
+                              onClick={() => setIsEditing(false)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                          <div className="mobile-edit-form">
+                            <form onSubmit={handleEditSubmit}>
+                              <div className="form-group">
+                                <label htmlFor="mobileEditRoom">Room</label>
+                                <input
+                                  type="text"
+                                  id="mobileEditRoom"
+                                  value={editForm.room}
+                                  onChange={(e) => setEditForm({...editForm, room: e.target.value})}
+                                  required
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label htmlFor="mobileEditGuests">Number of Guests</label>
+                                <input
+                                  type="number"
+                                  id="mobileEditGuests"
+                                  value={editForm.number_of_guests}
+                                  onChange={(e) => setEditForm({...editForm, number_of_guests: parseInt(e.target.value)})}
+                                  min="1"
+                                  required
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label htmlFor="mobileEditCheckIn">Check-in Date</label>
+                                <input
+                                  type="date"
+                                  id="mobileEditCheckIn"
+                                  value={editForm.check_in_date}
+                                  onChange={(e) => setEditForm({...editForm, check_in_date: e.target.value})}
+                                  required
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label htmlFor="mobileEditCheckOut">Check-out Date</label>
+                                <input
+                                  type="date"
+                                  id="mobileEditCheckOut"
+                                  value={editForm.check_out_date}
+                                  onChange={(e) => setEditForm({...editForm, check_out_date: e.target.value})}
+                                  required
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label htmlFor="mobileEditSpecialRequests">Special Requests</label>
+                                <textarea
+                                  id="mobileEditSpecialRequests"
+                                  value={editForm.special_requests}
+                                  onChange={(e) => setEditForm({...editForm, special_requests: e.target.value})}
+                                  rows="3"
+                                />
+                              </div>
+                            </form>
+                          </div>
+                        </>
+                      )
+                    ) : (
+                      <div className="mobile-actions">
+                        <span className="cancelled-status">Booking Cancelled</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="back-to-search">
@@ -328,8 +590,8 @@ function Find_Booking_Page() {
               <h3>Need Help?</h3>
               <p>If you can't find your booking or need assistance, please contact us:</p>
               <div className="contact-info">
-                <p>📧 Email: support@tayandtos.com</p>
-                <p>📞 Phone: +1 (555) 123-4567</p>
+                <p>📧 Email: divinetay-toscorporations@ gmail.com</p>
+                <p>📞 Phone: +234 (814) 074-9365</p>
               </div>
             </div>
           </div>
