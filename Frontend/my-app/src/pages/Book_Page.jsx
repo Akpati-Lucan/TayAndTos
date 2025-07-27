@@ -393,10 +393,10 @@ function Book_Page() {
                           required
                         >
                           <option value="">Select a room</option>
-                          <option value="master-bedroom">Master Bedroom - $150/night</option>
-                          <option value="mini-bedroom">Mini Bedroom - $100/night</option>
-                          <option value="childrens-bedroom">Children's Bedroom - $80/night</option>
-                          <option value="outside-kitchen">Outside Kitchen - $120/night</option>
+                          <option value="master-bedroom">Master Bedroom</option>
+                          <option value="mini-bedroom">Mini Bedroom</option>
+                          <option value="childrens-bedroom">Children's Bedroom</option>
+                          <option value="outside-kitchen">Outside Kitchen</option>
                         </select>
                       </div>
                     </div>
@@ -428,15 +428,10 @@ function Book_Page() {
                         <span>Guests:</span>
                         <span>{formData.guests}</span>
                       </div>
-                      <div className="summary-row total">
-                        <span>Total Price:</span>
-                        <span>${totalPrice}</span>
-                      </div>
                     </div>
                   </div>
-
                   <div className="form-actions">
-                    <Link to="/" className="cancel-button">Cancel</Link>
+                    <button onClick={() => navigate('/')} className="cancel-button">Cancel</button>
                     <button 
                       type="submit" 
                       className="submit-button"
