@@ -380,7 +380,7 @@ function Manage_Bookings() {
               <div className="header-content">
                 <div>
                   <h1>Manage Bookings</h1>
-                  <p>View and manage all bookings ({filteredAndSortedBookings.length} of {bookings.length} total)</p>
+                  <p>View and manage all bookings</p>
                 </div>
                 <button 
                   className="refresh-button" 
@@ -396,57 +396,104 @@ function Manage_Bookings() {
             
             {/* Search, Sort, and Filter Controls */}
             <div className="controls-section">
-              <div className="search-control">
-                <input
-                  type="text"
-                  placeholder="Search bookings..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
+              <div className="controls-header">
+                <h3>Search & Filter</h3>
+                <div className="results-info">
+                  <span className="results-count">{filteredAndSortedBookings.length}</span>
+                  <span className="results-label">of {bookings.length} bookings</span>
+                </div>
               </div>
               
-              <div className="filter-controls">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+              <div className="controls-content">
+                <div className="search-control">
+                  <div className="search-input-wrapper">
+                    <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search by guest, email, room, or confirmation code..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="clear-search-btn"
+                        title="Clear search"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
                 
-                <select
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Types</option>
-                  <option value="guest">Guest</option>
-                  <option value="user">User</option>
-                </select>
-                
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="guest">Sort by Guest</option>
-                  <option value="email">Sort by Email</option>
-                  <option value="room">Sort by Room</option>
-                  <option value="check_in">Sort by Check-in</option>
-                  <option value="status">Sort by Status</option>
-                  <option value="type">Sort by Type</option>
-                </select>
-                
-                <button
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  className="sort-order-btn"
-                >
-                  {sortOrder === 'asc' ? '↑' : '↓'}
-                </button>
+                <div className="filter-controls">
+                  <div className="filter-group">
+                    <label className="filter-label">Status</label>
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  
+                  <div className="filter-group">
+                    <label className="filter-label">Type</label>
+                    <select
+                      value={filterType}
+                      onChange={(e) => setFilterType(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="guest">Guest</option>
+                      <option value="user">User</option>
+                    </select>
+                  </div>
+                  
+                  <div className="filter-group">
+                    <label className="filter-label">Sort by</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="sort-select"
+                    >
+                      <option value="guest">Guest</option>
+                      <option value="email">Email</option>
+                      <option value="room">Room</option>
+                      <option value="check_in">Check-in</option>
+                      <option value="status">Status</option>
+                      <option value="type">Type</option>
+                    </select>
+                  </div>
+                  
+                  <div className="sort-order-group">
+                    <label className="filter-label">Order</label>
+                    <button
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                      className="sort-order-btn"
+                      title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        {sortOrder === 'asc' ? (
+                          <path d="m18 15-6-6-6 6"/>
+                        ) : (
+                          <path d="m6 9 6 6 6-6"/>
+                        )}
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
             

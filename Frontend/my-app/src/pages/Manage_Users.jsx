@@ -237,7 +237,7 @@ function Manage_Users() {
           <div className="manage-users-container">
             <div className="page-header">
               <h1>Manage Users</h1>
-              <p>View and manage user accounts ({filteredAndSortedUsers.length} of {users.length} users)</p>
+              <p>View and manage user accounts</p>
             </div>
 
             {error && <div className="error-message">{error}</div>}
@@ -245,43 +245,87 @@ function Manage_Users() {
 
             {/* Search, Sort, and Filter Controls */}
             <div className="controls-section">
-              <div className="search-control">
-                <input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
+              <div className="controls-header">
+                <h3>Search & Filter</h3>
+                <div className="results-info">
+                  <span className="results-count">{filteredAndSortedUsers.length}</span>
+                  <span className="results-label">of {users.length} users</span>
+                </div>
               </div>
               
-              <div className="filter-controls">
-                <select
-                  value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Roles</option>
-                  <option value="admin">Admins Only</option>
-                  <option value="user">Users Only</option>
-                </select>
+              <div className="controls-content">
+                <div className="search-control">
+                  <div className="search-input-wrapper">
+                    <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search by name, email, or phone..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="clear-search-btn"
+                        title="Clear search"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
                 
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="name">Sort by Name</option>
-                  <option value="email">Sort by Email</option>
-                  <option value="role">Sort by Role</option>
-                </select>
-                
-                <button
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  className="sort-order-btn"
-                >
-                  {sortOrder === 'asc' ? '↑' : '↓'}
-                </button>
+                <div className="filter-controls">
+                  <div className="filter-group">
+                    <label className="filter-label">Role</label>
+                    <select
+                      value={filterRole}
+                      onChange={(e) => setFilterRole(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="all">All Roles</option>
+                      <option value="admin">Admins Only</option>
+                      <option value="user">Users Only</option>
+                    </select>
+                  </div>
+                  
+                  <div className="filter-group">
+                    <label className="filter-label">Sort by</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="sort-select"
+                    >
+                      <option value="name">Name</option>
+                      <option value="email">Email</option>
+                      <option value="role">Role</option>
+                    </select>
+                  </div>
+                  
+                  <div className="sort-order-group">
+                    <label className="filter-label">Order</label>
+                    <button
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                      className="sort-order-btn"
+                      title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        {sortOrder === 'asc' ? (
+                          <path d="m18 15-6-6-6 6"/>
+                        ) : (
+                          <path d="m6 9 6 6 6-6"/>
+                        )}
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
