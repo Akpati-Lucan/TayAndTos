@@ -68,12 +68,15 @@ function Header() {
             <div className="user-nav">
               <Link to="/profile-page" className="nav-link profile-link">
                 <img src={profileIcon} alt="Profile" className="profile-icon" />
-                <span className="user-name">{user?.first_name}</span>
+                <span className="user-name">
+                  {user?.first_name}
+                  {user?.admin && <span className="admin-badge">Admin</span>}
+                </span>
               </Link>
               {user?.admin && (
                 <>
-                  <Link to="/manage-users" className="nav-link">Manage Users</Link>
-                  <Link to="/manage-bookings" className="nav-link">Manage Bookings</Link>
+                  <Link to="/manage-users" className="nav-link admin-link">Manage Users</Link>
+                  <Link to="/manage-bookings" className="nav-link admin-link">Manage Bookings</Link>
                 </>
               )}
               <button onClick={handleLogout} className="nav-link logout-link">
@@ -117,13 +120,16 @@ function Header() {
             <div className="sidebar-user-section">
               <div className="sidebar-profile">
                 <img src={profileIcon} alt="Profile" className="sidebar-profile-icon" />
-                <span className="sidebar-user-name">{user?.first_name}</span>
+                <span className="sidebar-user-name">
+                  {user?.first_name}
+                  {user?.admin && <span className="admin-badge">Admin</span>}
+                </span>
               </div>
               <Link to="/profile-page" className="sidebar-link" onClick={closeSidebar}>My Profile</Link>
               {user?.admin && (
                 <>
-                  <Link to="/manage-users" className="sidebar-link" onClick={closeSidebar}>Manage Users</Link>
-                  <Link to="/manage-bookings" className="sidebar-link" onClick={closeSidebar}>Manage Bookings</Link>
+                  <Link to="/manage-users" className="sidebar-link admin-link" onClick={closeSidebar}>Manage Users</Link>
+                  <Link to="/manage-bookings" className="sidebar-link admin-link" onClick={closeSidebar}>Manage Bookings</Link>
                 </>
               )}
               <button onClick={handleLogout} className="sidebar-logout-btn">

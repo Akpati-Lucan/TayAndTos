@@ -198,6 +198,7 @@ const refreshGuestToken = async (booking) => {
     try {
       console.log('Booking data:', booking);
       console.log('Edit form data:', editForm);
+      console.log('Full booking object for debugging:', JSON.stringify(booking, null, 2));
 
       if (!booking || !booking.booking_id || !booking.confirmation_code) {
         throw new Error('Invalid booking data. Please search for your booking again.');
@@ -212,12 +213,28 @@ const refreshGuestToken = async (booking) => {
 
       // Determine if this is a guest booking
       const guestToken = sessionStorage.getItem('guest_token');
-      const isGuestBooking = !!guestToken || booking.type === 'guest' || booking.guest_email;
+      
+      // More reliable guest booking detection
+      const hasGuestToken = !!guestToken;
+      const hasGuestType = booking.type === 'guest';
+      const hasGuestFields = !!(booking.guest_email || booking.guest_first_name || booking.guest_last_name);
+      const hasUserFields = !!(booking.user_id || booking.first_name || booking.last_name);
+      
+      // If the booking has user fields (user_id, first_name, last_name), it's a user booking
+      // regardless of whether there's a guest token in session storage
+      // Guest token alone should not override clear user booking indicators
+      const isGuestBooking = hasGuestType || (hasGuestFields && !hasUserFields);
 
       console.log('Booking type detection:', { 
-        hasGuestToken: !!guestToken, 
+        hasGuestToken,
+        hasGuestType,
+        hasGuestFields,
+        hasUserFields,
         bookingType: booking.type, 
-        hasGuestEmail: !!booking.guest_email,
+        guestEmail: booking.guest_email,
+        userEmail: booking.email,
+        guestFirstName: booking.guest_first_name,
+        userFirstName: booking.first_name,
         isGuestBooking 
       });
 
@@ -225,9 +242,23 @@ const refreshGuestToken = async (booking) => {
 
       if (isGuestBooking) {
         console.log('Processing as guest booking...');
-        updatedBooking = await handleGuestBookingUpdate(booking, formattedData);
+        // Only use guest token if this is actually a guest booking
+        if (hasGuestToken) {
+          updatedBooking = await handleGuestBookingUpdate(booking, formattedData);
+        } else {
+          // This shouldn't happen, but handle gracefully
+          console.warn('Guest booking detected but no guest token found');
+          setError('Guest session expired. Please search for your booking again.');
+          return;
+        }
       } else {
         console.log('Processing as user booking...');
+        // Clear any lingering guest tokens for user bookings
+        if (hasGuestToken) {
+          console.log('Clearing guest token for user booking');
+          sessionStorage.removeItem('guest_token');
+          sessionStorage.removeItem('guest_auth');
+        }
         updatedBooking = await handleUserBookingUpdate(booking, formattedData);
       }
 
@@ -272,7 +303,15 @@ const refreshGuestToken = async (booking) => {
     try {
       // Check if we have a guest token for this booking
       const guestToken = sessionStorage.getItem('guest_token');
-      const isGuestBooking = !!guestToken || booking.type === 'guest' || booking.guest_email;
+      
+      // Use the same reliable guest booking detection logic
+      const hasGuestToken = !!guestToken;
+      const hasGuestType = booking.type === 'guest';
+      const hasGuestFields = !!(booking.guest_email || booking.guest_first_name || booking.guest_last_name);
+      const hasUserFields = !!(booking.user_id || booking.first_name || booking.last_name);
+      
+      // If the booking has user fields, it's a user booking regardless of guest token
+      const isGuestBooking = hasGuestType || (hasGuestFields && !hasUserFields);
       
       if (isGuestBooking) {
         console.log('Using guest booking endpoint for cancellation with guest token');

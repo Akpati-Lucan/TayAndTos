@@ -74,6 +74,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .profile-link {
@@ -87,6 +88,7 @@
     transition: all 0.3s ease;
     font-size: 1rem;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   .profile-link:hover {
@@ -97,6 +99,56 @@
   .user-name {
     color: #FFFFFF;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Admin Badge */
+  .admin-badge {
+    background-color: #F15A29;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Admin Navigation Styles */
+  .user-nav .nav-link {
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .user-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #F15A29;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .user-nav .nav-link:active {
+    background-color: rgba(241, 90, 41, 0.2);
+    color: #F15A29;
+  }
+
+  /* Admin link specific styling */
+  .admin-link {
+    border-left: 2px solid #F15A29 !important;
+    background-color: rgba(241, 90, 41, 0.05);
+  }
+
+  .admin-link:hover {
+    background-color: rgba(241, 90, 41, 0.15) !important;
+    border-left-color: #F15A29 !important;
   }
 
   .logout-link {
@@ -110,6 +162,7 @@
     font-weight: 500;
     cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
   }
 
   .logout-link:hover {
@@ -176,11 +229,17 @@
 
     .user-nav {
       gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .profile-link {
       padding: 0.4rem 0.6rem;
       font-size: 0.9rem;
+    }
+
+    .user-nav .nav-link {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.85rem;
     }
 
     .logout-link {
@@ -208,6 +267,25 @@
     }
 
     .auth-link {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .user-nav {
+      gap: 0.25rem;
+    }
+
+    .user-nav .nav-link {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .profile-link {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .logout-link {
       padding: 0.3rem 0.6rem;
       font-size: 0.8rem;
     }
@@ -352,6 +430,25 @@
     color: #FFFFFF;
     font-weight: 600;
     font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-user-name .admin-badge {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.3rem;
+  }
+
+  /* Admin sidebar links styling */
+  .sidebar-user-section .sidebar-link {
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-user-section .sidebar-link:hover {
+    border-left-color: #F15A29;
+    background-color: rgba(241, 90, 41, 0.1);
   }
 
   .sidebar-logout-btn {

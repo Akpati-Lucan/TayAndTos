@@ -131,47 +131,52 @@
 /* Column widths for better space distribution */
 .bookings-table th:nth-child(1), /* Guest/User */
 .bookings-table td:nth-child(1) {
-  width: 220px;
+  width: 180px;
 }
 
-.bookings-table th:nth-child(2), /* Email */
+.bookings-table th:nth-child(2), /* Type */
 .bookings-table td:nth-child(2) {
-  width: 220px;
+  width: 80px;
 }
 
-.bookings-table th:nth-child(3), /* Phone */
+.bookings-table th:nth-child(3), /* Email */
 .bookings-table td:nth-child(3) {
-  width: 160px;
+  width: 200px;
 }
 
-.bookings-table th:nth-child(4), /* Room */
+.bookings-table th:nth-child(4), /* Phone */
 .bookings-table td:nth-child(4) {
-  width: 170px;
+  width: 140px;
 }
 
-.bookings-table th:nth-child(5), /* Check-in */
+.bookings-table th:nth-child(5), /* Room */
 .bookings-table td:nth-child(5) {
-  width: 130px;
+  width: 150px;
 }
 
-.bookings-table th:nth-child(6), /* Check-out */
+.bookings-table th:nth-child(6), /* Check-in */
 .bookings-table td:nth-child(6) {
-  width: 130px;
-}
-
-.bookings-table th:nth-child(7), /* Guests */
-.bookings-table td:nth-child(7) {
-  width: 100px;
-}
-
-.bookings-table th:nth-child(8), /* Status */
-.bookings-table td:nth-child(8) {
-  width: 160px;
-}
-
-.bookings-table th:nth-child(9), /* Actions */
-.bookings-table td:nth-child(9) {
   width: 120px;
+}
+
+.bookings-table th:nth-child(7), /* Check-out */
+.bookings-table td:nth-child(7) {
+  width: 120px;
+}
+
+.bookings-table th:nth-child(8), /* Guests */
+.bookings-table td:nth-child(8) {
+  width: 80px;
+}
+
+.bookings-table th:nth-child(9), /* Status */
+.bookings-table td:nth-child(9) {
+  width: 140px;
+}
+
+.bookings-table th:nth-child(10), /* Actions */
+.bookings-table td:nth-child(10) {
+  width: 100px;
 }
 .bookings-table thead {
   background-color: #f8fafc;
@@ -322,47 +327,52 @@ select:focus {
   
   .bookings-table th:nth-child(1), /* Guest/User */
   .bookings-table td:nth-child(1) {
+    width: 100px;
+  }
+  
+  .bookings-table th:nth-child(2), /* Type */
+  .bookings-table td:nth-child(2) {
+    width: 60px;
+  }
+  
+  .bookings-table th:nth-child(3), /* Email */
+  .bookings-table td:nth-child(3) {
     width: 120px;
   }
   
-  .bookings-table th:nth-child(2), /* Email */
-  .bookings-table td:nth-child(2) {
-    width: 140px;
-  }
-  
-  .bookings-table th:nth-child(3), /* Phone */
-  .bookings-table td:nth-child(3) {
-    width: 100px;
-  }
-  
-  .bookings-table th:nth-child(4), /* Room */
+  .bookings-table th:nth-child(4), /* Phone */
   .bookings-table td:nth-child(4) {
-    width: 100px;
+    width: 80px;
   }
   
-  .bookings-table th:nth-child(5), /* Check-in */
+  .bookings-table th:nth-child(5), /* Room */
   .bookings-table td:nth-child(5) {
     width: 80px;
   }
   
-  .bookings-table th:nth-child(6), /* Check-out */
+  .bookings-table th:nth-child(6), /* Check-in */
   .bookings-table td:nth-child(6) {
-    width: 80px;
+    width: 70px;
   }
   
-  .bookings-table th:nth-child(7), /* Guests */
+  .bookings-table th:nth-child(7), /* Check-out */
   .bookings-table td:nth-child(7) {
-    width: 60px;
+    width: 70px;
   }
   
-  .bookings-table th:nth-child(8), /* Status */
+  .bookings-table th:nth-child(8), /* Guests */
   .bookings-table td:nth-child(8) {
-    width: 120px;
+    width: 50px;
   }
   
-  .bookings-table th:nth-child(9), /* Actions */
+  .bookings-table th:nth-child(9), /* Status */
   .bookings-table td:nth-child(9) {
-    width: 80px;
+    width: 100px;
+  }
+  
+  .bookings-table th:nth-child(10), /* Actions */
+  .bookings-table td:nth-child(10) {
+    width: 70px;
   }
   
   .delete-button {
@@ -472,6 +482,31 @@ select:focus {
 .status-cancelled {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+/* Booking Type Styles */
+.booking-type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  text-align: center;
+  min-width: 60px;
+}
+
+.guest-type {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.user-type {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #3b82f6;
 }
 
 .status-select {

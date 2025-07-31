@@ -45,6 +45,23 @@ function Manage_Bookings() {
     }
   };
 
+  const formatBookingType = (booking) => {
+    if (booking.type === 'guest') {
+      return 'Guest';
+    } else if (booking.type === 'user') {
+      return 'User';
+    } else {
+      // Fallback detection based on field presence
+      if (booking.guest_email || booking.guest_first_name) {
+        return 'Guest';
+      } else if (booking.user_id || booking.first_name) {
+        return 'User';
+      } else {
+        return 'Unknown';
+      }
+    }
+  };
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -322,6 +339,7 @@ function Manage_Bookings() {
                   <thead>
                     <tr>
                       <th>Guest/User</th>
+                      <th>Type</th>
                       <th>Email</th>
                       <th>Phone</th>
                       <th>Room</th>
@@ -339,6 +357,11 @@ function Manage_Bookings() {
                         className={`booking-row ${updatingId === booking.booking_id ? 'updating' : ''} ${deletingId === booking.booking_id ? 'deleting' : ''}`}
                       >
                         <td>{formatGuestName(booking)}</td>
+                        <td>
+                          <span className={`booking-type-badge ${booking.type === 'guest' ? 'guest-type' : 'user-type'}`}>
+                            {formatBookingType(booking)}
+                          </span>
+                        </td>
                         <td>{booking.email || 'No email'}</td>
                         <td>{booking.phone_number || 'No phone'}</td>
                         <td>{formatRoomName(booking.room)}</td>
