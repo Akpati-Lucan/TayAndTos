@@ -349,7 +349,7 @@ router.get('/bookings', authenticateToken, async (req, res) => {
     `, [req.user.userId]);
 
     res.json(bookings);
-  } catch (error) {
+  } catch (error) {termina
     console.error('Error fetching user bookings:', error);
     res.status(500).json({ message: 'Error fetching bookings' });
   }

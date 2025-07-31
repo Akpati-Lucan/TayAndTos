@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import backendService from '../services/backendService';
 import '../pages_css/Find_Booking_Page.css';
 
 function Find_Booking_Page() {
+  const navigate = useNavigate();
   const [searchForm, setSearchForm] = useState({
     confirmationCode: '',
     email: ''
@@ -16,6 +17,12 @@ function Find_Booking_Page() {
   const [success, setSuccess] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
+
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; 
+  }
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -51,10 +58,14 @@ function Find_Booking_Page() {
         console.log('Trying guest booking search with token generation...');
         const guestResult = await backendService.findGuestBookingAndGenerateToken(searchForm.confirmationCode, searchForm.email);
         
-        // Store the guest token for future authenticated operations
+        // Store the guest token and auth info for future authenticated operations
         if (guestResult.guest_token) {
           sessionStorage.setItem('guest_token', guestResult.guest_token);
-          console.log('Guest token stored for future operations:', guestResult.guest_token.substring(0, 20) + '...');
+          sessionStorage.setItem('guest_auth', JSON.stringify({
+            confirmation_code: searchForm.confirmationCode,
+            email: searchForm.email
+          }));
+          console.log('Guest token and auth info stored for future operations:', guestResult.guest_token.substring(0, 20) + '...');
         }
 
         // Add type field to identify this as a guest booking
@@ -81,59 +92,175 @@ function Find_Booking_Page() {
     }
   };
 
-const handleEditSubmit = async (e) => {
+const handleGuestBookingUpdate = async (booking, formattedData) => {
+    console.log('Handling guest booking update...');
+    
+    let guestToken = sessionStorage.getItem('guest_token');
+    
+    if (!guestToken) {
+      console.log('No guest token found, generating new one...');
+      const newToken = await refreshGuestToken(booking);
+      if (!newToken) {
+        throw new Error('Failed to generate guest token');
+      }
+      guestToken = newToken;
+    }
+
+    try {
+      console.log('Attempting guest booking update with token...');
+      const updatedBooking = await backendService.makeGuestRequest(
+        'PUT',
+        `/guest_bookings/${booking.booking_id}`,
+        formattedData,
+        {
+          Authorization: `Bearer ${guestToken}`
+        }
+      );
+      console.log('Guest booking update successful:', updatedBooking);
+      return updatedBooking;
+    } catch (guestError) {
+      console.error('Guest booking update failed:', guestError);
+      
+      const status = guestError.response?.status;
+      const message = guestError.response?.data?.message;
+
+      if (status === 403 && message === "Invalid or expired token") {
+        console.log('Token expired, attempting to refresh...');
+        sessionStorage.removeItem('guest_token');
+        
+        const newToken = await refreshGuestToken(booking);
+        if (newToken) {
+          console.log('Token refreshed, retrying update...');
+          const retryUpdatedBooking = await backendService.makeGuestRequest(
+            'PUT',
+            `/guest_bookings/${booking.booking_id}`,
+            formattedData,
+            {
+              Authorization: `Bearer ${newToken}`
+            }
+          );
+          console.log('Guest booking update successful after token refresh:', retryUpdatedBooking);
+          return retryUpdatedBooking;
+        } else {
+          // Token refresh failed, reset form
+          setBooking(null);
+          setSearchForm({ confirmationCode: '', email: '' });
+          sessionStorage.removeItem('guest_auth');
+          throw new Error('Your session expired. Please re-enter your confirmation code and email.');
+        }
+      } else {
+        throw guestError;
+      }
+    }
+  };
+
+const handleUserBookingUpdate = async (booking, formattedData) => {
+    console.log('Handling user booking update...');
+    
+    const updatedBooking = await backendService.makeAuthenticatedRequest(`/bookings/${booking.booking_id}`, {
+      method: 'PUT',
+      data: formattedData
+    });
+    
+    console.log('User booking update successful:', updatedBooking);
+    return updatedBooking;
+  };
+
+const refreshGuestToken = async (booking) => {
+    try {
+      const cachedGuest = JSON.parse(sessionStorage.getItem("guest_auth") || "{}");
+  
+      const confirmationCode = booking.confirmation_code || cachedGuest.confirmation_code;
+      const email = booking.email || booking.guest_email || cachedGuest.email;
+  
+      if (!confirmationCode || !email) throw new Error('Missing guest info to refresh token');
+  
+      const result = await backendService.findGuestBookingAndGenerateToken(confirmationCode, email);
+  
+      if (result?.guest_token) {
+        sessionStorage.setItem("guest_token", result.guest_token);
+        return result.guest_token;
+      } else {
+        throw new Error('No guest token received from backend');
+      }
+    } catch (err) {
+      console.error('Failed to refresh guest token:', err);
+      return null;
+    }
+  };
+  
+    const handleEditSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setSuccess('');
   
     try {
-      console.log('Booking data:', booking); // Debug log to see what we have
-      console.log('Edit form data:', editForm); // Debug log
-  
-      // Check if we have a guest token for this booking
-      const guestToken = sessionStorage.getItem('guest_token');
-      const isGuestBooking = !!guestToken;
+      console.log('Booking data:', booking);
+      console.log('Edit form data:', editForm);
 
-      // Format dates for backend
+      if (!booking || !booking.booking_id || !booking.confirmation_code) {
+        throw new Error('Invalid booking data. Please search for your booking again.');
+      }
+
       const formattedData = {
         ...editForm,
         check_in_date: formatDate(editForm.check_in_date),
-        check_out_date: formatDate(editForm.check_out_date)
+        check_out_date: formatDate(editForm.check_out_date),
+        confirmation_code: booking.confirmation_code
       };
-      
+
+      // Determine if this is a guest booking
+      const guestToken = sessionStorage.getItem('guest_token');
+      const isGuestBooking = !!guestToken || booking.type === 'guest' || booking.guest_email;
+
+      console.log('Booking type detection:', { 
+        hasGuestToken: !!guestToken, 
+        bookingType: booking.type, 
+        hasGuestEmail: !!booking.guest_email,
+        isGuestBooking 
+      });
+
       let updatedBooking;
-      
+
       if (isGuestBooking) {
-        console.log('Using guest booking endpoint with guest token');
-        updatedBooking = await backendService.makeGuestRequest(
-          'PUT',
-          `/guest_bookings/${booking.booking_id}`,
-          formattedData,
-          {
-            Authorization: `Bearer ${guestToken}`
-          }
-        );
+        console.log('Processing as guest booking...');
+        updatedBooking = await handleGuestBookingUpdate(booking, formattedData);
       } else {
-        console.log('Using authenticated endpoint with booking ID:', booking.booking_id);
-        updatedBooking = await backendService.makeAuthenticatedRequest(`/bookings/${booking.booking_id}`, {
-          method: 'PUT',
-          data: formattedData
-        });
+        console.log('Processing as user booking...');
+        updatedBooking = await handleUserBookingUpdate(booking, formattedData);
       }
-      
-      
+
+      if (!updatedBooking || typeof updatedBooking !== 'object') {
+        throw new Error('Invalid response from server');
+      }
+
       setBooking(updatedBooking);
       setIsEditing(false);
       setSuccess('Booking updated successfully!');
     } catch (err) {
-      console.error('Update failed:', err); // Log full error
-      setError(err.response?.data?.message || err.message || 'Failed to update booking.');
+      console.error('Update failed:', err);
+
+      const status = err.response?.status;
+      const message = err.response?.data?.message;
+
+      if (status === 401) {
+        setError('Authentication failed. Please try searching for your booking again.');
+        return;
+      }
+
+      if (status === 404) {
+        setError('Booking not found. Please check your confirmation code and email.');
+        return;
+      }
+
+      setError(message || err.message || 'Failed to update booking.');
     } finally {
       setLoading(false);
     }
   };
   
+
   const handleCancelBooking = async () => {
     if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
       return;
@@ -145,7 +272,7 @@ const handleEditSubmit = async (e) => {
     try {
       // Check if we have a guest token for this booking
       const guestToken = sessionStorage.getItem('guest_token');
-      const isGuestBooking = !!guestToken;
+      const isGuestBooking = !!guestToken || booking.type === 'guest' || booking.guest_email;
       
       if (isGuestBooking) {
         console.log('Using guest booking endpoint for cancellation with guest token');
@@ -179,10 +306,7 @@ const handleEditSubmit = async (e) => {
       setLoading(false);
     }
   };
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toISOString().split('T')[0];
-  };
+  
   
   
 
@@ -194,6 +318,27 @@ const handleEditSubmit = async (e) => {
       default: return 'status-pending';
     }
   };
+
+  // Add error boundary for the component
+  if (error && error.includes('Failed to fetch') || error.includes('Network Error')) {
+    return (
+      <div className="app">
+        <Header />
+        <main className="main-content">
+          <div className="find-booking-page">
+            <div className="find-booking-container">
+              <div className="error-message">
+                <h2>Connection Error</h2>
+                <p>Unable to connect to the server. Please check your internet connection and try again.</p>
+                <button onClick={() => window.location.reload()}>Retry</button>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="app">

@@ -217,7 +217,7 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
             dbConfirmationCode: booking.confirmation_code
           });
           
-          if (req.user.booking_id !== bookingId || req.user.confirmation_code !== booking.confirmation_code) {
+          if (parseInt(req.user.booking_id) !== bookingId || req.user.confirmation_code !== booking.confirmation_code) {
             console.log('Authorization failed: Guest token does not match booking');
             return res.status(403).json({ message: 'You are not authorized to cancel this booking' });
           }
@@ -294,7 +294,7 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
             dbConfirmationCode: booking.confirmation_code
           });
           
-          if (req.user.booking_id !== bookingId || req.user.confirmation_code !== booking.confirmation_code) {
+          if (parseInt(req.user.booking_id) !== bookingId || req.user.confirmation_code !== booking.confirmation_code) {
             console.log('Authorization failed: Guest token does not match booking');
             return res.status(403).json({ message: 'You are not authorized to update this booking' });
           }
