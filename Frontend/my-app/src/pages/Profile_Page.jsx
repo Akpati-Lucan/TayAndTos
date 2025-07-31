@@ -154,6 +154,38 @@ function Profile_Page() {
     });
   };
 
+  const handleViewDetails = (booking) => {
+    // Navigate to find booking page with pre-filled data
+    const searchData = {
+      confirmationCode: booking.confirmation_code,
+      email: user.email
+    };
+    sessionStorage.setItem('prefilled_search', JSON.stringify(searchData));
+    window.location.href = '/find-booking';
+  };
+
+  const handleCancelBooking = (booking) => {
+    // Navigate to find booking page with pre-filled data for cancellation
+    const searchData = {
+      confirmationCode: booking.confirmation_code,
+      email: user.email,
+      cancelMode: true
+    };
+    sessionStorage.setItem('prefilled_search', JSON.stringify(searchData));
+    window.location.href = '/find-booking';
+  };
+
+  const handleEditBooking = (booking) => {
+    // Navigate to find booking page with pre-filled data for editing
+    const searchData = {
+      confirmationCode: booking.confirmation_code,
+      email: user.email,
+      editMode: true
+    };
+    sessionStorage.setItem('prefilled_search', JSON.stringify(searchData));
+    window.location.href = '/find-booking';
+  };
+
   if (loading) return <div className="app"><Header /><div className="loading-spinner"><p>Loading profile...</p></div><Footer /></div>;
 
   if (error && (error.includes('401') || error.includes('No authentication token') || error.includes('User not authenticated'))) {
@@ -370,8 +402,28 @@ function Profile_Page() {
                           )}
                         </div>
                         <div className="booking_actions">
-                          <button className="view_details_button">View Details</button>
-                          {booking.status === 'pending' && <button className="cancel_booking_button">Cancel</button>}
+                          <button 
+                            className="view_details_button" 
+                            onClick={() => handleViewDetails(booking)}
+                          >
+                            View Details
+                          </button>
+                          {booking.status !== 'cancelled' && (
+                            <button 
+                              className="edit_booking_button" 
+                              onClick={() => handleEditBooking(booking)}
+                            >
+                              Edit
+                            </button>
+                          )}
+                          {booking.status === 'pending' && (
+                            <button 
+                              className="cancel_booking_button" 
+                              onClick={() => handleCancelBooking(booking)}
+                            >
+                              Cancel
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}

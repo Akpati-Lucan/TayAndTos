@@ -387,6 +387,23 @@
   transform: translateY(-1px);
 }
 
+.edit_booking_button {
+  background-color: #F15A29;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit_booking_button:hover {
+  background-color: #d44a1f;
+  transform: translateY(-1px);
+}
+
 .cancel_booking_button {
   background-color: #ef4444;
   color: white;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -18,6 +18,37 @@ function Find_Booking_Page() {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
 
+  // Handle pre-filled search data from profile page
+  useEffect(() => {
+    const prefilledSearch = sessionStorage.getItem('prefilled_search');
+    if (prefilledSearch) {
+      try {
+        const searchData = JSON.parse(prefilledSearch);
+        setSearchForm({
+          confirmationCode: searchData.confirmationCode || '',
+          email: searchData.email || ''
+        });
+        
+        // If edit mode or cancel mode is enabled, automatically search for the booking
+        if (searchData.editMode || searchData.cancelMode) {
+          // Trigger the search automatically after a short delay
+          setTimeout(() => {
+            const searchEvent = new Event('submit', { bubbles: true, cancelable: true });
+            const form = document.querySelector('.search-form');
+            if (form) {
+              form.dispatchEvent(searchEvent);
+            }
+          }, 100);
+        }
+        
+        // Clear the pre-filled data after using it
+        sessionStorage.removeItem('prefilled_search');
+      } catch (error) {
+        console.error('Error parsing pre-filled search data:', error);
+        sessionStorage.removeItem('prefilled_search');
+      }
+    }
+  }, []);
 
   const formatDate = (date) => {
     const d = new Date(date);
