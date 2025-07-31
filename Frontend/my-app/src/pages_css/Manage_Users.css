@@ -678,7 +678,7 @@
 /* Responsive Design - Consistent with project */
 @media (max-width: 768px) {
   .manage-users-page {
-    padding: 1rem;
+    padding: 0.5rem;
   }
   
   .page-header h1 {
@@ -726,44 +726,25 @@
     margin: 0;
     border-radius: 8px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
   
   .users-table {
     font-size: 0.8rem;
-    width: 100%;
     table-layout: auto;
-    min-width: 100%; /* Allow table to fit container width */
+    min-width: 600px; /* Ensure table doesn't get too cramped */
   }
   
   .users-table th,
   .users-table td {
     padding: 0.5rem 0.25rem;
+    min-width: 60px;
     white-space: nowrap;
-  }
-  
-  /* Ensure action buttons column has minimum width */
-  .users-table th:last-child,
-  .users-table td:last-child {
-    min-width: 100px;
-    width: 100px;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 80px;
-    display: flex !important; /* Ensure buttons are always visible */
   }
   
   .edit-button, .delete-button {
     padding: 0.4rem 0.6rem;
     font-size: 0.7rem;
     min-width: 60px;
-    white-space: nowrap;
-    display: block !important; /* Ensure buttons are always visible */
-    width: 100%;
-    text-align: center;
   }
   
   .edit-name-group {
@@ -771,102 +752,71 @@
     gap: 0.25rem;
   }
   
-  /* Ensure name is visible on mobile */
-  .user-name {
-    white-space: nowrap; /* Prevent wrapping to maintain layout */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 0.85rem;
-  }
+
   
   .edit-actions {
     flex-direction: column;
     gap: 0.25rem;
   }
   
-  .save-button, .cancel-button {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.7rem;
-    min-width: 60px;
-  }
+
   
   /* Column widths for mobile - matching Manage Bookings format */
   .users-table th:nth-child(1), /* Name */
   .users-table td:nth-child(1) {
-    width: 120px;
-    min-width: 120px;
-    max-width: 120px;
+    width: 100px;
   }
   
   .users-table th:nth-child(2), /* Email */
   .users-table td:nth-child(2) {
-    width: 140px;
-    min-width: 140px;
-    max-width: 140px;
+    width: 120px;
   }
   
   .users-table th:nth-child(3), /* Phone */
   .users-table td:nth-child(3) {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
+    width: 80px;
   }
   
   .users-table th:nth-child(4), /* Role */
   .users-table td:nth-child(4) {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 60px;
   }
   
   .users-table th:nth-child(5), /* Bookings */
   .users-table td:nth-child(5) {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 60px;
   }
   
   .users-table th:nth-child(6), /* Actions */
   .users-table td:nth-child(6) {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
+    width: 70px;
   }
 }
 
 @media (max-width: 480px) {
+  .manage-users-page {
+    padding: 0.25rem;
+  }
+  
   .page-header h1 {
     font-size: 1.5rem;
   }
   
   .users-table {
     font-size: 0.75rem;
-    min-width: 100%;
+    min-width: 500px;
   }
   
   .users-table th,
   .users-table td {
     padding: 0.4rem 0.2rem;
-  }
-  
-  /* Ensure action buttons are always visible */
-  .users-table th:last-child,
-  .users-table td:last-child {
-    width: 70px;
-  }
-  
-  .action-buttons {
-    min-width: 60px;
-    display: flex !important; /* Ensure buttons are always visible */
+    min-width: 50px;
   }
   
   .edit-button, .delete-button {
     padding: 0.3rem 0.5rem;
     font-size: 0.65rem;
     min-width: 50px;
-    display: block !important; /* Ensure buttons are always visible */
-    width: 100%;
-    text-align: center;
   }
   
   .edit-input {
@@ -874,60 +824,7 @@
     font-size: 0.75rem;
   }
   
-  /* Ensure name is visible on very small screens */
-  .user-name {
-    font-size: 0.8rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+
   
-  .save-button, .cancel-button {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.65rem;
-    min-width: 50px;
-  }
-  
-  /* Column widths for very small screens - matching Manage Bookings format */
-  .users-table th:nth-child(1), /* Name */
-  .users-table td:nth-child(1) {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
-  }
-  
-  .users-table th:nth-child(2), /* Email */
-  .users-table td:nth-child(2) {
-    width: 120px;
-    min-width: 120px;
-    max-width: 120px;
-  }
-  
-  .users-table th:nth-child(3), /* Phone */
-  .users-table td:nth-child(3) {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
-  }
-  
-  .users-table th:nth-child(4), /* Role */
-  .users-table td:nth-child(4) {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
-  }
-  
-  .users-table th:nth-child(5), /* Bookings */
-  .users-table td:nth-child(5) {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
-  }
-  
-  .users-table th:nth-child(6), /* Actions */
-  .users-table td:nth-child(6) {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
-  }
+
 } 

@@ -247,7 +247,7 @@
       font-size: 0.9rem;
     }
 
-    .user-name {
+    .user-nav .user-name {
       display: none;
     }
   }
