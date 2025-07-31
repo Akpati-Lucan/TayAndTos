@@ -13,6 +13,13 @@ function Manage_Bookings() {
   const [deletingId, setDeletingId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   const [user, setUser] = useState(null);
+  
+  // Search, sort, and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('guest');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -61,6 +68,69 @@ function Manage_Bookings() {
       }
     }
   };
+
+  // Filter and sort bookings
+  const filteredAndSortedBookings = bookings
+    .filter(booking => {
+      const guestName = formatGuestName(booking);
+      const matchesSearch = searchTerm === '' || 
+        guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.room?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.confirmation_code?.includes(searchTerm);
+      
+      const matchesStatus = filterStatus === 'all' || booking.status === filterStatus;
+      const matchesType = filterType === 'all' || formatBookingType(booking).toLowerCase() === filterType;
+      
+      return matchesSearch && matchesStatus && matchesType;
+    })
+    .sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'guest':
+          aValue = formatGuestName(a).toLowerCase();
+          bValue = formatGuestName(b).toLowerCase();
+          break;
+        case 'email':
+          aValue = a.email?.toLowerCase() || '';
+          bValue = b.email?.toLowerCase() || '';
+          break;
+        case 'room':
+          aValue = a.room?.toLowerCase() || '';
+          bValue = b.room?.toLowerCase() || '';
+          break;
+        case 'check_in':
+          aValue = new Date(a.check_in_date);
+          bValue = new Date(b.check_in_date);
+          break;
+        case 'status':
+          aValue = a.status?.toLowerCase() || '';
+          bValue = b.status?.toLowerCase() || '';
+          break;
+        case 'type':
+          aValue = formatBookingType(a).toLowerCase();
+          bValue = formatBookingType(b).toLowerCase();
+          break;
+        default:
+          aValue = a[sortBy]?.toLowerCase() || '';
+          bValue = b[sortBy]?.toLowerCase() || '';
+      }
+      
+      if (sortBy === 'check_in') {
+        if (sortOrder === 'asc') {
+          return aValue - bValue;
+        } else {
+          return bValue - aValue;
+        }
+      } else {
+        if (sortOrder === 'asc') {
+          return aValue.localeCompare(bValue);
+        } else {
+          return bValue.localeCompare(aValue);
+        }
+      }
+    });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -310,7 +380,7 @@ function Manage_Bookings() {
               <div className="header-content">
                 <div>
                   <h1>Manage Bookings</h1>
-                  <p>View and manage all bookings ({bookings.length} total)</p>
+                  <p>View and manage all bookings ({filteredAndSortedBookings.length} of {bookings.length} total)</p>
                 </div>
                 <button 
                   className="refresh-button" 
@@ -323,6 +393,63 @@ function Manage_Bookings() {
             </div>
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
+            
+            {/* Search, Sort, and Filter Controls */}
+            <div className="controls-section">
+              <div className="search-control">
+                <input
+                  type="text"
+                  placeholder="Search bookings..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              
+              <div className="filter-controls">
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Types</option>
+                  <option value="guest">Guest</option>
+                  <option value="user">User</option>
+                </select>
+                
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="sort-select"
+                >
+                  <option value="guest">Sort by Guest</option>
+                  <option value="email">Sort by Email</option>
+                  <option value="room">Sort by Room</option>
+                  <option value="check_in">Sort by Check-in</option>
+                  <option value="status">Sort by Status</option>
+                  <option value="type">Sort by Type</option>
+                </select>
+                
+                <button
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  className="sort-order-btn"
+                >
+                  {sortOrder === 'asc' ? '↑' : '↓'}
+                </button>
+              </div>
+            </div>
+            
             {userLoading ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
@@ -350,8 +477,8 @@ function Manage_Bookings() {
                       <th>Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {bookings.map((booking, index) => (
+                                  <tbody>
+                  {filteredAndSortedBookings.map((booking, index) => (
                       <tr 
                         key={`${booking.booking_id}-${booking.type}-${index}`}
                         className={`booking-row ${updatingId === booking.booking_id ? 'updating' : ''} ${deletingId === booking.booking_id ? 'deleting' : ''}`}

@@ -155,10 +155,11 @@ function Profile_Page() {
   };
 
   const handleViewDetails = (booking) => {
-    // Navigate to find booking page with pre-filled data
+    // Navigate to find booking page with pre-filled data for viewing
     const searchData = {
       confirmationCode: booking.confirmation_code,
-      email: user.email
+      email: user.email,
+      viewMode: true
     };
     sessionStorage.setItem('prefilled_search', JSON.stringify(searchData));
     window.location.href = '/find-booking';

@@ -22,6 +22,12 @@ function Manage_Users() {
   });
   const [editLoading, setEditLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Search, sort, and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [filterRole, setFilterRole] = useState('all');
 
   useEffect(() => {
     const checkAdminAndFetchUsers = async () => {
@@ -110,6 +116,49 @@ function Manage_Users() {
     setError(null);
   };
 
+  // Filter and sort users
+  const filteredAndSortedUsers = users
+    .filter(user => {
+      const matchesSearch = searchTerm === '' || 
+        user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.phone_number?.includes(searchTerm);
+      
+      const matchesRole = filterRole === 'all' || 
+        (filterRole === 'admin' && user.admin) ||
+        (filterRole === 'user' && !user.admin);
+      
+      return matchesSearch && matchesRole;
+    })
+    .sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = `${a.first_name} ${a.last_name}`.toLowerCase();
+          bValue = `${b.first_name} ${b.last_name}`.toLowerCase();
+          break;
+        case 'email':
+          aValue = a.email?.toLowerCase() || '';
+          bValue = b.email?.toLowerCase() || '';
+          break;
+        case 'role':
+          aValue = a.admin ? 'admin' : 'user';
+          bValue = b.admin ? 'admin' : 'user';
+          break;
+        default:
+          aValue = a[sortBy]?.toLowerCase() || '';
+          bValue = b[sortBy]?.toLowerCase() || '';
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+
   const handleEditSave = async (userId) => {
     try {
       setEditLoading(true);
@@ -188,11 +237,53 @@ function Manage_Users() {
           <div className="manage-users-container">
             <div className="page-header">
               <h1>Manage Users</h1>
-              <p>View and manage user accounts</p>
+              <p>View and manage user accounts ({filteredAndSortedUsers.length} of {users.length} users)</p>
             </div>
 
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
+
+            {/* Search, Sort, and Filter Controls */}
+            <div className="controls-section">
+              <div className="search-control">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              
+              <div className="filter-controls">
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="admin">Admins Only</option>
+                  <option value="user">Users Only</option>
+                </select>
+                
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="sort-select"
+                >
+                  <option value="name">Sort by Name</option>
+                  <option value="email">Sort by Email</option>
+                  <option value="role">Sort by Role</option>
+                </select>
+                
+                <button
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  className="sort-order-btn"
+                >
+                  {sortOrder === 'asc' ? '↑' : '↓'}
+                </button>
+              </div>
+            </div>
 
             <div className="users-table-container">
               <table className="users-table">
@@ -207,7 +298,7 @@ function Manage_Users() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
+                  {filteredAndSortedUsers.map((user) => (
                     <React.Fragment key={user.id}>
                       <tr className={`user-row ${editingId === user.id ? 'editing' : ''}`}>
                         <td className="user-name">

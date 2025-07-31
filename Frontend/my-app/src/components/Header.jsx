@@ -17,7 +17,9 @@ function Header() {
     
     if (token && userData) {
       setIsLoggedIn(true);
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      console.log('Header: User data loaded:', parsedUser);
+      setUser(parsedUser);
     }
   }, []);
 
@@ -69,7 +71,7 @@ function Header() {
               <Link to="/profile-page" className="nav-link profile-link">
                 <img src={profileIcon} alt="Profile" className="profile-icon" />
                 <span className="user-name">
-                  {user?.first_name}
+                  {user?.first_name || user?.name || 'User'}
                   {user?.admin && <span className="admin-badge">Admin</span>}
                 </span>
               </Link>
@@ -121,7 +123,7 @@ function Header() {
               <div className="sidebar-profile">
                 <img src={profileIcon} alt="Profile" className="sidebar-profile-icon" />
                 <span className="sidebar-user-name">
-                  {user?.first_name}
+                  {user?.first_name || user?.name || 'User'}
                   {user?.admin && <span className="admin-badge">Admin</span>}
                 </span>
               </div>

@@ -29,8 +29,8 @@ function Find_Booking_Page() {
           email: searchData.email || ''
         });
         
-        // If edit mode or cancel mode is enabled, automatically search for the booking
-        if (searchData.editMode || searchData.cancelMode) {
+        // If edit mode, cancel mode, or view mode is enabled, automatically search for the booking
+        if (searchData.editMode || searchData.cancelMode || searchData.viewMode) {
           // Trigger the search automatically after a short delay
           setTimeout(() => {
             const searchEvent = new Event('submit', { bubbles: true, cancelable: true });
