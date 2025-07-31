@@ -366,9 +366,7 @@ function Manage_Users() {
                               />
                             </div>
                           ) : (
-                            <div className="name-info">
-                              <span className="full-name">{user.first_name} {user.last_name}</span>
-                            </div>
+                            <span>{user.first_name} {user.last_name}</span>
                           )}
                         </td>
                         <td className="user-email">
