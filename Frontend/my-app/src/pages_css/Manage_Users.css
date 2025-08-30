@@ -336,32 +336,38 @@
 /* Column widths for better space distribution */
 .users-table th:nth-child(1), /* Name */
 .users-table td:nth-child(1) {
-  width: 180px;
+  width: 200px;
+  min-width: 200px;
 }
 
 .users-table th:nth-child(2), /* Email */
 .users-table td:nth-child(2) {
   width: 200px;
+  min-width: 200px;
 }
 
 .users-table th:nth-child(3), /* Phone */
 .users-table td:nth-child(3) {
   width: 140px;
+  min-width: 140px;
 }
 
 .users-table th:nth-child(4), /* Role */
 .users-table td:nth-child(4) {
   width: 100px;
+  min-width: 100px;
 }
 
 .users-table th:nth-child(5), /* Bookings */
 .users-table td:nth-child(5) {
   width: 100px;
+  min-width: 100px;
 }
 
 .users-table th:nth-child(6), /* Actions */
 .users-table td:nth-child(6) {
   width: 120px;
+  min-width: 120px;
 }
 
 .users-table thead {
@@ -383,11 +389,30 @@
 .users-table td {
   padding: 1.25rem 1rem;
   border-bottom: 1px solid #f3f4f6;
-  vertical-align: middle;
+  vertical-align: top;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Specific alignment for name column */
+.users-table td.user-name {
+  vertical-align: middle;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* Ensure edit inputs align properly */
+.edit-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  background-color: #fafbfc;
+  box-sizing: border-box;
 }
 
 .user-row:hover {
@@ -434,10 +459,21 @@
 .edit-name-group {
   display: flex;
   gap: 0.5rem;
+  width: 100%;
+  align-items: center;
 }
 
 .edit-name-group .edit-input {
   flex: 1;
+  min-width: 0;
+}
+
+.edit-name-group .edit-input:first-child {
+  flex: 1.2;
+}
+
+.edit-name-group .edit-input:last-child {
+  flex: 1.2;
 }
 
 /* Admin Badge Styles */
@@ -764,32 +800,38 @@
   /* Column widths for mobile - matching Manage Bookings format */
   .users-table th:nth-child(1), /* Name */
   .users-table td:nth-child(1) {
-    width: 100px;
+    width: 120px;
+    min-width: 120px;
   }
   
   .users-table th:nth-child(2), /* Email */
   .users-table td:nth-child(2) {
-    width: 120px;
+    width: 140px;
+    min-width: 140px;
   }
   
   .users-table th:nth-child(3), /* Phone */
   .users-table td:nth-child(3) {
-    width: 80px;
+    width: 100px;
+    min-width: 100px;
   }
   
   .users-table th:nth-child(4), /* Role */
   .users-table td:nth-child(4) {
-    width: 60px;
+    width: 70px;
+    min-width: 70px;
   }
   
   .users-table th:nth-child(5), /* Bookings */
   .users-table td:nth-child(5) {
-    width: 60px;
+    width: 70px;
+    min-width: 70px;
   }
   
   .users-table th:nth-child(6), /* Actions */
   .users-table td:nth-child(6) {
-    width: 70px;
+    width: 80px;
+    min-width: 80px;
   }
 }
 
