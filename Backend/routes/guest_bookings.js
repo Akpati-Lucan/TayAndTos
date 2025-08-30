@@ -4,6 +4,7 @@ const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 const generateConfirmationCode = require('../utils/generate_code');
 const jwt = require('jsonwebtoken');
+const { sendBookingConfirmationEmail } = require('./email');
 
 
 
@@ -72,7 +73,24 @@ router.post('/', async (req, res) => {
         `SELECT * FROM guest_bookings WHERE booking_id = ?`,
         [result.insertId]
       );
-  
+
+      // Send confirmation email
+      try {
+        // Create user object for guest booking email
+        const guestUser = {
+          email: guest_email,
+          first_name: guest_first_name,
+          last_name: guest_last_name
+        };
+        
+        await sendBookingConfirmationEmail(newBooking[0], guestUser);
+        console.log(`Confirmation email sent to guest: ${guest_email}`);
+      } catch (emailError) {
+        console.error('Failed to send confirmation email to guest:', emailError);
+        // Don't fail the booking creation if email fails
+        // The booking is still created successfully
+      }
+
       res.status(201).json(newBooking[0]);
   
     } catch (error) {

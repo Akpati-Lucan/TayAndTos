@@ -22,8 +22,8 @@ function Book_Page() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [user, setUser] = useState(null);
-
-
+  const [emailStatus, setEmailStatus] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -58,8 +58,6 @@ function Book_Page() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;
   };
-
-
 
   const validateForm = () => {
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
@@ -122,7 +120,7 @@ function Book_Page() {
         bookingData.guest_phone_number = formData.phone;
       }
 
-            console.log('Submitting booking:', bookingData);
+      console.log('Submitting booking:', bookingData);
       console.log('User authenticated:', !!user);
       console.log('User data:', user);
       console.log('User ID being sent:', user?.id);
@@ -141,13 +139,61 @@ function Book_Page() {
         bookingResponse = await backendService.makeGuestBookingRequest('/guest_bookings', bookingData);
       }
 
-      // Redirect to booking success page with confirmation code
-      navigate('/booking-success', {
-        state: {
-          message: 'Your booking has been successfully created. You will receive a confirmation email shortly.',
-          confirmationCode: bookingResponse.confirmation_code
+      // Send confirmation email
+      setSendingEmail(true);
+      try {
+        if (user) {
+          // For authenticated users, send email with user details
+          const emailResult = await backendService.sendConfirmationEmail(bookingResponse, {
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name
+          });
+          
+          if (emailResult.success) {
+            console.log('Confirmation email sent successfully to user');
+            setEmailStatus('✅ Confirmation email sent successfully!');
+          } else {
+            console.warn('Failed to send confirmation email to user:', emailResult.error);
+            setEmailStatus('⚠️ Confirmation email could not be sent, but your booking is confirmed.');
+          }
+        } else {
+          // For guest users, send email with guest details
+          const emailResult = await backendService.sendConfirmationEmail(bookingResponse, {
+            email: formData.email,
+            first_name: formData.firstName,
+            last_name: formData.lastName
+          });
+          
+          if (emailResult.success) {
+            console.log('Confirmation email sent successfully to guest');
+            setEmailStatus('✅ Confirmation email sent successfully!');
+          } else {
+            console.warn('Failed to send confirmation email to guest:', emailResult.error);
+            setEmailStatus('⚠️ Confirmation email could not be sent, but your booking is confirmed.');
+          }
         }
-      });
+      } catch (emailError) {
+        console.error('Error sending confirmation email:', emailError);
+        setEmailStatus('⚠️ Confirmation email could not be sent, but your booking is confirmed.');
+        // Don't fail the booking flow if email fails
+      } finally {
+        setSendingEmail(false);
+      }
+
+      // Set success message with email status
+      setSuccess(`🎉 Booking created successfully!\n\nConfirmation Code: ${bookingResponse.confirmation_code}\n\n${emailStatus}\n\nYou will be redirected to the confirmation page shortly.`);
+      
+      // Redirect after a short delay to show the success message
+      setTimeout(() => {
+        navigate('/booking-success', {
+          state: {
+            message: 'Your booking has been successfully created. You will receive a confirmation email shortly.',
+            confirmationCode: bookingResponse.confirmation_code
+          }
+        });
+      }, 3000);
+
       return;
 
     } catch (err) {
@@ -265,7 +311,16 @@ function Book_Page() {
           )}
 
           {success && (
-            null
+            <div className="success-message">
+              <div style={{ whiteSpace: 'pre-line' }}>
+                {success}
+              </div>
+              {sendingEmail && (
+                <div style={{ marginTop: '1rem', color: '#666' }}>
+                  📧 Sending confirmation email...
+                </div>
+              )}
+            </div>
           )}
 
           {!success && (

@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 const generateConfirmationCode = require('../utils/generate_code');
+const { sendBookingConfirmationEmail } = require('./email');
 
 // Get all bookings (user + guest)
 router.get('/', async (req, res) => {
@@ -190,6 +191,25 @@ router.post('/', async (req, res) => {
       `SELECT * FROM bookings WHERE booking_id = ?`,
       [result.insertId]
     );
+
+    // Send confirmation email
+    try {
+      // Get user details for the email
+      const [userDetails] = await db.query(
+        'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
+        [user_id]
+      );
+      
+      if (userDetails.length > 0) {
+        const user = userDetails[0];
+        await sendBookingConfirmationEmail(newBooking[0], user);
+        console.log(`Confirmation email sent to ${user.email}`);
+      }
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError);
+      // Don't fail the booking creation if email fails
+      // The booking is still created successfully
+    }
 
     res.status(201).json(newBooking[0]);
 

@@ -6,6 +6,9 @@ const { initializeDatabase, getPool } = require('./db');
 const usersRoutes = require('./routes/users');
 const bookingsRoutes = require('./routes/bookings');
 const guestBookingsRoutes = require('./routes/guest_bookings');
+const emailRoutes = require('./routes/email');
+const guestEmailRoutes = require('./routes/guest_email');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -32,6 +35,8 @@ async function startServer() {
         app.use('/users', usersRoutes);
         app.use('/bookings', bookingsRoutes);
         app.use('/guest_bookings', guestBookingsRoutes);
+        app.use('/email', emailRoutes.router);
+        app.use('/guest-email', guestEmailRoutes.router);
 
         // Health check endpoint
         app.get('/health', (req, res) => {

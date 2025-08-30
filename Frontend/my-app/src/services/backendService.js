@@ -525,6 +525,50 @@ async testBackendConnection() {
       );
     }
   }
+
+  // Send confirmation email for a booking
+  async sendConfirmationEmail(booking, user) {
+    try {
+      console.log('BackendService: Sending confirmation email...', { booking, user });
+      
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+
+      // Determine if this is a guest booking or authenticated user booking
+      const isGuestBooking = !booking.user_id;
+      const endpoint = isGuestBooking ? '/guest-email/send-guest-booking-confirmation' : '/email/send-booking-confirmation';
+      
+      console.log('Using endpoint:', endpoint, 'for', isGuestBooking ? 'guest' : 'authenticated', 'booking');
+      
+      const requestConfig = {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+      
+      // Add Authorization header for both guest and authenticated users
+      // Guest users get temporary tokens, authenticated users have permanent tokens
+      const token = localStorage.getItem('token');
+      if (token) {
+        requestConfig.headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        console.warn('No authentication token found for email request');
+      }
+      
+      const response = await axios.post(`${BACKEND_URL}${endpoint}`, { booking, user }, requestConfig);
+      
+      console.log('Confirmation email sent successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error sending confirmation email:', error);
+      // Don't throw error - email failure shouldn't break the booking flow
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 const backendService = new BackendService();
