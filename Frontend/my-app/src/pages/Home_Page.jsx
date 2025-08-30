@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import home_page_sections from '../components/home_page_data';
-import '../component_css/Home_page.css';
+import '../pages_css/Home_Page.css';
 
 function Home_Page() {
   return (
