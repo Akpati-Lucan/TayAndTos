@@ -67,7 +67,7 @@ const sendBookingConfirmationEmail = async (booking, user) => {
       to: user.email,
       from: EMAIL_CONFIG.from,
       fromName: EMAIL_CONFIG.fromName,
-      subject: `Booking Confirmation - ${checkInDate}`,
+      subject: `🎉 Booking Confirmed! Code: ${booking.confirmation_code} - ${checkInDate}`,
       text: generateTextEmail(booking, user, checkInDate, checkOutDate, duration),
       html: generateHtmlEmail(booking, user, checkInDate, checkOutDate, duration)
     };
@@ -111,7 +111,11 @@ function generateTextEmail(booking, user, checkInDate, checkOutDate, duration) {
   return `
 Dear ${user.first_name} ${user.last_name},
 
-Thank you for your booking with Tay and Tos Accommodation!
+🎉 Your booking has been successfully confirmed!
+
+IMPORTANT: Your confirmation code is: ${booking.confirmation_code}
+
+Please save this code for your records and bring it with you for check-in.
 
 BOOKING DETAILS:
 - Confirmation Code: ${booking.confirmation_code}
@@ -162,7 +166,33 @@ function generateHtmlEmail(booking, user, checkInDate, checkOutDate, duration) {
         .detail-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
         .detail-label { font-weight: bold; color: #555; }
         .detail-value { color: #333; }
-        .confirmation-code { background: #F15A29; color: white; padding: 10px; border-radius: 5px; text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; }
+        .confirmation-code { 
+          background: #F15A29; 
+          color: white; 
+          padding: 15px; 
+          border-radius: 8px; 
+          text-align: center; 
+          font-size: 20px; 
+          font-weight: bold; 
+          margin: 20px 0; 
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          border: 2px solid #fff;
+        }
+        .confirmation-code .code { 
+          font-size: 24px; 
+          letter-spacing: 2px; 
+          font-family: 'Courier New', monospace;
+          background: rgba(255,255,255,0.2);
+          padding: 8px 12px;
+          border-radius: 4px;
+          margin: 5px 0;
+          display: inline-block;
+        }
+        .copy-instruction {
+          font-size: 14px;
+          margin-top: 10px;
+          opacity: 0.9;
+        }
         .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
         .contact-info { background: #e8f4fd; padding: 15px; border-radius: 5px; margin: 20px 0; }
         .button { display: inline-block; background: #F15A29; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
@@ -173,6 +203,10 @@ function generateHtmlEmail(booking, user, checkInDate, checkOutDate, duration) {
         <div class="header">
             <h1>🎉 Booking Confirmed!</h1>
             <p>Thank you for choosing Tay and Tos Accommodation</p>
+            <div class="confirmation-code">
+                <span class="code">${booking.confirmation_code}</span>
+                <p class="copy-instruction">Click to copy code</p>
+            </div>
         </div>
         
         <div class="content">
@@ -180,12 +214,12 @@ function generateHtmlEmail(booking, user, checkInDate, checkOutDate, duration) {
             
             <p>Your booking has been successfully confirmed! We're excited to welcome you to our accommodation.</p>
             
-            <div class="confirmation-code">
-                Confirmation Code: ${booking.confirmation_code}
-            </div>
-            
             <div class="booking-details">
                 <h3>📋 Booking Details</h3>
+                <div class="detail-row">
+                    <span class="detail-label">Confirmation Code:</span>
+                    <span class="detail-value"><strong>${booking.confirmation_code}</strong></span>
+                </div>
                 <div class="detail-row">
                     <span class="detail-label">Room:</span>
                     <span class="detail-value">${booking.room}</span>
