@@ -1,6 +1,6 @@
 // services/backend/userService.js
-import requestService from './requestService';
-import authService from './authService';
+import requestService from './request_service.js';
+import authService from './auth_service.js';
 
 class UserService {
   async getProfile() {

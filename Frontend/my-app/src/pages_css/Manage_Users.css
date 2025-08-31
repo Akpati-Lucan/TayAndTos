@@ -436,8 +436,9 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* User Info Styles */
-.user-name {
+/* User Info Styles - Specific to table cells */
+.users-table .user-name,
+.user-row .user-name {
   color: #1C1C1C;
   font-size: 1rem;
   overflow: hidden;

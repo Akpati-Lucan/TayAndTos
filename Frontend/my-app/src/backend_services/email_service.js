@@ -1,5 +1,5 @@
 // services/backend/emailService.js
-import requestService from './requestService';
+import requestService from './request_service.js';
 
 class EmailService {
   async sendBookingConfirmation(booking, user) {

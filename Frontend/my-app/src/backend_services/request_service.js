@@ -1,7 +1,7 @@
 // services/backend/requestService.js
-import { axiosInstance } from './config';
-import healthService from './healthService';
-import authService from './authService';
+import { axiosInstance } from './config.js';
+import healthService from './health_service.js';
+import authService from './auth_service.js';
 
 class RequestService {
   async authRequest(method, endpoint, data = {}, options = {}) {

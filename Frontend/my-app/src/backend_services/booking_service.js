@@ -1,5 +1,5 @@
 // services/backend/bookingService.js
-import requestService from './requestService';
+import requestService from './request_service.js';
 
 class BookingService {
   async getUserBookings() {

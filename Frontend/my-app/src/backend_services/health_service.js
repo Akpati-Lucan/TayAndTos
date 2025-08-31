@@ -1,5 +1,5 @@
 // services/backend/healthService.js
-import { axiosInstance, BACKEND_URL } from './config';
+import { axiosInstance, BACKEND_URL } from './config.js';
 
 class HealthService {
   constructor() {
@@ -36,6 +36,14 @@ class HealthService {
 
   async testBackendConnection() {
     return this.check();
+  }
+
+  startHealthChecks(intervalMs = 30000) {
+    this.start(intervalMs);
+  }
+
+  stopHealthChecks() {
+    this.stop();
   }
 }
 

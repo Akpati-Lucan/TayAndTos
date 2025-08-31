@@ -43,7 +43,7 @@
     align-items: center;
   }
   
-  .nav a {
+  .nav > a {
     color: #FFFFFF;
     text-decoration: none;
     font-size: 1.1rem;
@@ -56,7 +56,7 @@
     gap: 0.5rem;
   }
   
-  .nav a:hover {
+  .nav > a:hover {
     color: #F15A29;
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -96,12 +96,17 @@
     color: #F15A29;
   }
 
-  .user-name {
+  .user-nav .user-name,
+  .profile-link .user-name,
+  .sidebar-user-name {
     color: #FFFFFF;
     font-weight: 500;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* Admin Badge */
@@ -213,10 +218,10 @@
       gap: 1rem;
     }
   
-    .nav a {
-      font-size: 1rem;
-      padding: 0.4rem 0.8rem;
-    }
+         .nav > a {
+       font-size: 1rem;
+       padding: 0.4rem 0.8rem;
+     }
 
     .auth-buttons {
       gap: 0.5rem;
@@ -247,9 +252,11 @@
       font-size: 0.9rem;
     }
 
-    .user-nav .user-name {
-      display: none;
-    }
+         .user-nav .user-name,
+     .profile-link .user-name {
+       color: white;
+       font-size: 0.9rem;
+     }
   }
 
   @media (max-width: 480px) {

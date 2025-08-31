@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import backendService from './services/backendService';
+import backendService from './backend_services';
 
 import Home_Page from './pages/Home_Page';
 import LearnMore from './pages/Learn_More';

@@ -1,15 +1,17 @@
 // services/backend/index.js
-import healthService from './healthService';
-import authService from './authService';
-import userService from './userService';
-import bookingService from './bookingService';
-import emailService from './emailService';
+import healthService from './health_service.js';
+import authService from './auth_service.js';
+import userService from './user_service.js';
+import bookingService from './booking_service.js';
+import emailService from './email_service.js';
 
 // Create a comprehensive backendService object that provides all the methods
 // that the frontend pages are currently using
 const backendService = {
   // Health and connection methods
   testBackendConnection: () => healthService.testBackendConnection(),
+  startHealthChecks: (intervalMs) => healthService.startHealthChecks(intervalMs),
+  stopHealthChecks: () => healthService.stopHealthChecks(),
   
   // Authentication methods
   isUserAuthenticated: () => authService.isUserAuthenticated(),
