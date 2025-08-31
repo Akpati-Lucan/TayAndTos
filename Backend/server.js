@@ -6,8 +6,8 @@ const { initializeDatabase, getPool } = require('./db');
 const usersRoutes = require('./routes/users');
 const bookingsRoutes = require('./routes/bookings');
 const guestBookingsRoutes = require('./routes/guest_bookings');
-const emailRoutes = require('./routes/email');
-const guestEmailRoutes = require('./routes/guest_email');
+const emailRoutes = require('./routes/email_routes');
+// Guest email routes are now integrated into the main email routes
 require('dotenv').config();
 
 const app = express();
@@ -35,8 +35,8 @@ async function startServer() {
         app.use('/users', usersRoutes);
         app.use('/bookings', bookingsRoutes);
         app.use('/guest_bookings', guestBookingsRoutes);
-        app.use('/email', emailRoutes.router);
-        app.use('/guest-email', guestEmailRoutes.router);
+        app.use('/email', emailRoutes);
+        // Guest email routes are now handled by /email/send-guest-booking-confirmation
 
         // Health check endpoint
         app.get('/health', (req, res) => {

@@ -360,3 +360,54 @@
   opacity: 1;
   filter: brightness(0.8);
 }
+
+/* Confirmation request styles */
+.need-confirmation {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.auth-link-button {
+  background: none;
+  border: none;
+  color: #F15A29;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+  font-family: inherit;
+}
+
+.auth-link-button:hover {
+  color: #d1451e;
+}
+
+.confirmation-request-form {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e1e5e9;
+}
+
+.confirmation-request-form h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1C1C1C;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.confirmation-request-form p {
+  margin: 0 0 1rem 0;
+  color: #4A4A4A;
+  font-size: 0.9rem;
+}
+
+.confirmation-request-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.confirmation-request-form .auth-button {
+  width: 100%;
+  margin-top: 0;
+}

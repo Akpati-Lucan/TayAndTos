@@ -213,6 +213,45 @@
   text-align: center;
 }
 
+.resend-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #bbf7d0;
+}
+
+.resend-section p {
+  margin: 0 0 0.75rem 0;
+  color: #059669;
+  font-size: 0.85rem;
+}
+
+.resend-button {
+  background-color: #059669;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  letter-spacing: 0.25px;
+}
+
+.resend-button:hover:not(:disabled) {
+  background-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.resend-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* Success states */
 .form-group input.success {
   border-color: #38a169;

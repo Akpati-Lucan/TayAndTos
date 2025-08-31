@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
 const { authenticateToken } = require('../middleware/auth');
+const { sendNewUserConfirmationEmail } = require('../sevices/email_service');
 
 
 router.post('/signup', async (req, res) => {
@@ -48,8 +49,17 @@ router.post('/signup', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    // Send confirmation email
+    try {
+      await sendNewUserConfirmationEmail(newUser);
+      console.log(`Confirmation email sent to ${newUser.email}`);
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+      // Don't fail the signup if email fails, but log the error
+    }
+
     res.status(201).json({
-      message: 'User created successfully',
+      message: 'User created successfully. A confirmation email has been sent to your email address.',
       user: newUser,
       token
     });
@@ -451,6 +461,39 @@ router.delete('/:userId', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Error deleting user' });
+  }
+});
+
+// Find user by email (admin only)
+router.get('/find-by-email/:email', authenticateToken, async (req, res) => {
+  try {
+    if (!req.user.admin) {
+      return res.status(403).json({ message: 'Only admins can search for users by email' });
+    }
+
+    const email = req.params.email;
+    
+    if (!email) {
+      return res.status(400).json({ message: 'Email parameter is required' });
+    }
+
+    const [users] = await db.query(
+      'SELECT id, email, first_name, last_name, phone_number, admin FROM users WHERE email = ?',
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ 
+      success: true,
+      user: users[0] 
+    });
+
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    res.status(500).json({ message: 'Error finding user', error: error.message });
   }
 });
 

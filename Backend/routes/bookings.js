@@ -3,7 +3,7 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 const generateConfirmationCode = require('../utils/generate_code');
-const { sendBookingConfirmationEmail } = require('./email');
+const { sendBookingConfirmationEmail } = require('../sevices/email_service');
 
 // Get all bookings (user + guest)
 router.get('/', async (req, res) => {

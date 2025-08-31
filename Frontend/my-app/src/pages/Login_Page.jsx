@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../pages_css/Login_Page.css';
 import showPasswordIcon from '../images/show-password.webp';
+import backendService from '../services/backendService';
 
 function Login_Page() {
     const navigate = useNavigate();
@@ -17,6 +18,9 @@ function Login_Page() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmationRequest, setShowConfirmationRequest] = useState(false);
+    const [confirmationRequestLoading, setConfirmationRequestLoading] = useState(false);
+    const [confirmationEmail, setConfirmationEmail] = useState('');
 
     const handleInputChange = (e) => {
         const { id, value, type, checked } = e.target;
@@ -62,6 +66,38 @@ function Login_Page() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleRequestConfirmationEmail = async (e) => {
+        e.preventDefault();
+        setConfirmationRequestLoading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const response = await axios.post('http://localhost:8080/email/resend-new-user-confirmation', {
+                email: confirmationEmail
+            });
+
+            setSuccess('Confirmation email sent successfully! Please check your email.');
+            setShowConfirmationRequest(false);
+            setConfirmationEmail('');
+        } catch (err) {
+            if (err.response?.status === 404) {
+                setError('No account found with that email address. Please check your email or sign up for a new account.');
+            } else {
+                setError(err.response?.data?.message || 'Failed to send confirmation email. Please try again.');
+            }
+        } finally {
+            setConfirmationRequestLoading(false);
+        }
+    };
+
+    const toggleConfirmationRequest = () => {
+        setShowConfirmationRequest(!showConfirmationRequest);
+        setConfirmationEmail('');
+        setError('');
+        setSuccess('');
     };
 
     return (
@@ -152,6 +188,41 @@ function Login_Page() {
                         <p className="forgot-password">
                             <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
                         </p>
+                        
+                        <p className="need-confirmation">
+                            <button 
+                                type="button" 
+                                className="auth-link-button"
+                                onClick={toggleConfirmationRequest}
+                            >
+                                Need confirmation email?
+                            </button>
+                        </p>
+                        
+                        {showConfirmationRequest && (
+                            <div className="confirmation-request-form">
+                                <h3>Request Confirmation Email</h3>
+                                <p>Enter your email address to receive a confirmation email.</p>
+                                <form onSubmit={handleRequestConfirmationEmail}>
+                                    <div className="form-group">
+                                        <input 
+                                            type="email" 
+                                            placeholder="Enter your email address" 
+                                            value={confirmationEmail}
+                                            onChange={(e) => setConfirmationEmail(e.target.value)}
+                                            required 
+                                        />
+                                    </div>
+                                    <button 
+                                        type="submit" 
+                                        className="auth-button"
+                                        disabled={confirmationRequestLoading}
+                                    >
+                                        {confirmationRequestLoading ? 'Sending...' : 'Send Confirmation Email'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>

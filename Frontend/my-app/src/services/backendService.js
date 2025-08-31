@@ -540,7 +540,7 @@ async testBackendConnection() {
 
       // Determine if this is a guest booking or authenticated user booking
       const isGuestBooking = !booking.user_id;
-      const endpoint = isGuestBooking ? '/guest-email/send-guest-booking-confirmation' : '/email/send-booking-confirmation';
+      const endpoint = isGuestBooking ? '/email/send-guest-booking-confirmation' : '/email/send-booking-confirmation';
       
       console.log('Using endpoint:', endpoint, 'for', isGuestBooking ? 'guest' : 'authenticated', 'booking');
       
@@ -567,6 +567,133 @@ async testBackendConnection() {
       console.error('BackendService: Error sending confirmation email:', error);
       // Don't throw error - email failure shouldn't break the booking flow
       return { success: false, error: error.message };
+    }
+  }
+
+  // Send new user confirmation email
+  async sendNewUserConfirmationEmail(user) {
+    try {
+      console.log('BackendService: Sending new user confirmation email...', { user });
+      
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token required for sending confirmation email');
+      }
+
+      const response = await axios.post(`${BACKEND_URL}/email/send-new-user-confirmation`, { user }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('New user confirmation email sent successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error sending new user confirmation email:', error);
+      throw error;
+    }
+  }
+
+  // Resend new user confirmation email (public endpoint)
+  async resendNewUserConfirmationEmail(email, first_name, last_name) {
+    try {
+      console.log('BackendService: Resending new user confirmation email...', { email, first_name, last_name });
+      
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+
+      const requestData = { email };
+      if (first_name && last_name) {
+        requestData.first_name = first_name;
+        requestData.last_name = last_name;
+      }
+
+      const response = await axios.post(`${BACKEND_URL}/email/resend-new-user-confirmation`, requestData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('New user confirmation email resent successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error resending new user confirmation email:', error);
+      throw error;
+    }
+  }
+
+  // Send confirmation email to any user by email (for admin or support purposes)
+  async sendConfirmationEmailToUser(email) {
+    try {
+      console.log('BackendService: Sending confirmation email to user by email...', { email });
+      
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token required for sending confirmation email');
+      }
+
+      // First get user details from the database
+      const userResponse = await this.makeAuthenticatedRequest(`/users/find-by-email/${email}`);
+      
+      if (!userResponse || !userResponse.user) {
+        throw new Error('User not found');
+      }
+
+      const user = userResponse.user;
+      
+      // Send the confirmation email
+      const response = await axios.post(`${BACKEND_URL}/email/send-new-user-confirmation`, { user }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Confirmation email sent to user successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error sending confirmation email to user:', error);
+      throw error;
+    }
+  }
+
+  // Test email connection
+  async testEmailConnection() {
+    try {
+      console.log('BackendService: Testing email connection...');
+      
+      if (!this.isBackendAvailable) {
+        await this.checkBackendHealth();
+      }
+      if (!this.isBackendAvailable) {
+        throw new Error('Backend server is not available');
+      }
+
+      const response = await axios.get(`${BACKEND_URL}/email/test-connection`);
+      console.log('Email connection test successful:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('BackendService: Error testing email connection:', error);
+      throw error;
     }
   }
 }

@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../pages_css/Sign-up_Page.css';
 import showPasswordIcon from '../images/show-password.webp';
+import backendService from '../services/backendService';
 
 function Signup_Page() {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ function Signup_Page() {
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [resendLoading, setResendLoading] = useState(false);
+    const [showResendButton, setShowResendButton] = useState(false);
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -77,17 +80,39 @@ function Signup_Page() {
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
-            setSuccess('Account created successfully! Redirecting to home...');
+            setSuccess('Account created successfully! A confirmation email has been sent to your email address.');
+            setShowResendButton(true);
             
-            // Redirect to home page after a short delay
+            // Redirect to home page after a longer delay to allow resend option
             setTimeout(() => {
                 navigate('/');
-            }, 2000);
+            }, 5000);
 
         } catch (err) {
             setError(err.response?.data?.message || 'Signup failed. Please try again.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleResendConfirmationEmail = async () => {
+        setResendLoading(true);
+        setError('');
+        
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                setError('User data not found. Please try logging in again.');
+                return;
+            }
+
+            await backendService.resendNewUserConfirmationEmail(user.email, user.first_name, user.last_name);
+            setSuccess('Confirmation email resent successfully!');
+            setShowResendButton(false);
+        } catch (err) {
+            setError(err.message || 'Failed to resend confirmation email. Please try again.');
+        } finally {
+            setResendLoading(false);
         }
     };
 
@@ -109,6 +134,19 @@ function Signup_Page() {
                         {success && (
                             <div className="success-message">
                                 {success}
+                                {showResendButton && (
+                                    <div className="resend-section">
+                                        <p>Didn't receive the email?</p>
+                                        <button 
+                                            type="button"
+                                            className="resend-button"
+                                            onClick={handleResendConfirmationEmail}
+                                            disabled={resendLoading}
+                                        >
+                                            {resendLoading ? 'Sending...' : 'Resend Confirmation Email'}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                         
