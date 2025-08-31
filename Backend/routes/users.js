@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
 const { authenticateToken } = require('../middleware/auth');
-const { sendNewUserConfirmationEmail } = require('../sevices/email_service');
+const { sendNewUserConfirmationEmail, sendPasswordResetEmail } = require('../sevices/email_service');
+const { generatePasswordResetToken } = require('../utils/securityUtils');
 
 
 router.post('/signup', async (req, res) => {
@@ -278,8 +279,8 @@ router.post('/forgot-password', async (req, res) => {
 
     const user = users[0];
     
-    // Generate a simple reset token (in production, use a more secure method)
-    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // Generate a secure reset token
+    const resetToken = generatePasswordResetToken();
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     // Store reset token in database
@@ -288,9 +289,22 @@ router.post('/forgot-password', async (req, res) => {
       [resetToken, resetTokenExpiry, user.id]
     );
 
-    // In a real application, you would send an email here
-    // For now, we'll just log the reset link
-    console.log(`Password reset link for ${email}: http://localhost:3000/reset-password?token=${resetToken}`);
+    // Generate reset URL
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+
+    try {
+      // Send password reset email
+      await sendPasswordResetEmail(user, resetToken, resetUrl);
+      console.log(`Password reset email sent to ${email}`);
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
+      // Clear the token if email fails
+      await db.query(
+        'UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
+        [user.id]
+      );
+      return res.status(500).json({ message: 'Error sending password reset email. Please try again.' });
+    }
 
     res.json({ message: 'If an account with that email exists, password reset instructions have been sent.' });
 
@@ -359,7 +373,7 @@ router.get('/bookings', authenticateToken, async (req, res) => {
     `, [req.user.userId]);
 
     res.json(bookings);
-  } catch (error) {termina
+  } catch (error) {
     console.error('Error fetching user bookings:', error);
     res.status(500).json({ message: 'Error fetching bookings' });
   }

@@ -32,6 +32,19 @@ class RequestService {
       ...options
     }).then(res => res.data);
   }
+
+  async publicRequest(method, endpoint, data = {}, options = {}) {
+    if (!healthService.isAvailable) await healthService.check();
+    if (!healthService.isAvailable) throw new Error('Backend unavailable');
+
+    return axiosInstance({
+      method,
+      url: endpoint,
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      data,
+      ...options
+    }).then(res => res.data);
+  }
 }
 
 export default new RequestService();

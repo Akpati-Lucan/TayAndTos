@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
+import backendService from '../backend_services';
 import showPasswordIcon from '../images/show-password.webp';
 import '../pages_css/Reset_Password.css';
 
@@ -49,29 +50,17 @@ function Reset_Password() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/users/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: token,
-          newPassword: formData.newPassword
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Password has been reset successfully! Redirecting to login...');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        setError(data.message || 'Failed to reset password. Please try again.');
-      }
+      const data = await backendService.resetPassword(token, formData.newPassword);
+      setSuccess('Password has been reset successfully! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Failed to reset password. Please try again.');
+      } else {
+        setError('Network error. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }

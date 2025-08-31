@@ -1,6 +1,7 @@
 const { sgMail, EMAIL_CONFIG } = require('../config/sendgrid');
 const bookingTemplate = require('../templates/booking_email');
 const newUserTemplate = require('../templates/new_user_email');
+const passwordResetTemplate = require('../templates/password_reset_email');
 
 async function sendBookingConfirmation(booking, user) {
   const checkInDate = new Date(booking.check_in_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -30,9 +31,24 @@ async function sendNewUserConfirmation(user) {
   return sgMail.send(msg);
 }
 
+async function sendPasswordResetEmail(user, resetToken, resetUrl) {
+  const { plainText, html } = passwordResetTemplate.generatePasswordResetEmailContent(user, resetToken, resetUrl);
+  
+  const msg = {
+    to: user.email,
+    from: { email: EMAIL_CONFIG.from, name: EMAIL_CONFIG.fromName },
+    subject: `🔐 Password Reset Request - TayAndTos`,
+    text: plainText,
+    html: html
+  };
+
+  return sgMail.send(msg);
+}
+
 module.exports = { 
   sendBookingConfirmation, 
   sendNewUserConfirmation,
+  sendPasswordResetEmail,
   sendBookingConfirmationEmail: sendBookingConfirmation, // Alias for backward compatibility
   sendNewUserConfirmationEmail: sendNewUserConfirmation // Alias for backward compatibility
 };

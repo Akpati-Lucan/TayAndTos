@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
+import backendService from '../backend_services';
 import '../pages_css/Forgot_Password.css';
 
 function Forgot_Password() {
@@ -17,24 +18,15 @@ function Forgot_Password() {
     setSuccess('');
 
     try {
-      const response = await fetch('http://localhost:8080/users/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Password reset instructions have been sent to your email address.');
-        setEmail('');
-      } else {
-        setError(data.message || 'Failed to send reset email. Please try again.');
-      }
+      const data = await backendService.requestPasswordReset(email);
+      setSuccess('Password reset instructions have been sent to your email address.');
+      setEmail('');
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Failed to send reset email. Please try again.');
+      } else {
+        setError('Network error. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }

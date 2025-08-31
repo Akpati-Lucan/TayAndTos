@@ -1,5 +1,6 @@
 const { sendBookingConfirmation, sendNewUserConfirmation } = require('../sevices/email_service');
 const bookingTemplate = require('../templates/booking_email');
+const passwordResetTemplate = require('../templates/password_reset_email');
 
 exports.sendBooking = async (req, res) => {
   try {
@@ -160,5 +161,25 @@ exports.previewBookingEmail = (req, res) => {
   } catch (err) {
     console.error('Error generating email preview:', err);
     res.status(500).send('<h2>Failed to generate email preview</h2>');
+  }
+};
+
+exports.previewPasswordResetEmail = (req, res) => {
+  try {
+    const { user, resetToken, resetUrl } = req.body;
+
+    if (!user || !resetToken || !resetUrl) {
+      return res.status(400).send('<h2>User, resetToken, and resetUrl required for preview</h2>');
+    }
+
+    // Generate the HTML string
+    const { html } = passwordResetTemplate.generatePasswordResetEmailContent(user, resetToken, resetUrl);
+
+    // Send HTML directly to browser
+    res.set('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    console.error('Error generating password reset email preview:', err);
+    res.status(500).send('<h2>Failed to generate password reset email preview</h2>');
   }
 };

@@ -36,6 +36,14 @@ class UserService {
   async getUsers() {
     return requestService.authRequest('get', '/users');
   }
+
+  async requestPasswordReset(email) {
+    return requestService.publicRequest('post', '/users/forgot-password', { email });
+  }
+
+  async resetPassword(token, newPassword) {
+    return requestService.publicRequest('post', '/users/reset-password', { token, newPassword });
+  }
 }
 
 export default new UserService();

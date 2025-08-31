@@ -22,6 +22,8 @@ const backendService = {
   updateUserProfile: (data) => userService.updateUserProfile(data),
   updateUserPassword: (data) => userService.updateUserPassword(data),
   deleteUser: (userId) => userService.deleteUser(userId),
+  requestPasswordReset: (email) => userService.requestPasswordReset(email),
+  resetPassword: (token, newPassword) => userService.resetPassword(token, newPassword),
   
   // Booking methods
   getUserBookings: () => bookingService.getUserBookings(),
