@@ -129,13 +129,15 @@ BOOKING DETAILS:
 SPECIAL REQUESTS: ${booking.special_requests || 'None'}
 
 ARRIVAL INFORMATION:
-- Check-in time: 2:00 PM
-- Check-out time: 11:00 AM
+- Check-in time: 12:00 PM
+- Check-out time: 12:00 PM
 - Please bring a valid ID for check-in
 
 CONTACT INFORMATION:
-- Phone: +234 XXX XXX XXXX
-- Email: info@tayandtos.com
+- Phone: +234 814 074 9365
+- Phone: +234 803 843 6811
+- Email: divinetay-toscorporations@gmail.com
+- Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA
 
 If you have any questions or need to modify your booking, please contact us as soon as possible.
 
@@ -253,15 +255,234 @@ function generateHtmlEmail(booking, user, checkInDate, checkOutDate, duration) {
             </div>
             
             <div class="contact-info">
-                <h4>📞 Need to Contact Us?</h4>
-                <p><strong>Phone:</strong> +234 XXX XXX XXXX</p>
-                <p><strong>Email:</strong> info@tayandtos.com</p>
+              <h3>Contact Us</h3>
+              <h4>Email: divinetay-toscorporations@gmail.com</h4>
+              <h4>Phone: +234 814 074 9365</h4>
+              <h4>Phone: +234 803 843 6811</h4>
+              <h4>Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA</h4>
             </div>
             
             <p><strong>Important Notes:</strong></p>
             <ul>
-                <li>Check-in time: 2:00 PM</li>
-                <li>Check-out time: 11:00 AM</li>
+                <li>Check-in time: 12:00 PM</li>
+                <li>Check-out time: 12:00 PM</li>
+                <li>Please bring a valid ID for check-in</li>
+                <li>Contact us immediately if you need to modify your booking</li>
+            </ul>
+            
+            <p>We look forward to providing you with a comfortable and memorable stay!</p>
+            
+            <p>Best regards,<br>
+            <strong>The Tay and Tos Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated confirmation email. Please do not reply to this message.</p>
+        </div>
+    </div>
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Send new user confirmation email to user
+ * @param {Object} user - User object with email and name
+ * @returns {Promise} - SendGrid response
+ */
+const sendNewUserConfirmationEmail = async (user) => {
+  try {
+    // Log configuration for debugging
+    console.log('SendGrid Configuration for New User:');
+    console.log('- API Key present:', !!process.env.SENDGRID_API_KEY);
+    console.log('- API Key format:', process.env.SENDGRID_API_KEY?.startsWith('SG.') ? 'Valid' : 'Invalid');
+    console.log('- From Email:', EMAIL_CONFIG.from);
+    console.log('- To Email:', user.email);
+    
+    // Validate configuration
+    if (!process.env.SENDGRID_API_KEY) {
+      throw new Error('SENDGRID_API_KEY environment variable not set');
+    }
+    
+    if (!process.env.SENDGRID_API_KEY.startsWith('SG.')) {
+      throw new Error('SENDGRID_API_KEY format invalid - should start with SG.');
+    }
+    
+    if (!EMAIL_CONFIG.from) {
+      throw new Error('FROM_EMAIL environment variable not set');
+    }
+
+    // Create email content
+    const emailContent = {
+      to: user.email,
+      from: EMAIL_CONFIG.from,
+      fromName: EMAIL_CONFIG.fromName,
+      subject: `🎉 Welcome to Tay and Tos Accommodation!`,
+      text: generateNewUserTextEmail(user),
+      html: generateNewUserHtmlEmail(user)
+    };
+
+    console.log('Sending new user confirmation email with content:', {
+      to: emailContent.to,
+      from: emailContent.from,
+      subject: emailContent.subject
+    });
+
+    // Send email
+    const response = await sgMail.send(emailContent);
+    console.log(`New user confirmation email sent to ${user.email}`);
+    return response;
+  } catch (error) {
+    console.error('Error sending new user confirmation email:', error);
+    
+    // Enhanced error logging for SendGrid issues
+    if (error.code === 403) {
+      console.error('SendGrid 403 Forbidden Error Details for New User:');
+      console.error('- This usually means:');
+      console.error('  1. Invalid or expired API key');
+      console.error('  2. Sender email not verified in SendGrid');
+      console.error('  3. API key lacks "Mail Send" permissions');
+      console.error('  4. SendGrid account restrictions');
+      console.error('- Current configuration:');
+      console.error('  - API Key present:', !!process.env.SENDGRID_API_KEY);
+      console.error('  - API Key format:', process.env.SENDGRID_API_KEY?.startsWith('SG.') ? 'Valid' : 'Invalid');
+      console.error('  - From Email:', EMAIL_CONFIG.from);
+      console.error('  - To Email:', user.email);
+    }
+    
+    throw error;
+  }
+};
+
+/**
+ * Generate plain text version of the new user confirmation email
+ */
+function generateNewUserTextEmail(user) {
+  return `
+Dear ${user.first_name} ${user.last_name},
+
+🎉 Welcome to Tay and Tos Accommodation!
+
+Your account has been successfully created.
+
+Please save this code for your records and bring it with you for check-in.
+
+ACCOUNT DETAILS:
+- Email: ${user.email}
+- Name: ${user.first_name} ${user.last_name}
+
+ARRIVAL INFORMATION:
+- Check-in time: 12:00 PM
+- Check-out time: 12:00 PM
+- Please bring a valid ID for check-in
+
+CONTACT INFORMATION:
+- Phone: +234 814 074 9365
+- Phone: +234 803 843 6811
+- Email: divinetay-toscorporations@gmail.com
+- Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA
+
+If you have any questions or need to modify your booking, please contact us as soon as possible.
+
+We look forward to welcoming you!
+
+Best regards,
+The Tay and Tos Team
+  `.trim();
+}
+
+/**
+ * Generate HTML version of the new user confirmation email
+ */
+function generateNewUserHtmlEmail(user) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Tay and Tos Accommodation</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #F15A29; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px; }
+        .booking-details { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #F15A29; }
+        .detail-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .detail-label { font-weight: bold; color: #555; }
+        .detail-value { color: #333; }
+        .confirmation-code { 
+          background: #F15A29; 
+          color: white; 
+          padding: 15px; 
+          border-radius: 8px; 
+          text-align: center; 
+          font-size: 20px; 
+          font-weight: bold; 
+          margin: 20px 0; 
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          border: 2px solid #fff;
+        }
+        .confirmation-code .code { 
+          font-size: 24px; 
+          letter-spacing: 2px; 
+          font-family: 'Courier New', monospace;
+          background: rgba(255,255,255,0.2);
+          padding: 8px 12px;
+          border-radius: 4px;
+          margin: 5px 0;
+          display: inline-block;
+        }
+        .copy-instruction {
+          font-size: 14px;
+          margin-top: 10px;
+          opacity: 0.9;
+        }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .contact-info { background: #e8f4fd; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { display: inline-block; background: #F15A29; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to Tay and Tos Accommodation!</h1>
+            <p>Thank you for choosing Tay and Tos Accommodation</p>
+            <div class="confirmation-code">
+                <span class="code">Your Account Details</span>
+                <p class="copy-instruction">Click to copy code</p>
+            </div>
+        </div>
+        
+        <div class="content">
+            <p>Dear <strong>${user.first_name} ${user.last_name}</strong>,</p>
+            
+            <p>Your account has been successfully created! We're excited to welcome you to our accommodation.</p>
+            
+            <div class="booking-details">
+                <h3>📋 Account Details</h3>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value"><strong>${user.email}</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">${user.first_name} ${user.last_name}</span>
+                </div>
+            </div>
+            
+            <div class="contact-info">
+              <h3>Contact Us</h3>
+              <h4>Email: divinetay-toscorporations@gmail.com</h4>
+              <h4>Phone: +234 814 074 9365</h4>
+              <h4>Phone: +234 803 843 6811</h4>
+              <h4>Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA</h4>
+            </div>
+            
+            <p><strong>Important Notes:</strong></p>
+            <ul>
+                <li>Check-in time: 12:00 PM</li>
+                <li>Check-out time: 12:00 PM</li>
                 <li>Please bring a valid ID for check-in</li>
                 <li>Contact us immediately if you need to modify your booking</li>
             </ul>
@@ -337,6 +558,55 @@ router.post('/test', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Test email error:', error);
     res.status(500).json({ success: false, message: 'Failed to send test email', error: error.message });
+  }
+});
+
+/**
+ * Send new user confirmation email endpoint
+ */
+router.post('/send-new-user-confirmation', authenticateToken, async (req, res) => {
+  try {
+    const { user } = req.body;
+    
+    if (!user || !user.email || !user.first_name || !user.last_name) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User information with email, first_name, and last_name are required' 
+      });
+    }
+    
+    await sendNewUserConfirmationEmail(user);
+    
+    res.json({ 
+      success: true, 
+      message: 'New user confirmation email sent successfully' 
+    });
+  } catch (error) {
+    console.error('Error sending new user confirmation:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to send new user confirmation email', 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * Test new user email endpoint (for development/testing)
+ */
+router.post('/test-new-user', authenticateToken, async (req, res) => {
+  try {
+    const testUser = {
+      email: 'akpatilucan@gmail.com',
+      first_name: 'John',
+      last_name: 'Doe'
+    };
+    
+    await sendNewUserConfirmationEmail(testUser);
+    res.json({ success: true, message: 'Test new user email sent successfully' });
+  } catch (error) {
+    console.error('Test new user email error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send test new user email', error: error.message });
   }
 });
 
@@ -429,6 +699,7 @@ router.get('/test-connection', async (req, res) => {
 
 module.exports = {
   router,
-  sendBookingConfirmationEmail
+  sendBookingConfirmationEmail,
+  sendNewUserConfirmationEmail
 };
 

@@ -128,13 +128,15 @@ BOOKING DETAILS:
 SPECIAL REQUESTS: ${booking.special_requests || 'None'}
 
 ARRIVAL INFORMATION:
-- Check-in time: 2:00 PM
-- Check-out time: 11:00 AM
+- Check-in time: 12:00 PM
+- Check-out time: 12:00 PM
 - Please bring a valid ID for check-in
 
 CONTACT INFORMATION:
-- Phone: +234 XXX XXX XXXX
-- Email: info@tayandtos.com
+- Phone: +234 814 074 9365
+- Phone: +234 803 843 6811
+- Email: divinetay-toscorporations@gmail.com
+- Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA
 
 If you have any questions or need to modify your booking, please contact us as soon as possible.
 
@@ -252,15 +254,17 @@ function generateHtmlEmail(booking, user, checkInDate, checkOutDate, duration) {
             </div>
             
             <div class="contact-info">
-                <h4>📞 Need to Contact Us?</h4>
-                <p><strong>Phone:</strong> +234 XXX XXX XXXX</p>
-                <p><strong>Email:</strong> info@tayandtos.com</p>
+              <h3>Contact Us</h3>
+              <h4>Email: divinetay-toscorporations@gmail.com</h4>
+              <h4>Phone: +234 814 074 9365</h4>
+              <h4>Phone: +234 803 843 6811</h4>
+              <h4>Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA</h4>
             </div>
             
             <p><strong>Important Notes:</strong></p>
             <ul>
-                <li>Check-in time: 2:00 PM</li>
-                <li>Check-out time: 11:00 AM</li>
+                <li>Check-in time: 12:00 PM</li>
+                <li>Check-out time: 12:00 PM</li>
                 <li>Please bring a valid ID for check-in</li>
                 <li>Contact us immediately if you need to modify your booking</li>
             </ul>
