@@ -1,4 +1,5 @@
 const { sendBookingConfirmation, sendNewUserConfirmation } = require('../sevices/email_service');
+const bookingTemplate = require('../templates/booking_email');
 
 exports.sendBooking = async (req, res) => {
   try {
@@ -133,3 +134,31 @@ exports.sendTestEmail = async (req, res) => {
       res.status(500).json({ success: false, message: 'Failed to send test email', error: err.message });
     }
   };
+
+exports.previewBookingEmail = (req, res) => {
+  try {
+    const { booking, user } = req.body;
+
+    if (!booking || !user) {
+      return res.status(400).send('<h2>Booking and user info required for preview</h2>');
+    }
+
+    const checkInDate = new Date(booking.check_in_date).toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+    });
+    const checkOutDate = new Date(booking.check_out_date).toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+    });
+    const duration = Math.ceil((new Date(booking.check_out_date) - new Date(booking.check_in_date)) / (1000*60*60*24));
+
+    // Generate the HTML string
+    const htmlContent = bookingTemplate.generateHtml(booking, user, checkInDate, checkOutDate, duration);
+
+    // Send HTML directly to browser
+    res.set('Content-Type', 'text/html');
+    res.send(htmlContent);
+  } catch (err) {
+    console.error('Error generating email preview:', err);
+    res.status(500).send('<h2>Failed to generate email preview</h2>');
+  }
+};

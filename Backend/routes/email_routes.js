@@ -1,6 +1,7 @@
 const express = require('express');
+const path = require('path');
 const { authenticateToken } = require('../middleware/auth');
-const emailController = require('../controllers/emailController');
+const emailController = require('../controllers/email_controller');
 
 const router = express.Router();
 
@@ -12,6 +13,12 @@ router.post('/send-guest-booking-confirmation', authenticateToken, emailControll
 
 // Test endpoints
 router.post('/test', authenticateToken, emailController.sendTestEmail);
+
+// Preview endpoints (for development/testing)
+router.post('/preview-booking-email', emailController.previewBookingEmail);
+router.get('/preview-test', (req, res) => {
+  res.sendFile(path.join(__dirname, '../email-preview-test.html'));
+});
 
 // Public endpoints (no authentication required)
 router.post('/resend-new-user-confirmation', emailController.resendNewUserConfirmation);

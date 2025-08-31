@@ -139,47 +139,8 @@ function Book_Page() {
         bookingResponse = await backendService.makeGuestBookingRequest('/guest_bookings', bookingData);
       }
 
-      // Send confirmation email
-      setSendingEmail(true);
-      try {
-        if (user) {
-          // For authenticated users, send email with user details
-          const emailResult = await backendService.sendConfirmationEmail(bookingResponse, {
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name
-          });
-          
-          if (emailResult.success) {
-            console.log('Confirmation email sent successfully to user');
-            setEmailStatus('✅ Confirmation email sent successfully!');
-          } else {
-            console.warn('Failed to send confirmation email to user:', emailResult.error);
-            setEmailStatus('⚠️ Confirmation email could not be sent, but your booking is confirmed.');
-          }
-        } else {
-          // For guest users, send email with guest details
-          const emailResult = await backendService.sendConfirmationEmail(bookingResponse, {
-            email: formData.email,
-            first_name: formData.firstName,
-            last_name: formData.lastName
-          });
-          
-          if (emailResult.success) {
-            console.log('Confirmation email sent successfully to guest');
-            setEmailStatus('✅ Confirmation email sent successfully!');
-          } else {
-            console.warn('Failed to send confirmation email to guest:', emailResult.error);
-            setEmailStatus('⚠️ Confirmation email could not be sent, but your booking is confirmed.');
-          }
-        }
-      } catch (emailError) {
-        console.error('Error sending confirmation email:', emailError);
-        setEmailStatus('⚠️ Confirmation email could not be sent, but your booking is confirmed.');
-        // Don't fail the booking flow if email fails
-      } finally {
-        setSendingEmail(false);
-      }
+      // Email is now sent automatically by the backend when creating the booking
+      setEmailStatus('✅ Confirmation email sent automatically!');
 
       // Set success message with email status
       setSuccess(`🎉 Booking created successfully!\n\nConfirmation Code: ${bookingResponse.confirmation_code}\n\n${emailStatus}\n\nYou will be redirected to the confirmation page shortly.`);
