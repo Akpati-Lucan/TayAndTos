@@ -43,6 +43,26 @@ class BookingService {
   async makeGuestBookingRequest(endpoint, data = {}) {
     return requestService.guestRequest('post', endpoint, data);
   }
+
+  async makeGuestPut(endpoint, data = {}, guestToken = null) {
+    const options = {};
+    if (guestToken) {
+      options.headers = { Authorization: `Bearer ${guestToken}` };
+    }
+    return requestService.guestRequest('put', endpoint, data, options);
+  }
+
+  async makeGuestDelete(endpoint, data = {}, guestToken = null) {
+    const options = {};
+    if (guestToken) {
+      options.headers = { Authorization: `Bearer ${guestToken}` };
+    }
+    return requestService.guestRequest('delete', endpoint, data, options);
+  }
+
+  async makeAuthenticatedGet(endpoint) {
+    return requestService.authRequest('get', endpoint);
+  }
 }
 
 export default new BookingService();

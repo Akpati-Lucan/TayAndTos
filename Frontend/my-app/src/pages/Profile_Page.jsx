@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import backendService from '../backend_services';
 import showPasswordIcon from '../images/show-password.webp';
@@ -49,7 +49,7 @@ function Profile_Page() {
         const authStatus = backendService.isUserAuthenticated();
         console.log('Profile page: Authentication status:', authStatus);
         
-        if (!authStatus.isAuthenticated) {
+        if (!authStatus) {
           console.log('Profile page: User not authenticated');
           throw new Error('User not authenticated');
         }

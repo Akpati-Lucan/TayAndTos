@@ -28,8 +28,11 @@ const backendService = {
   findGuestBookingAndGenerateToken: (code, email) => bookingService.findGuestBookingAndGenerateToken(code, email),
   makeAuthenticatedRequest: (endpoint, data) => bookingService.makeAuthenticatedRequest(endpoint, data),
   makeGuestRequest: (endpoint, data) => bookingService.makeGuestRequest(endpoint, data),
+  makeGuestPut: (endpoint, data, guestToken) => bookingService.makeGuestPut(endpoint, data, guestToken),
+  makeGuestDelete: (endpoint, data, guestToken) => bookingService.makeGuestDelete(endpoint, data, guestToken),
   makeAuthenticatedDelete: (endpoint) => bookingService.makeAuthenticatedDelete(endpoint),
   makeAuthenticatedPut: (endpoint, data) => bookingService.makeAuthenticatedPut(endpoint, data),
+  makeAuthenticatedGet: (endpoint) => bookingService.makeAuthenticatedGet(endpoint),
   makeGuestBookingRequest: (endpoint, data) => bookingService.makeGuestBookingRequest(endpoint, data),
   
   // Email methods

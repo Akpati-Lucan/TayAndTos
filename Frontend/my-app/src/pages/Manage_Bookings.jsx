@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import backendService from '../backend_services';
 import '../pages_css/Manage_Bookings.css';
@@ -221,15 +221,20 @@ function Manage_Bookings() {
       setLoading(true);
       setError('');
       
+      // Check if user is already loaded and is admin
+      if (!user || !user.admin) {
+        throw new Error('User not authorized to view bookings.');
+      }
+      
       // Check if user is authenticated before making the request
       const authStatus = backendService.isUserAuthenticated();
       console.log('Authentication status before fetching bookings:', authStatus);
       
-      if (!authStatus.isAuthenticated) {
+      if (!authStatus) {
         throw new Error('User not authenticated. Please log in again.');
       }
       
-      const data = await backendService.makeAuthenticatedRequest('/bookings');
+      const data = await backendService.makeAuthenticatedGet('/bookings');
       console.log('Fetched bookings data:', data);
       if (data.length > 0) {
         console.log('Sample booking structure:', data[0]);
@@ -341,10 +346,7 @@ function Manage_Bookings() {
       
       console.log('Update payload:', updatePayload);
       
-      const response = await backendService.makeAuthenticatedRequest(endpoint, {
-        method: 'PUT',
-        data: updatePayload
-      });
+      const response = await backendService.makeAuthenticatedPut(endpoint, updatePayload);
       console.log('Backend response:', response);
       
       // Update local state by mapping over the bookings and updating the specific one

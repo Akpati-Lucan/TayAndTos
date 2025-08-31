@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import backendService from '../backend_services';
 import '../pages_css/Book_Page.css';
@@ -109,7 +109,7 @@ function Book_Page() {
         special_requests: formData.specialRequests || null
       };
       
-      if (user) {
+      if (user && user.id) {
         // Add user_id for authenticated users
         bookingData.user_id = user.id;
       } else {
@@ -123,17 +123,21 @@ function Book_Page() {
       console.log('Submitting booking:', bookingData);
       console.log('User authenticated:', !!user);
       console.log('User data:', user);
-      console.log('User ID being sent:', user?.id);
-      console.log('Room type:', formData.roomType);
-      console.log('Check-in date:', formData.checkIn);
-      console.log('Check-out date:', formData.checkOut);
+      
+      // Validate that all required fields are present
+      if (!bookingData.room || !bookingData.check_in_date || !bookingData.check_out_date || !bookingData.number_of_guests) {
+        throw new Error('Missing required booking fields');
+      }
+      
+      if (user && user.id && !bookingData.user_id) {
+        throw new Error('User ID is missing from booking data');
+      }
+      
+      console.log('Final booking data to be sent:', bookingData);
       
       let bookingResponse;
-      if (user) {
-        bookingResponse = await backendService.makeAuthenticatedRequest('/bookings', {
-          method: 'POST',
-          data: bookingData
-        });
+      if (user && user.id) {
+        bookingResponse = await backendService.makeAuthenticatedRequest('/bookings', bookingData);
       } else {
         // For guests, use the guest booking endpoint
         bookingResponse = await backendService.makeGuestBookingRequest('/guest_bookings', bookingData);

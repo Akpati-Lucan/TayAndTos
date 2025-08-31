@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import backendService from '../backend_services';
 import showPasswordIcon from '../images/show-password.webp';
@@ -52,7 +52,7 @@ function Manage_Users() {
     try {
       setLoading(true);
       setError(null);
-      const response = await backendService.makeAuthenticatedRequest('/users');
+      const response = await backendService.makeAuthenticatedGet('/users');
       setUsers(response);
       setSuccess('Users loaded successfully');
     } catch (err) {

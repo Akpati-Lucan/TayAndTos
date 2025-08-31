@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import Footer from '../components/Footer';
 import backendService from '../backend_services';
 import '../pages_css/Find_Booking_Page.css';
@@ -65,11 +65,8 @@ function Find_Booking_Page() {
     try {
       // Use authenticated endpoint to find booking
       const foundBooking = await backendService.makeAuthenticatedRequest(`/bookings/find`, {
-        method: 'POST',
-        data: {
-          confirmation_code: searchForm.confirmationCode,
-          email: searchForm.email
-        }
+        confirmation_code: searchForm.confirmationCode,
+        email: searchForm.email
       });
       
       setBooking(foundBooking);
@@ -139,13 +136,10 @@ const handleGuestBookingUpdate = async (booking, formattedData) => {
 
     try {
       console.log('Attempting guest booking update with token...');
-      const updatedBooking = await backendService.makeGuestRequest(
-        'PUT',
+      const updatedBooking = await backendService.makeGuestPut(
         `/guest_bookings/${booking.booking_id}`,
         formattedData,
-        {
-          Authorization: `Bearer ${guestToken}`
-        }
+        guestToken
       );
       console.log('Guest booking update successful:', updatedBooking);
       return updatedBooking;
@@ -162,13 +156,10 @@ const handleGuestBookingUpdate = async (booking, formattedData) => {
         const newToken = await refreshGuestToken(booking);
         if (newToken) {
           console.log('Token refreshed, retrying update...');
-          const retryUpdatedBooking = await backendService.makeGuestRequest(
-            'PUT',
+          const retryUpdatedBooking = await backendService.makeGuestPut(
             `/guest_bookings/${booking.booking_id}`,
             formattedData,
-            {
-              Authorization: `Bearer ${newToken}`
-            }
+            newToken
           );
           console.log('Guest booking update successful after token refresh:', retryUpdatedBooking);
           return retryUpdatedBooking;
@@ -188,10 +179,7 @@ const handleGuestBookingUpdate = async (booking, formattedData) => {
 const handleUserBookingUpdate = async (booking, formattedData) => {
     console.log('Handling user booking update...');
     
-    const updatedBooking = await backendService.makeAuthenticatedRequest(`/bookings/${booking.booking_id}`, {
-      method: 'PUT',
-      data: formattedData
-    });
+    const updatedBooking = await backendService.makeAuthenticatedPut(`/bookings/${booking.booking_id}`, formattedData);
     
     console.log('User booking update successful:', updatedBooking);
     return updatedBooking;
@@ -346,25 +334,17 @@ const refreshGuestToken = async (booking) => {
       
       if (isGuestBooking) {
         console.log('Using guest booking endpoint for cancellation with guest token');
-        await backendService.makeGuestRequest(
-          'DELETE',
+        await backendService.makeGuestDelete(
           `/guest_bookings/${booking.booking_id}`,
           {
             confirmation_code: booking.confirmation_code
           },
-          {
-            'Authorization': `Bearer ${guestToken}`
-          }
+          guestToken
         );
       } else {
         // Use regular authenticated endpoint
         console.log('Using authenticated endpoint for cancellation with booking ID:', booking.booking_id);
-        await backendService.makeAuthenticatedRequest(`/bookings/${booking.booking_id}`, {
-          method: 'DELETE',
-          data: {
-            confirmation_code: booking.confirmation_code
-          }
-        });
+        await backendService.makeAuthenticatedDelete(`/bookings/${booking.booking_id}`);
       }
       
       setBooking({ ...booking, status: 'cancelled' });

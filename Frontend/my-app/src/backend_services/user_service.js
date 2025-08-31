@@ -32,6 +32,10 @@ class UserService {
   async updateUserPassword(data) {
     return this.updatePassword(data);
   }
+
+  async getUsers() {
+    return requestService.authRequest('get', '/users');
+  }
 }
 
 export default new UserService();
