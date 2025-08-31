@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../pages_css/Sign-up_Page.css';
 import showPasswordIcon from '../images/show-password.webp';
-import backendService from '../services/backendService';
+import backendService from '../backend_services';
 
 function Signup_Page() {
     const navigate = useNavigate();

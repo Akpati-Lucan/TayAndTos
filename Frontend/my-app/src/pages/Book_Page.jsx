@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backendService from '../services/backendService';
+import backendService from '../backend_services';
 import '../pages_css/Book_Page.css';
 
 function Book_Page() {

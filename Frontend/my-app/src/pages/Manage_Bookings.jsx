@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backendService from '../services/backendService';
+import backendService from '../backend_services';
 import '../pages_css/Manage_Bookings.css';
 
 function Manage_Bookings() {

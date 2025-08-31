@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backendService from '../services/backendService';
+import backendService from '../backend_services';
 import showPasswordIcon from '../images/show-password.webp';
 import '../pages_css/Manage_Users.css';
 
