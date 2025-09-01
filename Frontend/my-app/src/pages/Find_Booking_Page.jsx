@@ -55,6 +55,11 @@ function Find_Booking_Page() {
     return d.toISOString().split('T')[0]; 
   }
 
+  const formatRoomName = (roomType) => {
+    if (!roomType) return 'Not selected';
+    return roomType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -458,7 +463,7 @@ const refreshGuestToken = async (booking) => {
                             </div>
                             <div className="info-item">
                               <label>Room</label>
-                              <span>{booking.room}</span>
+                              <span>{formatRoomName(booking.room)}</span>
                             </div>
                             <div className="info-item">
                               <label>Status</label>
@@ -553,13 +558,18 @@ const refreshGuestToken = async (booking) => {
                               <div className="edit-form-grid">
                                 <div className="form-group">
                                   <label htmlFor="editRoom">Room</label>
-                                  <input
-                                    type="text"
+                                  <select
                                     id="editRoom"
                                     value={editForm.room}
                                     onChange={(e) => setEditForm({...editForm, room: e.target.value})}
                                     required
-                                  />
+                                  >
+                                    <option value="">Select a room</option>
+                                    <option value="master-bedroom">Master Bedroom</option>
+                                    <option value="mini-bedroom">Mini Bedroom</option>
+                                    <option value="childrens-bedroom">Children's Bedroom</option>
+                                    <option value="outside-kitchen">Outside Kitchen</option>
+                                  </select>
                                 </div>
                                 <div className="form-group">
                                   <label htmlFor="editGuests">Number of Guests</label>
@@ -619,7 +629,7 @@ const refreshGuestToken = async (booking) => {
                       </div>
                       <div className="mobile-info-item">
                         <label>Room</label>
-                        <span>{booking.room}</span>
+                        <span>{formatRoomName(booking.room)}</span>
                       </div>
                       <div className="mobile-info-item">
                         <label>Status</label>
@@ -705,13 +715,18 @@ const refreshGuestToken = async (booking) => {
                             <form onSubmit={handleEditSubmit}>
                               <div className="form-group">
                                 <label htmlFor="mobileEditRoom">Room</label>
-                                <input
-                                  type="text"
+                                <select
                                   id="mobileEditRoom"
                                   value={editForm.room}
                                   onChange={(e) => setEditForm({...editForm, room: e.target.value})}
                                   required
-                                />
+                                >
+                                  <option value="">Select a room</option>
+                                  <option value="master-bedroom">Master Bedroom</option>
+                                  <option value="mini-bedroom">Mini Bedroom</option>
+                                  <option value="childrens-bedroom">Children's Bedroom</option>
+                                  <option value="outside-kitchen">Outside Kitchen</option>
+                                </select>
                               </div>
                               <div className="form-group">
                                 <label htmlFor="mobileEditGuests">Number of Guests</label>
@@ -785,8 +800,9 @@ const refreshGuestToken = async (booking) => {
               <h3>Need Help?</h3>
               <p>If you can't find your booking or need assistance, please contact us:</p>
               <div className="contact-info">
-                <p>📧 Email: divinetay-toscorporations@ gmail.com</p>
+                <p>📧 Email: divinetay-toscorporations@gmail.com</p>
                 <p>📞 Phone: +234 (814) 074-9365</p>
+                <p>📞 Phone: +234 (803) 843 6811</p>
               </div>
             </div>
           </div>

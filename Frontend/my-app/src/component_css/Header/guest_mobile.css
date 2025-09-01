@@ -90,6 +90,9 @@
 .sidebar-auth-section {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .sidebar-signup {
@@ -98,11 +101,18 @@
   margin: 0 1.5rem;
   border-radius: 8px;
   text-align: center;
+  padding: 0.75rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: block;
 }
 
 .sidebar-signup:hover {
   background-color: #d44a1f;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(241, 90, 41, 0.3);
 }
 
 /* Mobile Responsive */

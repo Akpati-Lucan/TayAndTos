@@ -4,7 +4,7 @@ const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 const generateConfirmationCode = require('../utils/generate_code');
 const jwt = require('jsonwebtoken');
-const { sendBookingConfirmationEmail } = require('../sevices/email_service');
+const { sendBookingConfirmationEmail, sendBookingUpdateConfirmation, sendBookingCancellationEmail } = require('../sevices/email_service');
 
 
 
@@ -207,7 +207,7 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
 
       // Get the guest booking
       const [bookings] = await db.query(
-        'SELECT confirmation_code, status FROM guest_bookings WHERE booking_id = ?',
+        'SELECT * FROM guest_bookings WHERE booking_id = ?',
         [bookingId]
       );
 
@@ -252,8 +252,25 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
         'UPDATE guest_bookings SET status = ? WHERE booking_id = ?',
         ['cancelled', bookingId]
       );
-  
-      res.status(200).json({ message: 'Guest booking cancelled successfully' });
+
+      // Create user object for email (guest bookings don't have user_id)
+      const guestUser = {
+        id: null,
+        email: booking.guest_email,
+        first_name: booking.guest_first_name,
+        last_name: booking.guest_last_name
+      };
+
+      // Send booking cancellation email
+      try {
+        await sendBookingCancellationEmail(booking, guestUser);
+        console.log(`Guest booking cancellation email sent to ${guestUser.email}`);
+      } catch (emailError) {
+        console.error('Error sending guest booking cancellation email:', emailError);
+        // Don't fail the booking cancellation if email fails, but log the error
+      }
+
+      res.status(200).json({ message: 'Guest booking cancelled successfully. A cancellation email has been sent to your email address.' });
   
     } catch (error) {
       console.error('Error cancelling guest booking:', error);
@@ -366,12 +383,29 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
   
       await db.query(updateQuery, queryParams);
   
-      // Return updated booking
+            // Return updated booking
       const [updated] = await db.query(
         'SELECT * FROM guest_bookings WHERE booking_id = ?',
         [bookingId]
       );
-  
+
+      // Create user object for email (guest bookings don't have user_id)
+      const guestUser = {
+        id: null,
+        email: updated[0].guest_email,
+        first_name: updated[0].guest_first_name,
+        last_name: updated[0].guest_last_name
+      };
+
+      // Send booking update confirmation email
+      try {
+        await sendBookingUpdateConfirmation(updated[0], guestUser);
+        console.log(`Guest booking update confirmation email sent to ${guestUser.email}`);
+      } catch (emailError) {
+        console.error('Error sending guest booking update confirmation email:', emailError);
+        // Don't fail the booking update if email fails, but log the error
+      }
+
       res.status(200).json(updated[0]);
   
     } catch (error) {
@@ -379,3 +413,5 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Error updating guest booking', error: error.message });
     }
   });
+
+module.exports = router;

@@ -21,7 +21,7 @@ function AdminDesktop({ user, handleLogout }) {
           <Link to="/manage-users" className="nav-link admin-link">Manage Users</Link>
         </div>
         <div className="user-nav">
-          <Link to="/profile" className="nav-link profile-link">
+          <Link to="/profile-page" className="nav-link profile-link">
             <span className="user-name">{user?.first_name || 'Admin'}</span>
             <span className="admin-badge">Admin</span>
           </Link>

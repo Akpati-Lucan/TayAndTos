@@ -43,7 +43,7 @@ function AdminMobile({ user, handleLogout, toggleSidebar, isSidebarOpen, closeSi
               </div>
               <Link to="/manage-bookings" className="sidebar-link" onClick={closeSidebar}>Manage Bookings</Link>
               <Link to="/manage-users" className="sidebar-link" onClick={closeSidebar}>Manage Users</Link>
-              <Link to="/profile" className="sidebar-link" onClick={closeSidebar}>Profile</Link>
+              <Link to="/profile-page" className="sidebar-link" onClick={closeSidebar}>Profile</Link>
               <button onClick={() => { handleLogout(); closeSidebar(); }} className="sidebar-logout-btn">
                 Logout
               </button>

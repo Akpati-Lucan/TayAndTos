@@ -38,7 +38,7 @@ function UserMobile({ user, handleLogout, toggleSidebar, isSidebarOpen, closeSid
                 <img src={logo} alt="Profile" className="sidebar-profile-icon" />
                 <div className="sidebar-user-name">{user?.first_name || 'User'}</div>
               </div>
-              <Link to="/profile" className="sidebar-link" onClick={closeSidebar}>Profile</Link>
+              <Link to="/profile-page" className="sidebar-link" onClick={closeSidebar}>Profile</Link>
               <button onClick={() => { handleLogout(); closeSidebar(); }} className="sidebar-logout-btn">
                 Logout
               </button>

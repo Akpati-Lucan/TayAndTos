@@ -23,13 +23,13 @@
   color: #F15A29;
 }
 
-.signup-link {
+.auth-link.signup-link {
   background-color: #F15A29;
   color: white;
   border: 1px solid #F15A29;
 }
 
-.signup-link:hover {
+.auth-link.signup-link:hover {
   background-color: #d44a1f;
   border-color: #d44a1f;
   color: white;

@@ -164,6 +164,7 @@
   margin-top: 20px;
   justify-content: center;
   width: 100%;
+  align-items: center;
 }
 
 .book_button, .learn_more_button {
@@ -182,7 +183,7 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  margin-top: 32px;
+  margin: 0;
 }
 /* Colors */
 .book_button {
@@ -274,17 +275,76 @@
   }
 
   .button-container {
-      flex-direction: row;
+      flex-direction: column;
       justify-content: center;
-      gap: 10px;
+      align-items: center;
+      gap: 12px;
       margin-top: 20px;
+      width: 100%;
   }
 
   .book_button, .learn_more_button {
-      width: 120px;
-      height: 40px;
-      padding: 8px 12px;
+      width: 100%;
+      max-width: 200px;
+      height: 44px;
+      padding: 10px 16px;
+      font-size: 15px;
+      margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+      padding: 0.75rem;
+  }
+  
+  .main-content h1 {
+      font-size: 1.75rem;
+  }
+  
+  .main-content p {
+      font-size: 1rem;
+  }
+  
+  .quick_actions {
+      gap: 1rem;
+      margin: 1rem 0;
+      padding: 0 0.25rem;
+  }
+  
+  .action_card {
+      padding: 1.25rem;
+  }
+  
+  .component_container {
+      padding: 12px;
+      margin: 8px;
+      border-radius: 16px;
+  }
+  
+  .component_description {
+      padding: 8px;
+  }
+  
+  .component_description h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+  }
+  
+  .component_description p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+  }
+  
+  .button-container {
+      gap: 10px;
+      margin-top: 16px;
+  }
+  
+  .book_button, .learn_more_button {
+      max-width: 180px;
+      height: 42px;
+      padding: 8px 14px;
       font-size: 14px;
-      margin-top: 32px;
   }
 }

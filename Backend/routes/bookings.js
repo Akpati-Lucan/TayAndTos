@@ -3,7 +3,7 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const db = require('../db'); // assumes you're exporting pool/query from db.js
 const generateConfirmationCode = require('../utils/generate_code');
-const { sendBookingConfirmationEmail } = require('../sevices/email_service');
+const { sendBookingConfirmationEmail, sendBookingUpdateConfirmation, sendBookingCancellationEmail } = require('../sevices/email_service');
 
 // Get all bookings (user + guest)
 router.get('/', async (req, res) => {
@@ -249,7 +249,7 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
 
     // Retrieve the booking
     const [bookings] = await db.query(
-      'SELECT user_id, confirmation_code, status FROM bookings WHERE booking_id = ?',
+      'SELECT * FROM bookings WHERE booking_id = ?',
       [bookingId]
     );
 
@@ -278,7 +278,24 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
       ['cancelled', bookingId]
     );
 
-    res.status(200).json({ message: 'Booking cancelled successfully' });
+    // Get user information for email
+    const [userInfo] = await db.query(
+      'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
+      [booking.user_id]
+    );
+
+    // Send booking cancellation email
+    if (userInfo.length > 0) {
+      try {
+        await sendBookingCancellationEmail(booking, userInfo[0]);
+        console.log(`Booking cancellation email sent to ${userInfo[0].email}`);
+      } catch (emailError) {
+        console.error('Error sending booking cancellation email:', emailError);
+        // Don't fail the booking cancellation if email fails, but log the error
+      }
+    }
+
+    res.status(200).json({ message: 'Booking cancelled successfully. A cancellation email has been sent to your email address.' });
 
   } catch (error) {
     console.error('Error cancelling booking:', error);
@@ -364,6 +381,23 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
       'SELECT * FROM bookings WHERE booking_id = ?',
       [bookingId]
     );
+
+    // Get user information for email
+    const [userInfo] = await db.query(
+      'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
+      [booking.user_id]
+    );
+
+    // Send booking update confirmation email
+    if (userInfo.length > 0) {
+      try {
+        await sendBookingUpdateConfirmation(updatedBooking[0], userInfo[0]);
+        console.log(`Booking update confirmation email sent to ${userInfo[0].email}`);
+      } catch (emailError) {
+        console.error('Error sending booking update confirmation email:', emailError);
+        // Don't fail the booking update if email fails, but log the error
+      }
+    }
 
     res.json(updatedBooking[0]);
 
@@ -583,7 +617,7 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
 
     // Check if it's a user booking
     const [userBookings] = await db.query(
-      'SELECT booking_id, status FROM bookings WHERE confirmation_code = ?',
+      'SELECT * FROM bookings WHERE confirmation_code = ?',
       [confirmation_code]
     );
 
@@ -599,11 +633,28 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
         ['cancelled', booking.booking_id]
       );
 
-      res.json({ message: 'Booking cancelled successfully' });
+      // Get user information for email
+      const [userInfo] = await db.query(
+        'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
+        [booking.user_id]
+      );
+
+      // Send booking cancellation email
+      if (userInfo.length > 0) {
+        try {
+          await sendBookingCancellationEmail(booking, userInfo[0]);
+          console.log(`Booking cancellation email sent to ${userInfo[0].email}`);
+        } catch (emailError) {
+          console.error('Error sending booking cancellation email:', emailError);
+          // Don't fail the booking cancellation if email fails, but log the error
+        }
+      }
+
+      res.json({ message: 'Booking cancelled successfully. A cancellation email has been sent to your email address.' });
     } else {
       // Check if it's a guest booking
       const [guestBookings] = await db.query(
-        'SELECT booking_id, status FROM guest_bookings WHERE confirmation_code = ?',
+        'SELECT * FROM guest_bookings WHERE confirmation_code = ?',
         [confirmation_code]
       );
 
@@ -622,7 +673,24 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
         ['cancelled', booking.booking_id]
       );
 
-      res.json({ message: 'Booking cancelled successfully' });
+      // Create user object for email (guest bookings don't have user_id)
+      const guestUser = {
+        id: null,
+        email: booking.guest_email,
+        first_name: booking.guest_first_name,
+        last_name: booking.guest_last_name
+      };
+
+      // Send booking cancellation email
+      try {
+        await sendBookingCancellationEmail(booking, guestUser);
+        console.log(`Guest booking cancellation email sent to ${guestUser.email}`);
+      } catch (emailError) {
+        console.error('Error sending guest booking cancellation email:', emailError);
+        // Don't fail the booking cancellation if email fails, but log the error
+      }
+
+      res.json({ message: 'Booking cancelled successfully. A cancellation email has been sent to your email address.' });
     }
 
   } catch (error) {

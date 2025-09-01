@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
 const { authenticateToken } = require('../middleware/auth');
-const { sendNewUserConfirmationEmail, sendPasswordResetEmail } = require('../sevices/email_service');
+const { sendNewUserConfirmationEmail, sendPasswordResetEmail, sendPasswordResetConfirmationEmail } = require('../sevices/email_service');
 const { generatePasswordResetToken } = require('../utils/securityUtils');
 
 
@@ -353,7 +353,16 @@ router.post('/reset-password', async (req, res) => {
       [hashedPassword, user.id]
     );
 
-    res.json({ message: 'Password has been reset successfully' });
+    // Send password reset confirmation email
+    try {
+      await sendPasswordResetConfirmationEmail(user);
+      console.log(`Password reset confirmation email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('Error sending password reset confirmation email:', emailError);
+      // Don't fail the password reset if email fails, but log the error
+    }
+
+    res.json({ message: 'Password has been reset successfully. A confirmation email has been sent to your email address.' });
 
   } catch (error) {
     console.error('Reset password error:', error);
