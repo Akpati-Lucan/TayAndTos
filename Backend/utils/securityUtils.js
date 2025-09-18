@@ -1,11 +1,11 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 /**
  * Generate a cryptographically secure random token
  * @param {number} length - Length of the token (default: 32)
  * @returns {string} - Secure random token
  */
-function generateSecureToken(length = 32) {
+export function generateSecureToken(length = 32) {
   return crypto.randomBytes(length).toString('hex');
 }
 
@@ -13,7 +13,7 @@ function generateSecureToken(length = 32) {
  * Generate a secure password reset token
  * @returns {string} - Secure reset token
  */
-function generatePasswordResetToken() {
+export function generatePasswordResetToken() {
   return generateSecureToken(32);
 }
 
@@ -22,7 +22,7 @@ function generatePasswordResetToken() {
  * @param {string} token - The token to hash
  * @returns {string} - Hashed token
  */
-function hashToken(token) {
+export function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
@@ -32,11 +32,11 @@ function hashToken(token) {
  * @param {string} hashedToken - The hashed token to compare against
  * @returns {boolean} - True if tokens match
  */
-function verifyToken(token, hashedToken) {
+export function verifyToken(token, hashedToken) {
   return hashToken(token) === hashedToken;
 }
 
-module.exports = {
+export default {
   generateSecureToken,
   generatePasswordResetToken,
   hashToken,

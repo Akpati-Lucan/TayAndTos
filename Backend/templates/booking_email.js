@@ -34,5 +34,6 @@ function generateText(booking, user, checkInDate, checkOutDate, duration) {
     `.trim();
   }
   
-  module.exports = { generateText, generateHtml };
+  export { generateText, generateHtml };
+  export default { generateText, generateHtml };
   

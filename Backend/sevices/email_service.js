@@ -1,10 +1,10 @@
-const { sgMail, EMAIL_CONFIG } = require('../config/sendgrid');
-const bookingTemplate = require('../templates/booking_email');
-const newUserTemplate = require('../templates/new_user_email');
-const passwordResetTemplate = require('../templates/password_reset_email');
-const passwordResetConfirmationTemplate = require('../templates/password_reset_confirmation_email');
-const bookingUpdateTemplate = require('../templates/booking_update_email');
-const bookingCancellationTemplate = require('../templates/booking_cancellation_email');
+import { sgMail, EMAIL_CONFIG } from '../config/sendgrid.js';
+import * as bookingTemplate from '../templates/booking_email.js';
+import * as newUserTemplate from '../templates/new_user_email.js';
+import * as passwordResetTemplate from '../templates/password_reset_email.js';
+import * as passwordResetConfirmationTemplate from '../templates/password_reset_confirmation_email.js';
+import * as bookingUpdateTemplate from '../templates/booking_update_email.js';
+import * as bookingCancellationTemplate from '../templates/booking_cancellation_email.js';
 
 async function sendBookingConfirmation(booking, user) {
   const checkInDate = new Date(booking.check_in_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -98,13 +98,26 @@ async function sendBookingCancellationEmail(booking, user) {
   return sgMail.send(msg);
 }
 
-module.exports = { 
+export { 
+  sendBookingConfirmation, 
+  sendNewUserConfirmation,
+  sendPasswordResetEmail,
+  sendPasswordResetConfirmationEmail,
+  sendBookingUpdateConfirmation,
+  sendBookingCancellationEmail
+};
+
+// Aliases for backward compatibility
+export const sendBookingConfirmationEmail = sendBookingConfirmation;
+export const sendNewUserConfirmationEmail = sendNewUserConfirmation;
+
+export default {
   sendBookingConfirmation, 
   sendNewUserConfirmation,
   sendPasswordResetEmail,
   sendPasswordResetConfirmationEmail,
   sendBookingUpdateConfirmation,
   sendBookingCancellationEmail,
-  sendBookingConfirmationEmail: sendBookingConfirmation, // Alias for backward compatibility
-  sendNewUserConfirmationEmail: sendNewUserConfirmation // Alias for backward compatibility
+  sendBookingConfirmationEmail: sendBookingConfirmation,
+  sendNewUserConfirmationEmail: sendNewUserConfirmation
 };

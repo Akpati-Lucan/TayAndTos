@@ -1,4 +1,4 @@
-const sgMail = require('@sendgrid/mail');
+import sgMail from '@sendgrid/mail';
 
 if (!process.env.SENDGRID_API_KEY) {
   throw new Error("SENDGRID_API_KEY not set in environment variables");
@@ -11,4 +11,5 @@ const EMAIL_CONFIG = {
   fromName: 'Tay and Tos Accommodation'
 };
 
-module.exports = { sgMail, EMAIL_CONFIG };
+export { sgMail, EMAIL_CONFIG };
+export default { sgMail, EMAIL_CONFIG };

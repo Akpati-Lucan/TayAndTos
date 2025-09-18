@@ -1,14 +1,16 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const path = require('path');
-const { initializeDatabase, getPool } = require('./db');
-const usersRoutes = require('./routes/users');
-const bookingsRoutes = require('./routes/bookings');
-const guestBookingsRoutes = require('./routes/guest_bookings');
-const emailRoutes = require('./routes/email_routes');
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import path from 'path';
+import { initializeDatabase, getPool } from './db.js';
+import usersRoutes from './routes/users.js';
+import bookingsRoutes from './routes/bookings.js';
+import guestBookingsRoutes from './routes/guest_bookings.js';
+import emailRoutes from './routes/email_routes.js';
 // Guest email routes are now integrated into the main email routes
-require('dotenv').config();
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;

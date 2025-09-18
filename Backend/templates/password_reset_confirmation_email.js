@@ -29,6 +29,6 @@ function generateHtml(user) {
 </html>`;
 }
 
-module.exports = {
+export {
   generatePasswordResetConfirmationEmailContent
 };

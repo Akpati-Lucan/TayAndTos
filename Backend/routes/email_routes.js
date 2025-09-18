@@ -1,7 +1,7 @@
-const express = require('express');
-const path = require('path');
-const { authenticateToken } = require('../middleware/auth');
-const emailController = require('../controllers/email_controller');
+import express from 'express';
+import path from 'path';
+import { authenticateToken } from '../middleware/auth.js';
+import emailController from '../controllers/email_controller.js';
 
 const router = express.Router();
 
@@ -28,4 +28,4 @@ router.get('/preview-password-reset-test', (req, res) => {
 router.post('/resend-new-user-confirmation', emailController.resendNewUserConfirmation);
 router.get('/test-connection', emailController.testConnection);
 
-module.exports = router;
+export default router;

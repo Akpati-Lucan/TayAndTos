@@ -37,6 +37,6 @@ function generateHtml(user, resetToken, resetUrl) {
 </html>`;
 }
 
-module.exports = {
+export {
   generatePasswordResetEmailContent
 };

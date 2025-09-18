@@ -1,8 +1,28 @@
-const mysql = require('mysql2/promise');
-const bcrypt = require('bcrypt');
-require('dotenv').config();
-const fs = require('fs');
-const path = require('path');
+import mysql from 'mysql2/promise';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import sqlite3 from 'sqlite3';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
+
+/* Needed to resolve paths correctly even if you run from another directory */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/* Go two folders up and into Database/tayandtos.db */
+const dbPath = path.resolve(__dirname, '../Database/tayandtos.db');
+
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Could not connect to database', err);
+  } else {
+    console.log(`Connected to SQLite DB at ${dbPath}`);
+  }
+});
 
 let pool;
 
@@ -101,8 +121,9 @@ async function query(sql, params) {
   return pool.query(sql, params);
 }
 
-module.exports = {
+export {
   initializeDatabase,
   getPool,
-  query
+  query,
+  db
 };

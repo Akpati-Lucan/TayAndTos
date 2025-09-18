@@ -1,12 +1,13 @@
-const express = require('express');
+import express from 'express';
+import { getPool, query } from '../db.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import validator from 'validator';
+import { authenticateToken } from '../middleware/auth.js';
+import { sendNewUserConfirmationEmail, sendPasswordResetEmail, sendPasswordResetConfirmationEmail } from '../sevices/email_service.js';
+import { generatePasswordResetToken } from '../utils/securityUtils.js';
+
 const router = express.Router();
-const db = require('../db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
-const { authenticateToken } = require('../middleware/auth');
-const { sendNewUserConfirmationEmail, sendPasswordResetEmail, sendPasswordResetConfirmationEmail } = require('../sevices/email_service');
-const { generatePasswordResetToken } = require('../utils/securityUtils');
 
 
 router.post('/signup', async (req, res) => {
@@ -19,7 +20,7 @@ router.post('/signup', async (req, res) => {
     }
 
     // Check for existing email
-    const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [existingUsers] = await query('SELECT * FROM users WHERE email = ?', [email]);
     if (existingUsers.length > 0) {
       return res.status(400).json({ message: 'Email already exists' });
     }
@@ -28,7 +29,7 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user
-    const [result] = await db.query(
+    const [result] = await query(
       `INSERT INTO users (email, first_name, last_name, phone_number, password_hash, admin) 
        VALUES (?, ?, ?, ?, ?, false)`,
       [email, first_name, last_name, phone_number, hashedPassword]
@@ -82,7 +83,7 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'Email and password are required' });
       }
   
-      const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+      const [users] = await query('SELECT * FROM users WHERE email = ?', [email]);
       const user = users[0];
   
       if (!user) {
@@ -129,7 +130,7 @@ router.get('/', authenticateToken, async (req, res) => {
       }
   
       console.log('Fetching users...');
-      const [users] = await db.query(
+      const [users] = await query(
         `SELECT 
            u.id, u.email, u.first_name, u.last_name, u.phone_number, u.admin,
            (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) AS booking_count
@@ -153,7 +154,7 @@ router.get('/', authenticateToken, async (req, res) => {
 // Fetch current user's profile
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
-    const [users] = await db.query(
+    const [users] = await query(
       `SELECT id, email, first_name, last_name, phone_number, admin 
        FROM users WHERE id = ?`,
       [req.user.userId]
@@ -180,7 +181,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     }
 
     // Check for duplicate email (excluding current user)
-    const [existingUsers] = await db.query(
+    const [existingUsers] = await query(
       'SELECT * FROM users WHERE email = ? AND id != ?',
       [email, req.user.userId]
     );
@@ -188,7 +189,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    const [result] = await db.query(
+    const [result] = await query(
       'UPDATE users SET first_name = ?, last_name = ?, phone_number = ?, email = ? WHERE id = ?',
       [first_name, last_name, phone_number, email, req.user.userId]
     );
@@ -197,7 +198,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const [users] = await db.query(
+    const [users] = await query(
       'SELECT id, email, first_name, last_name, phone_number, admin FROM users WHERE id = ?',
       [req.user.userId]
     );
@@ -227,7 +228,7 @@ router.put('/profile/password', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Password must be strong (e.g., include uppercase, numbers, and symbols)' });
     }
 
-    const [users] = await db.query(
+    const [users] = await query(
       'SELECT password_hash FROM users WHERE id = ?',
       [req.user.userId]
     );
@@ -247,7 +248,7 @@ router.put('/profile/password', authenticateToken, async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db.query(
+    await query(
       'UPDATE users SET password_hash = ? WHERE id = ?',
       [hashedPassword, req.user.userId]
     );
@@ -270,7 +271,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     // Check if user exists
-    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [users] = await query('SELECT * FROM users WHERE email = ?', [email]);
     
     if (users.length === 0) {
       // Don't reveal if email exists or not for security
@@ -284,7 +285,7 @@ router.post('/forgot-password', async (req, res) => {
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     // Store reset token in database
-    await db.query(
+    await query(
       'UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?',
       [resetToken, resetTokenExpiry, user.id]
     );
@@ -299,7 +300,7 @@ router.post('/forgot-password', async (req, res) => {
     } catch (emailError) {
       console.error('Error sending password reset email:', emailError);
       // Clear the token if email fails
-      await db.query(
+      await query(
         'UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
         [user.id]
       );
@@ -333,7 +334,7 @@ router.post('/reset-password', async (req, res) => {
     }
 
     // Find user with valid reset token
-    const [users] = await db.query(
+    const [users] = await query(
       'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
       [token]
     );
@@ -348,7 +349,7 @@ router.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password and clear reset token
-    await db.query(
+    await query(
       'UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
       [hashedPassword, user.id]
     );
@@ -373,7 +374,7 @@ router.post('/reset-password', async (req, res) => {
 // Get current user's bookings
 router.get('/bookings', authenticateToken, async (req, res) => {
   try {
-    const [bookings] = await db.query(`
+    const [bookings] = await query(`
       SELECT 
         booking_id as id, room, check_in_date, check_out_date, number_of_guests, status, special_requests, first_name, last_name, email, phone_number
       FROM bookings 
@@ -417,7 +418,7 @@ router.put('/:userId', authenticateToken, async (req, res) => {
     }
 
     // Check for duplicate email (excluding current user)
-    const [existingUsers] = await db.query(
+    const [existingUsers] = await query(
       'SELECT * FROM users WHERE email = ? AND id != ?',
       [email, userId]
     );
@@ -438,13 +439,13 @@ router.put('/:userId', authenticateToken, async (req, res) => {
     updateQuery += ' WHERE id = ?';
     queryParams.push(userId);
 
-    const [result] = await db.query(updateQuery, queryParams);
+    const [result] = await query(updateQuery, queryParams);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const [users] = await db.query(
+    const [users] = await query(
       'SELECT id, email, first_name, last_name, phone_number, admin FROM users WHERE id = ?',
       [userId]
     );
@@ -472,12 +473,12 @@ router.delete('/:userId', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Admins cannot delete their own account' });
     }
 
-    const [users] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+    const [users] = await query('SELECT * FROM users WHERE id = ?', [userId]);
     if (users.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    await db.query('DELETE FROM users WHERE id = ?', [userId]);
+    await query('DELETE FROM users WHERE id = ?', [userId]);
 
     res.json({ message: 'User deleted successfully' });
 
@@ -500,7 +501,7 @@ router.get('/find-by-email/:email', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Email parameter is required' });
     }
 
-    const [users] = await db.query(
+    const [users] = await query(
       'SELECT id, email, first_name, last_name, phone_number, admin FROM users WHERE email = ?',
       [email]
     );
@@ -520,4 +521,4 @@ router.get('/find-by-email/:email', authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -45,6 +45,6 @@ function generateHtml(booking, user, checkInDate, checkOutDate, duration) {
 </html>`;
 }
 
-module.exports = {
+export {
   generateBookingCancellationEmailContent
 };

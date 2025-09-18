@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import { authenticateToken } from '../middleware/auth.js';
+import { query } from '../db.js'; // assumes you're exporting pool/query from db.js
+import generateConfirmationCode from '../utils/generate_code.js';
+import jwt from 'jsonwebtoken';
+import { sendBookingConfirmationEmail, sendBookingUpdateConfirmation, sendBookingCancellationEmail } from '../sevices/email_service.js';
+
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
-const db = require('../db'); // assumes you're exporting pool/query from db.js
-const generateConfirmationCode = require('../utils/generate_code');
-const jwt = require('jsonwebtoken');
-const { sendBookingConfirmationEmail, sendBookingUpdateConfirmation, sendBookingCancellationEmail } = require('../sevices/email_service');
 
 
 
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
       }
   
       // Check for conflicts in both bookings and guest_bookings tables
-      const [userConflicts] = await db.query(
+      const [userConflicts] = await query(
         `SELECT * FROM bookings 
          WHERE room = ? AND status != 'cancelled'
          AND (
@@ -38,7 +39,7 @@ router.post('/', async (req, res) => {
         [room, check_out_date, check_in_date, check_out_date, check_in_date, check_in_date, check_out_date]
       );
   
-      const [guestConflicts] = await db.query(
+      const [guestConflicts] = await query(
         `SELECT * FROM guest_bookings 
          WHERE room = ? AND status != 'cancelled'
          AND (
@@ -59,7 +60,7 @@ router.post('/', async (req, res) => {
       const confirmation_code = generateConfirmationCode();
   
       // Insert booking
-      const [result] = await db.query(
+      const [result] = await query(
         `INSERT INTO guest_bookings 
          (guest_first_name, guest_last_name, guest_email, guest_phone_number, room, check_in_date, check_out_date, number_of_guests, status, special_requests, confirmation_code) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -69,7 +70,7 @@ router.post('/', async (req, res) => {
         ]
       );
   
-      const [newBooking] = await db.query(
+      const [newBooking] = await query(
         `SELECT * FROM guest_bookings WHERE booking_id = ?`,
         [result.insertId]
       );
@@ -116,7 +117,7 @@ router.post('/', async (req, res) => {
 
       console.log('Finding guest booking and generating token:', { confirmation_code, email });
 
-      const [bookings] = await db.query(
+      const [bookings] = await query(
         'SELECT * FROM guest_bookings WHERE confirmation_code = ? AND guest_email = ?',
         [confirmation_code, email]
       );
@@ -172,7 +173,7 @@ router.post('/', async (req, res) => {
   router.get('/debug/all', async (req, res) => {
     try {
       console.log('Debug: Listing all guest bookings');
-      const [bookings] = await db.query('SELECT booking_id, guest_email, confirmation_code, status FROM guest_bookings');
+      const [bookings] = await query('SELECT booking_id, guest_email, confirmation_code, status FROM guest_bookings');
       console.log('Debug: Found guest bookings:', bookings);
       res.json({ count: bookings.length, bookings });
     } catch (error) {
@@ -206,7 +207,7 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
       console.log('Full JWT payload (guest):', req.user);
 
       // Get the guest booking
-      const [bookings] = await db.query(
+      const [bookings] = await query(
         'SELECT * FROM guest_bookings WHERE booking_id = ?',
         [bookingId]
       );
@@ -248,7 +249,7 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
       }
   
       // Soft delete (update status)
-      await db.query(
+      await query(
         'UPDATE guest_bookings SET status = ? WHERE booking_id = ?',
         ['cancelled', bookingId]
       );
@@ -278,9 +279,6 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router;
-  
-
 // Update a guest booking (admin or guest with confirmation code)
 router.put('/:bookingId', authenticateToken, async (req, res) => {
     try {
@@ -296,7 +294,7 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
       }
   
       // Retrieve booking
-      const [bookings] = await db.query(
+      const [bookings] = await query(
         'SELECT * FROM guest_bookings WHERE booking_id = ?',
         [bookingId]
       );
@@ -381,10 +379,10 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
         bookingId
       ];
   
-      await db.query(updateQuery, queryParams);
+      await query(updateQuery, queryParams);
   
             // Return updated booking
-      const [updated] = await db.query(
+      const [updated] = await query(
         'SELECT * FROM guest_bookings WHERE booking_id = ?',
         [bookingId]
       );
@@ -414,4 +412,4 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
     }
   });
 
-module.exports = router;
+export default router;

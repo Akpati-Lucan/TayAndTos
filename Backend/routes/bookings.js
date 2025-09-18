@@ -1,14 +1,15 @@
-const express = require('express');
+import express from 'express';
+import { authenticateToken } from '../middleware/auth.js';
+import { query } from '../db.js'; // assumes you're exporting pool/query from db.js
+import generateConfirmationCode from '../utils/generate_code.js';
+import { sendBookingConfirmationEmail, sendBookingUpdateConfirmation, sendBookingCancellationEmail } from '../sevices/email_service.js';
+
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
-const db = require('../db'); // assumes you're exporting pool/query from db.js
-const generateConfirmationCode = require('../utils/generate_code');
-const { sendBookingConfirmationEmail, sendBookingUpdateConfirmation, sendBookingCancellationEmail } = require('../sevices/email_service');
 
 // Get all bookings (user + guest)
 router.get('/', async (req, res) => {
   try {
-    const [bookings] = await db.query(`
+    const [bookings] = await query(`
       SELECT 
         CONCAT('user_', b.booking_id) as booking_id, u.first_name, u.last_name, u.email, u.phone_number, b.room, b.check_in_date, 
         b.check_out_date, b.number_of_guests, b.status, b.special_requests, b.confirmation_code,
@@ -38,7 +39,7 @@ router.get('/', async (req, res) => {
 // Debug endpoint to check users in database
 router.get('/debug/users', async (req, res) => {
   try {
-    const [users] = await db.query('SELECT id, email, first_name, last_name FROM users ORDER BY id');
+    const [users] = await query('SELECT id, email, first_name, last_name FROM users ORDER BY id');
     res.json({
       totalUsers: users.length,
       users: users
@@ -58,12 +59,12 @@ router.get('/debug/room-availability/:room', async (req, res) => {
     console.log(`Checking availability for room: ${room}, check_in: ${check_in}, check_out: ${check_out}`);
     
     // Get all bookings for this room
-    const [userBookings] = await db.query(
+    const [userBookings] = await query(
       `SELECT * FROM bookings WHERE room = ? ORDER BY check_in_date`,
       [room]
     );
     
-    const [guestBookings] = await db.query(
+    const [guestBookings] = await query(
       `SELECT * FROM guest_bookings WHERE room = ? ORDER BY check_in_date`,
       [room]
     );
@@ -86,7 +87,7 @@ router.get('/my-bookings', authenticateToken, async (req, res) => {
     console.log('Fetching bookings for user ID:', req.user.userId);
     
     // First, let's check if the user exists
-    const [users] = await db.query('SELECT id, email FROM users WHERE id = ?', [req.user.userId]);
+    const [users] = await query('SELECT id, email FROM users WHERE id = ?', [req.user.userId]);
     if (users.length === 0) {
       console.log('User not found:', req.user.userId);
       return res.status(404).json({ message: 'User not found' });
@@ -94,10 +95,10 @@ router.get('/my-bookings', authenticateToken, async (req, res) => {
     console.log('User found:', users[0]);
     
     // Check total bookings in the database
-    const [totalBookings] = await db.query('SELECT COUNT(*) as total FROM bookings');
+    const [totalBookings] = await query('SELECT COUNT(*) as total FROM bookings');
     console.log('Total bookings in database:', totalBookings[0].total);
     
-    const [bookings] = await db.query(`
+    const [bookings] = await query(`
       SELECT 
         booking_id as id, room, check_in_date, check_out_date, number_of_guests, 
         status, special_requests, confirmation_code, created_at
@@ -127,7 +128,7 @@ router.post('/', async (req, res) => {
 
     // Validate that the user exists
     if (user_id) {
-      const [users] = await db.query('SELECT id, email FROM users WHERE id = ?', [user_id]);
+      const [users] = await query('SELECT id, email FROM users WHERE id = ?', [user_id]);
       if (users.length === 0) {
         console.log('User not found in database:', user_id);
         return res.status(400).json({ 
@@ -147,7 +148,7 @@ router.post('/', async (req, res) => {
     }
 
     // Check for conflicts in both bookings and guest_bookings tables
-    const [userConflicts] = await db.query(
+    const [userConflicts] = await query(
       `SELECT * FROM bookings 
        WHERE room = ? AND status != 'cancelled'
        AND (
@@ -158,7 +159,7 @@ router.post('/', async (req, res) => {
       [room, check_out_date, check_in_date, check_out_date, check_in_date, check_in_date, check_out_date]
     );
 
-    const [guestConflicts] = await db.query(
+    const [guestConflicts] = await query(
       `SELECT * FROM guest_bookings 
        WHERE room = ? AND status != 'cancelled'
        AND (
@@ -179,7 +180,7 @@ router.post('/', async (req, res) => {
     const confirmation_code = generateConfirmationCode();
 
     // Insert booking
-    const [result] = await db.query(
+    const [result] = await query(
       `INSERT INTO bookings 
        (user_id, room, check_in_date, check_out_date, number_of_guests, status, special_requests, confirmation_code) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -187,7 +188,7 @@ router.post('/', async (req, res) => {
     );
 
     // Fetch and return created booking
-    const [newBooking] = await db.query(
+    const [newBooking] = await query(
       `SELECT * FROM bookings WHERE booking_id = ?`,
       [result.insertId]
     );
@@ -195,7 +196,7 @@ router.post('/', async (req, res) => {
     // Send confirmation email
     try {
       // Get user details for the email
-      const [userDetails] = await db.query(
+      const [userDetails] = await query(
         'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
         [user_id]
       );
@@ -248,7 +249,7 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
     console.log('Full JWT payload:', req.user);
 
     // Retrieve the booking
-    const [bookings] = await db.query(
+    const [bookings] = await query(
       'SELECT * FROM bookings WHERE booking_id = ?',
       [bookingId]
     );
@@ -273,13 +274,13 @@ router.delete('/:bookingId', authenticateToken, async (req, res) => {
     }
 
     // Soft delete: update status to 'cancelled'
-    await db.query(
+    await query(
       'UPDATE bookings SET status = ? WHERE booking_id = ?',
       ['cancelled', bookingId]
     );
 
     // Get user information for email
-    const [userInfo] = await db.query(
+    const [userInfo] = await query(
       'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
       [booking.user_id]
     );
@@ -320,7 +321,7 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
     }
 
     // Fetch the booking
-    const [result] = await db.query(
+    const [result] = await query(
       'SELECT * FROM bookings WHERE booking_id = ?',
       [bookingId]
     );
@@ -361,7 +362,7 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
     }
 
     // Update booking
-    await db.query(
+    await query(
       `UPDATE bookings 
        SET room = ?, check_in_date = ?, check_out_date = ?, number_of_guests = ?, status = ?, special_requests = ? 
        WHERE booking_id = ?`,
@@ -377,13 +378,13 @@ router.put('/:bookingId', authenticateToken, async (req, res) => {
     );
 
     // Return updated booking
-    const [updatedBooking] = await db.query(
+    const [updatedBooking] = await query(
       'SELECT * FROM bookings WHERE booking_id = ?',
       [bookingId]
     );
 
     // Get user information for email
-    const [userInfo] = await db.query(
+    const [userInfo] = await query(
       'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
       [booking.user_id]
     );
@@ -422,7 +423,7 @@ router.post('/find', async (req, res) => {
     console.log('Searching for booking with confirmation code:', confirmation_code, 'and email:', email);
 
     // Search in user bookings first
-    const [userBookings] = await db.query(`
+    const [userBookings] = await query(`
       SELECT 
         b.booking_id, b.room, b.check_in_date, b.check_out_date, b.number_of_guests, 
         b.status, b.special_requests, b.confirmation_code, b.created_at,
@@ -434,7 +435,7 @@ router.post('/find', async (req, res) => {
     `, [confirmation_code, email]);
 
     // Search in guest bookings
-    const [guestBookings] = await db.query(`
+    const [guestBookings] = await query(`
       SELECT 
         booking_id, room, check_in_date, check_out_date, number_of_guests, 
         status, special_requests, confirmation_code, created_at,
@@ -481,7 +482,7 @@ router.put('/update-by-confirmation', async (req, res) => {
     console.log('Updating booking with confirmation code:', confirmation_code);
 
     // --- Try updating a user booking first ---
-    const [userBookings] = await db.query(
+    const [userBookings] = await query(
       'SELECT booking_id, user_id FROM bookings WHERE confirmation_code = ?',
       [confirmation_code]
     );
@@ -494,7 +495,7 @@ router.put('/update-by-confirmation', async (req, res) => {
       }
 
       if (room && check_in_date && check_out_date) {
-        const [conflicts] = await db.query(
+        const [conflicts] = await query(
           `SELECT * FROM bookings 
            WHERE room = ? AND booking_id != ? AND status != 'cancelled'
            AND (check_in_date < ? AND check_out_date > ?)`,
@@ -506,7 +507,7 @@ router.put('/update-by-confirmation', async (req, res) => {
         }
       }
 
-      await db.query(
+      await query(
         `UPDATE bookings 
          SET room = ?, 
              check_in_date = ?, 
@@ -524,7 +525,7 @@ router.put('/update-by-confirmation', async (req, res) => {
         ]
       );
 
-      const [updated] = await db.query(`
+      const [updated] = await query(`
         SELECT 
           b.booking_id, b.room, b.check_in_date, b.check_out_date, b.number_of_guests, 
           b.status, b.special_requests, b.confirmation_code, b.created_at,
@@ -539,7 +540,7 @@ router.put('/update-by-confirmation', async (req, res) => {
     }
 
     // --- Try guest booking if no user booking matched ---
-    const [guestBookings] = await db.query(
+    const [guestBookings] = await query(
       'SELECT booking_id FROM guest_bookings WHERE confirmation_code = ?',
       [confirmation_code]
     );
@@ -555,7 +556,7 @@ router.put('/update-by-confirmation', async (req, res) => {
     }
 
     if (room && check_in_date && check_out_date) {
-      const [conflicts] = await db.query(
+      const [conflicts] = await query(
         `SELECT * FROM guest_bookings 
          WHERE room = ? AND booking_id != ? AND status != 'cancelled'
          AND (check_in_date < ? AND check_out_date > ?)`,
@@ -567,7 +568,7 @@ router.put('/update-by-confirmation', async (req, res) => {
       }
     }
 
-    await db.query(
+    await query(
       `UPDATE guest_bookings 
        SET room = ?, 
            check_in_date = ?, 
@@ -585,7 +586,7 @@ router.put('/update-by-confirmation', async (req, res) => {
       ]
     );
 
-    const [updated] = await db.query(`
+    const [updated] = await query(`
       SELECT 
         booking_id, room, check_in_date, check_out_date, number_of_guests, 
         status, special_requests, confirmation_code, created_at,
@@ -616,7 +617,7 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
     console.log('Cancelling booking with confirmation code:', confirmation_code);
 
     // Check if it's a user booking
-    const [userBookings] = await db.query(
+    const [userBookings] = await query(
       'SELECT * FROM bookings WHERE confirmation_code = ?',
       [confirmation_code]
     );
@@ -628,13 +629,13 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
         return res.status(400).json({ message: 'Booking is already cancelled' });
       }
 
-      await db.query(
+      await query(
         'UPDATE bookings SET status = ? WHERE booking_id = ?',
         ['cancelled', booking.booking_id]
       );
 
       // Get user information for email
-      const [userInfo] = await db.query(
+      const [userInfo] = await query(
         'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
         [booking.user_id]
       );
@@ -653,7 +654,7 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
       res.json({ message: 'Booking cancelled successfully. A cancellation email has been sent to your email address.' });
     } else {
       // Check if it's a guest booking
-      const [guestBookings] = await db.query(
+      const [guestBookings] = await query(
         'SELECT * FROM guest_bookings WHERE confirmation_code = ?',
         [confirmation_code]
       );
@@ -668,7 +669,7 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
         return res.status(400).json({ message: 'Booking is already cancelled' });
       }
 
-      await db.query(
+      await query(
         'UPDATE guest_bookings SET status = ? WHERE booking_id = ?',
         ['cancelled', booking.booking_id]
       );
@@ -699,4 +700,4 @@ router.delete('/cancel-by-confirmation', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

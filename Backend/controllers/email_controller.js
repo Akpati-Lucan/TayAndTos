@@ -1,8 +1,8 @@
-const { sendBookingConfirmation, sendNewUserConfirmation } = require('../sevices/email_service');
-const bookingTemplate = require('../templates/booking_email');
-const passwordResetTemplate = require('../templates/password_reset_email');
+import { sendBookingConfirmation, sendNewUserConfirmation } from '../sevices/email_service.js';
+import * as bookingTemplate from '../templates/booking_email.js';
+import * as passwordResetTemplate from '../templates/password_reset_email.js';
 
-exports.sendBooking = async (req, res) => {
+export const sendBooking = async (req, res) => {
   try {
     const { booking, user } = req.body;
     if (!booking || !user) {
@@ -17,7 +17,7 @@ exports.sendBooking = async (req, res) => {
   }
 };
 
-exports.sendGuestBooking = async (req, res) => {
+export const sendGuestBooking = async (req, res) => {
     try {
       const { booking, user } = req.body;
       if (!booking || !user) {
@@ -36,7 +36,7 @@ exports.sendGuestBooking = async (req, res) => {
   };
   
 
-exports.sendNewUser = async (req, res) => {
+export const sendNewUser = async (req, res) => {
   try {
     const { user } = req.body;
     if (!user || !user.email) {
@@ -52,7 +52,7 @@ exports.sendNewUser = async (req, res) => {
 };
 
 // Public endpoint to resend new user confirmation email
-exports.resendNewUserConfirmation = async (req, res) => {
+export const resendNewUserConfirmation = async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -94,7 +94,7 @@ exports.resendNewUserConfirmation = async (req, res) => {
 };
 
 // Test email connection endpoint
-exports.testConnection = async (req, res) => {
+export const testConnection = async (req, res) => {
   try {
     // Test SendGrid connection by sending a test email
     const testMsg = {
@@ -123,7 +123,7 @@ exports.testConnection = async (req, res) => {
 };
 
 
-exports.sendTestEmail = async (req, res) => {
+export const sendTestEmail = async (req, res) => {
     try {
       const testBooking = { confirmation_code: 'TEST123', room: 'Master Bedroom', check_in_date: '2024-01-15', check_out_date: '2024-01-17', number_of_guests: 2, status: 'confirmed', special_requests: 'Early check-in' };
       const testUser = { email: 'akpatilucan@gmail.com', first_name: 'John', last_name: 'Doe' };
@@ -136,7 +136,7 @@ exports.sendTestEmail = async (req, res) => {
     }
   };
 
-exports.previewBookingEmail = (req, res) => {
+export const previewBookingEmail = (req, res) => {
   try {
     const { booking, user } = req.body;
 
@@ -164,7 +164,7 @@ exports.previewBookingEmail = (req, res) => {
   }
 };
 
-exports.previewPasswordResetEmail = (req, res) => {
+export const previewPasswordResetEmail = (req, res) => {
   try {
     const { user, resetToken, resetUrl } = req.body;
 
@@ -182,4 +182,15 @@ exports.previewPasswordResetEmail = (req, res) => {
     console.error('Error generating password reset email preview:', err);
     res.status(500).send('<h2>Failed to generate password reset email preview</h2>');
   }
+};
+
+export default {
+  sendBooking,
+  sendGuestBooking,
+  sendNewUser,
+  resendNewUserConfirmation,
+  testConnection,
+  sendTestEmail,
+  previewBookingEmail,
+  previewPasswordResetEmail
 };
