@@ -69,6 +69,56 @@ async function initializeDatabase() {
 }
 
 /**
+ * Restart the database
+ * Drops existing database and re-runs setup.sql
+ */
+async function restartDatabase() {
+  try {
+    console.log('Restarting database...');
+
+    // Connect to MySQL server (no DB selected yet)
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      multipleStatements: true
+    });
+
+    // Drop the database if it exists
+    await connection.query(`DROP DATABASE IF EXISTS \`tay-tos-db\`;`);
+    console.log(' Existing database dropped.');
+
+    // Run setup.sql to recreate database and tables
+    const setupSQL = fs.readFileSync(path.join(__dirname, 'setup.sql'), 'utf-8');
+    await connection.query(setupSQL);
+    console.log(' Database and tables recreated.');
+
+    await connection.end();
+
+    // Re-initialize pool
+    pool = mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: 'tay-tos-db',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+
+    // Recreate admin user
+    const pooledConn = await pool.getConnection();
+    await createAdminUser(pooledConn);
+    pooledConn.release();
+
+    console.log(' Database restart complete!');
+  } catch (err) {
+    console.error('Error restarting database:', err);
+    throw err;
+  }
+}
+
+/**
  * Create admin user if it doesn't exist
  */
 async function createAdminUser(connection) {
@@ -123,6 +173,7 @@ async function query(sql, params) {
 
 export {
   initializeDatabase,
+  restartDatabase,
   getPool,
   query,
   db

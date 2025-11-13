@@ -7,7 +7,7 @@ function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <h3>Contact Us</h3>
-          <p>Email: divinetay-toscorporations@gmail.com</p>
+          <p>Email: support@tayandtoscorporations.com</p>
           <p>Phone: +234 814 074 9365</p>
           <p>Phone: +234 803 843 6811</p>
           <p>Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/ AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA</p>

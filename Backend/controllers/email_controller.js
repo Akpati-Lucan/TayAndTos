@@ -126,7 +126,7 @@ export const testConnection = async (req, res) => {
 export const sendTestEmail = async (req, res) => {
     try {
       const testBooking = { confirmation_code: 'TEST123', room: 'Master Bedroom', check_in_date: '2024-01-15', check_out_date: '2024-01-17', number_of_guests: 2, status: 'confirmed', special_requests: 'Early check-in' };
-      const testUser = { email: 'akpatilucan@gmail.com', first_name: 'John', last_name: 'Doe' };
+      const testUser = { email: 'tayandtoscorporations.com', first_name: 'John', last_name: 'Doe' };
   
       await sendBookingConfirmation(testBooking, testUser);
       res.json({ success: true, message: 'Test email sent successfully' });

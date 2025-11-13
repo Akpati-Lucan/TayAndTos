@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
+import { restartDatabase } from './db.js';
 import { initializeDatabase, getPool } from './db.js';
 import usersRoutes from './routes/users.js';
 import bookingsRoutes from './routes/bookings.js';
@@ -94,6 +95,7 @@ async function startServer() {
     }
 }
 
+// await restartDatabase();
 startServer();
 
 // Handle graceful shutdown

@@ -11,6 +11,12 @@ function generateText(booking, user, checkInDate, checkOutDate, duration) {
   
   We look forward to hosting you!
   The Tay and Tos Team
+  ------------------------------
+  Contact Us:
+  Email: support@tayandtoscorporations.com
+  Phone: +234 814 074 9365
+  Phone: +234 803 843 6811
+  Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA
     `.trim();
   }
   
@@ -28,7 +34,17 @@ function generateText(booking, user, checkInDate, checkOutDate, duration) {
         <li>Check-out: ${checkOutDate}</li>
         <li>Guests: ${booking.number_of_guests}</li>
       </ul>
-      <p>Thanks,<br>The Tay and Tos Team</p>
+       <p>We look forward to hosting you!</p>
+    <p>Thanks,<br>The Tay and Tos Team</p>
+
+    <hr>
+    <div>
+      <h3>Contact Us</h3>
+      <p>Email: <a href="mailto:support@tayandtoscorporations.com">support@tayandtoscorporations.com</a></p>
+      <p>Phone: +234 814 074 9365</p>
+      <p>Phone: +234 803 843 6811</p>
+      <p>Address: NO. 5, UNITY QUARTERS, FEDERAL PRISON AREA, OFF ARE/AFAO ROAD, ADO-EKITI, EKITI STATE, NIGERIA</p>
+    </div>
     </body>
   </html>
     `.trim();

@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   special_requests TEXT,
   confirmation_code VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS guest_bookings (
