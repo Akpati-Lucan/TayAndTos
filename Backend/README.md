@@ -63,13 +63,13 @@ Backend/
    npm start
    ```
 
-The server will start on `http://localhost:8080`
+The server will start on `/api`
 
 ## 📚 API Documentation
 
 ### Base URL
 ```
-http://localhost:8080
+/api
 ```
 
 ### Authentication

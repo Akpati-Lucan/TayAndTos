@@ -66,7 +66,7 @@ function Signup_Page() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/users/signup', {
+            const response = await axios.post('/api/users/signup', {
                 first_name: formData.firstName,
                 last_name: formData.lastName,
                 email: formData.email,

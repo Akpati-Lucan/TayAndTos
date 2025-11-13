@@ -555,7 +555,7 @@ GET /health
 
 **User Registration:**
 ```bash
-curl -X POST http://localhost:8080/users/signup \
+curl -X POST /api/users/signup \
   -H "Content-Type: application/json" \
   -d '{
     "first_name": "John",
@@ -568,7 +568,7 @@ curl -X POST http://localhost:8080/users/signup \
 
 **Create Booking:**
 ```bash
-curl -X POST http://localhost:8080/bookings \
+curl -X POST /api/bookings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
@@ -581,7 +581,7 @@ curl -X POST http://localhost:8080/bookings \
 
 **Find Guest Booking:**
 ```bash
-curl -X GET http://localhost:8080/guest_bookings/ABC123
+curl -X GET /api/guest_bookings/ABC123
 ```
 
 ## 🔧 Development Notes

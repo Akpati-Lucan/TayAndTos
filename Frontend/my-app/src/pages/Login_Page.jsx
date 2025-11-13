@@ -37,7 +37,7 @@ function Login_Page() {
         setSuccess('');
 
         try {
-            const response = await axios.post('http://localhost:8080/users/login', {
+            const response = await axios.post('/api/users/login', {
                 email: formData.email,
                 password: formData.password
             });
@@ -75,7 +75,7 @@ function Login_Page() {
         setSuccess('');
 
         try {
-            const response = await axios.post('http://localhost:8080/email/resend-new-user-confirmation', {
+            const response = await axios.post('/api/email/resend-new-user-confirmation', {
                 email: confirmationEmail
             });
 

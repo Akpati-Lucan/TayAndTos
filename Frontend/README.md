@@ -53,7 +53,7 @@ npm install
 ### Environment Setup
 Create a `.env` file in the `Frontend/my-app` directory:
 ```env
-REACT_APP_BACKEND_URL=http://localhost:8080
+REACT_APP_BACKEND_URL=/api
 REACT_APP_ENVIRONMENT=development
 ```
 

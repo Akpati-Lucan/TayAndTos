@@ -258,7 +258,7 @@ const sendGridConfig = {
 ```javascript
 // Email template configuration
 const emailTemplateConfig = {
-  baseUrl: process.env.BASE_URL || 'http://localhost:8080',
+  baseUrl: process.env.BASE_URL || '/api',
   companyName: 'TayAndTos',
   supportEmail: process.env.SUPPORT_EMAIL || 'support@tayandtos.com',
   logoUrl: process.env.LOGO_URL || 'https://tayandtos.com/logo.png'

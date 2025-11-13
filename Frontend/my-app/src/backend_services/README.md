@@ -32,7 +32,7 @@ Centralizes configuration constants and API settings.
 ### Implementation
 ```javascript
 // Backend API configuration
-export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
+export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '/api';
 
 // Axios instance configuration
 export const axiosInstance = axios.create({
@@ -47,7 +47,7 @@ export const axiosInstance = axios.create({
 ### Environment Variables
 ```env
 # Backend API URL
-REACT_APP_BACKEND_URL=http://localhost:8080
+REACT_APP_BACKEND_URL=/api
 
 # API Timeout (in milliseconds)
 REACT_APP_API_TIMEOUT=10000
