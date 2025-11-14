@@ -16,8 +16,20 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://tayandtoscorporations.com'
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(bodyParser.json());
@@ -86,9 +98,10 @@ async function startServer() {
             res.status(500).json({ error: 'Something went wrong!', details: err.message });
         });
 
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`Server running on port ${PORT}`);
         });
+
     } catch (error) {
         console.error('Failed to start server:', error);
         process.exit(1);
