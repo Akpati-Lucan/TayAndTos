@@ -54,7 +54,7 @@ async function startServer() {
         // Guest email routes are now handled by /email/send-guest-booking-confirmation
 
         // Health check endpoint
-        app.get('/health', (req, res) => {
+        app.get('/api/health', (req, res) => {
             res.status(200).json({ status: 'OK' });
         });
 
