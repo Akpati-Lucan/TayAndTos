@@ -208,7 +208,9 @@ function Manage_Bookings() {
     }
     
     // Check for duplicate keys
-    const keys = bookings.map((b, index) => `${b.booking_id}-${b.type}-${index}`);
+    const keys = Array.isArray(bookings)
+  ? bookings.map((b, index) => `${b.booking_id}-${b.type}-${index}`)
+  : [];
     const uniqueKeys = [...new Set(keys)];
     if (keys.length !== uniqueKeys.length) {
       console.warn('Duplicate keys found:', keys);
