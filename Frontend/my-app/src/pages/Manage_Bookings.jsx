@@ -200,7 +200,7 @@ function Manage_Bookings() {
     console.log('Bookings state updated:', bookings);
     
     // Check for duplicate booking IDs
-    const bookingIds = bookings.map(b => b.booking_id);
+    const bookingIds = Array.isArray(bookings) ? bookings.map(b => b.booking_id) : [];
     const uniqueIds = [...new Set(bookingIds)];
     if (bookingIds.length !== uniqueIds.length) {
       console.warn('Duplicate booking IDs found:', bookingIds);
