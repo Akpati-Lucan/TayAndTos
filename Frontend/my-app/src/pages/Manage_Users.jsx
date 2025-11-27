@@ -117,7 +117,8 @@ function Manage_Users() {
   };
 
   // Filter and sort users
-  const filteredAndSortedUsers = users
+  const filteredAndSortedUsers = Array.isArray(users) 
+  ? users
     .filter(user => {
       const matchesSearch = searchTerm === '' || 
         user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -157,7 +158,7 @@ function Manage_Users() {
       } else {
         return bValue.localeCompare(aValue);
       }
-    });
+    }) : [];
 
   const handleEditSave = async (userId) => {
     try {
