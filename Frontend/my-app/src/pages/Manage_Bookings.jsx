@@ -70,7 +70,8 @@ function Manage_Bookings() {
   };
 
   // Filter and sort bookings
-  const filteredAndSortedBookings = bookings
+  const filteredAndSortedBookings = Array.isArray(bookings) 
+  ? bookings
     .filter(booking => {
       const guestName = formatGuestName(booking);
       const matchesSearch = searchTerm === '' || 
@@ -130,7 +131,7 @@ function Manage_Bookings() {
           return bValue.localeCompare(aValue);
         }
       }
-    });
+    }) : [];
 
   useEffect(() => {
     const loadUser = async () => {
