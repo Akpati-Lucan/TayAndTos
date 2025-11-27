@@ -725,7 +725,7 @@ The services handle various types of errors:
   error: 'Error message',
   status: 400,
   timestamp: '2024-01-15T10:30:00.000Z',
-  path: '/api/endpoint',
+  path: '/endpoint',
   method: 'POST',
   details: 'Additional error details'
 }

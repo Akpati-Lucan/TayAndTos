@@ -264,10 +264,10 @@ Use the email preview endpoints for manual testing:
 
 ```bash
 # Test booking email preview
-curl /api/email/preview/booking
+curl /email/preview/booking
 
 # Test new user email preview
-curl /api/email/preview/new-user
+curl /email/preview/new-user
 ```
 
 ## 📝 Adding New Controllers
