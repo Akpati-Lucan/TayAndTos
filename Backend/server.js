@@ -51,7 +51,6 @@ async function startServer() {
         app.use('/api/bookings', bookingsRoutes);
         app.use('/api/guest_bookings', guestBookingsRoutes);
         app.use('/api/email', emailRoutes);
-        // Guest email routes are now handled by /email/send-guest-booking-confirmation
 
         // Health check endpoint
         app.get('/api/health', (req, res) => {
