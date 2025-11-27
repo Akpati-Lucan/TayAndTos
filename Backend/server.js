@@ -47,13 +47,13 @@ async function startServer() {
         console.log('Database pool initialized');
 
         // Mount routes
-        app.use('/api/users', usersRoutes);
-        app.use('/api/bookings', bookingsRoutes);
-        app.use('/api/guest_bookings', guestBookingsRoutes);
-        app.use('/api/email', emailRoutes);
-
+        app.use('/users', usersRoutes);
+        app.use('/bookings', bookingsRoutes);
+        app.use('/guest_bookings', guestBookingsRoutes);
+        app.use('/email', emailRoutes);
+        // Guest email routes are now handled by /email/send-guest-booking-confirmation
         // Health check endpoint
-        app.get('/api/health', (req, res) => {
+        app.get('/health', (req, res) => {
             res.status(200).json({ status: 'OK' });
         });
 

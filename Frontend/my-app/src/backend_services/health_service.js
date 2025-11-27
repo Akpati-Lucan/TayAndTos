@@ -10,7 +10,7 @@ class HealthService {
 
   async check() {
     try {
-      const res = await axiosInstance.get('/api/health');
+      const res = await axiosInstance.get('/health');
       this.isAvailable = res.status === 200;
       this.lastCheck = new Date();
       return this.isAvailable;
