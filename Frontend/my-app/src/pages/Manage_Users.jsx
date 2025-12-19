@@ -53,6 +53,7 @@ function Manage_Users() {
       setLoading(true);
       setError(null);
       const response = await backendService.makeAuthenticatedGet('/users');
+      console.log('Users response:', response);
       setUsers(response);
       setSuccess('Users loaded successfully');
     } catch (err) {
