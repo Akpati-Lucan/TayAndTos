@@ -291,7 +291,7 @@ router.post('/forgot-password', async (req, res) => {
     );
 
     // Generate reset URL
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://tayandtoscorporations.com'}/reset-password?token=${resetToken}`;
 
     try {
       // Send password reset email
