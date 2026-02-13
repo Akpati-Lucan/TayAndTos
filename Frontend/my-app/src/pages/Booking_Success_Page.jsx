@@ -18,6 +18,9 @@ function Booking_Success_Page() {
         <div className="success-message">
           <h2>Booking Confirmed!</h2>
           <p>Your booking has been confirmed you will recieve an email confirmation soon</p>
+          <p>Call the numbers on your screen to make payment</p>
+          <p>Phone: +234 814 074 9365</p>
+          <p>Phone: +234 803 843 6811</p>
           {confirmationCode && (
             <div className="confirmation-code-section">
               <p><strong>Here is your confirmation code:</strong></p>
