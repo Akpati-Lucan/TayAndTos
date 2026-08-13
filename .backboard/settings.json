@@ -46,7 +46,11 @@
 			"write(C:\\Users\\KOFI\\Desktop\\TayAndTos\\_write_readme.js)",
 			"execute(node _gen_readme.js:*)",
 			"execute(del _gen_readme.js:*)",
-			"execute(dir _gen_readme.js:*)"
+			"execute(dir _gen_readme.js:*)",
+			"execute(cd Frontend:*)",
+			"execute(cd Database:*)",
+			"execute(cd Frontend\\my-app:*)",
+			"execute(cd Frontend\\my-app\\src:*)"
 		]
 	}
 }

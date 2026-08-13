@@ -1,0 +1,27 @@
+# MySQL Database Connection
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=tayuser
+DB_PASSWORD=Theodore@15
+DB_DATABASE=tay-tos-db
+
+# Server Configuration
+PORT=8080
+
+# JWT Secret (REQUIRED - generate a strong random string)
+JWT_SECRET=your-strong-jwt-secret-here
+
+# SendGrid Configuration (for email sending)
+SENDGRID_API_KEY=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
+FROM_EMAIL=reply@tayandtoscorporations.com
+
+# Admin credentials (used at first startup to seed admin user)
+ADMIN_EMAIL=divinetay-toscorporations@gmail.com
+ADMIN_PASSWORD=your-strong-admin-password
+ADMIN_PHONE=+234 814 074 9365
+
+# Frontend URL (for password reset links)
+# FRONTEND_URL=https://tayandtoscorporations.com
+
+# Local development
+FRONTEND_URL=http://localhost:3000
