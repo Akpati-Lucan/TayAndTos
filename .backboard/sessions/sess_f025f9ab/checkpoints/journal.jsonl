@@ -1,4 +1,0 @@
-{"type":"turn","turnId":"turn_b4497ce5","label":"C:\\Users\\KOFI\\Desktop\\TayAndTos\\README.md","seq":0,"ts":"2026-08-13T22:52:25.835Z"}
-{"type":"pre","turnId":"turn_b4497ce5","toolCallId":"call_525e5571b04d4288a7f5d9ea","tool":"Write","path":"C:\\Users\\KOFI\\Desktop\\TayAndTos\\README.md","existed":true,"hash":"08777873b4f3e78c74edb875f07d668caca7b13a103205f8157e7754c2e29f9b","size":351,"mode":438,"seq":1,"ts":"2026-08-13T22:52:25.844Z"}
-{"type":"pre","turnId":"turn_b4497ce5","toolCallId":"chatcmpl-tool-acb2f8d3a2f7ae38","tool":"Write","path":"C:\\Users\\KOFI\\Desktop\\TayAndTos\\README.md","existed":true,"hash":"08777873b4f3e78c74edb875f07d668caca7b13a103205f8157e7754c2e29f9b","size":351,"mode":438,"seq":2,"ts":"2026-08-13T23:01:36.106Z"}
-{"type":"finalize","turnId":"turn_b4497ce5","status":"cancelled","seq":3,"ts":"2026-08-13T23:07:30.438Z"}

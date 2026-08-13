@@ -1,9 +1,0 @@
-User-agent: *
-Disallow: /login
-Disallow: /signup
-Disallow: /manage-users
-Disallow: /manage-bookings
-Disallow: /profile-page
-Disallow: /forgot-password
-Disallow: /reset-password
-Sitemap: https://tayandtoscorporations.com/sitemap.xml
