@@ -1,0 +1,30 @@
+import jwt from 'jsonwebtoken';
+
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error('FATAL: JWT_SECRET environment variable is not set');
+    throw new Error('JWT_SECRET must be set in environment variables');
+  }
+  return secret;
+}
+
+export function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ message: 'No token provided' });
+
+  try {
+    const jwtSecret = getJwtSecret();
+    const decoded = jwt.verify(token, jwtSecret);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
+}
+
+export default {
+  authenticateToken
+};

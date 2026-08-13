@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset Email Preview Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .preview-section {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #388e3c;
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .sample-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .sample-data h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .sample-data button {
+            background: #6c757d;
+            margin: 5px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .sample-data button:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Password Reset Email Preview Test</h1>
+        
+        <div class="sample-data">
+            <h3>Sample Data</h3>
+            <p>Click any button below to populate the form with sample data:</p>
+            <button onclick="loadSampleData('john')">John Doe</button>
+            <button onclick="loadSampleData('jane')">Jane Smith</button>
+            <button onclick="loadSampleData('admin')">Admin User</button>
+        </div>
+
+        <form id="previewForm">
+            <div class="form-group">
+                <label for="userData">User Data (JSON):</label>
+                <textarea id="userData" placeholder='{"first_name": "John", "last_name": "Doe", "email": "john@example.com"}'></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="resetToken">Reset Token:</label>
+                <input type="text" id="resetToken" placeholder="abc123def456..." />
+            </div>
+            
+            <div class="form-group">
+                <label for="resetUrl">Reset URL:</label>
+                <input type="text" id="resetUrl" placeholder="https://yourdomain.com/reset-password?token=..." />
+            </div>
+            
+            <button type="submit">Preview Email</button>
+            <button type="button" onclick="clearForm()">Clear Form</button>
+        </form>
+
+        <div id="message"></div>
+
+        <div class="preview-section">
+            <h2>Email Preview</h2>
+            <iframe id="previewFrame" class="preview-frame" name="previewFrame"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Sample data sets
+        const sampleData = {
+            john: {
+                user: { first_name: "John", last_name: "Doe", email: "john.doe@example.com" },
+                resetToken: "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+                resetUrl: "http://localhost:3000/reset-password?token=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz"
+            },
+            jane: {
+                user: { first_name: "Jane", last_name: "Smith", email: "jane.smith@example.com" },
+                resetToken: "def456ghi789jkl012mno345pqr678stu901vwx234yzabc123",
+                resetUrl: "http://localhost:3000/reset-password?token=def456ghi789jkl012mno345pqr678stu901vwx234yzabc123"
+            },
+            admin: {
+                user: { first_name: "Admin", last_name: "User", email: "admin@tayandtos.com" },
+                resetToken: "ghi789jkl012mno345pqr678stu901vwx234yzabc123def456",
+                resetUrl: "http://localhost:3000/reset-password?token=ghi789jkl012mno345pqr678stu901vwx234yzabc123def456"
+            }
+        };
+
+        function loadSampleData(type) {
+            const data = sampleData[type];
+            document.getElementById('userData').value = JSON.stringify(data.user, null, 2);
+            document.getElementById('resetToken').value = data.resetToken;
+            document.getElementById('resetUrl').value = data.resetUrl;
+        }
+
+        function clearForm() {
+            document.getElementById('userData').value = '';
+            document.getElementById('resetToken').value = '';
+            document.getElementById('resetUrl').value = '';
+            document.getElementById('message').innerHTML = '';
+            document.getElementById('previewFrame').src = '';
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        document.getElementById('previewForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userData = document.getElementById('userData').value;
+            const resetToken = document.getElementById('resetToken').value;
+            const resetUrl = document.getElementById('resetUrl').value;
+            
+            if (!userData || !resetToken || !resetUrl) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            let user;
+            try {
+                user = JSON.parse(userData);
+            } catch (error) {
+                showMessage('Invalid JSON in user data field', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/email/preview-password-reset-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user,
+                        resetToken,
+                        resetUrl
+                    })
+                });
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    const previewFrame = document.getElementById('previewFrame');
+                    previewFrame.srcdoc = html;
+                    showMessage('Email preview generated successfully!', 'success');
+                } else {
+                    const error = await response.text();
+                    showMessage(`Error: ${error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error: ${error.message}`, 'error');
+            }
+        });
+
+        // Load default sample data
+        loadSampleData('john');
+    </script>
+</body>
+</html>
